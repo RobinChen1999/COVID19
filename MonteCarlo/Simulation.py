@@ -15,6 +15,8 @@ import copy
 from matplotlib.colors import ListedColormap
 from matplotlib import colors as cls
 from matplotlib import ticker
+from PIL import Image
+import glob
 
 ## some plotting parameters
 from matplotlib import rc
@@ -35,7 +37,6 @@ class Simulation:
 		## two running counters to keep measure of things
 		self.stepNow = 0
 		self.customerNow = 0
-
 
 		self.outputLevel = outputLevel # sets the output level: if 1, plots figures (slow). if 0, only customer data output written 
 		self.imageName = imageName
@@ -413,7 +414,7 @@ class Simulation:
 		cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
 		cb.ax.tick_params(labelsize=font_size)
 		plt.axis('off')
-		plt.savefig("simFigure_{}_{:07d}.png".format(self.seed, step))
+		plt.savefig("simFigures/simFigure_{}_{:07d}.png".format(self.seed, step))
 		plt.close()
 		return
 
@@ -437,7 +438,22 @@ class Simulation:
 		return
 		
 
+	def createGif(self):
+		# Create the frames
+		frames = []
+		imgs = glob.glob("simFigures/*.png")
+		for i in imgs:
+			new_frame = Image.open(i)
+			frames.append(new_frame)
 
+		# Save into a GIF file that loops forever
+		frames[0].save('png_to_gif.gif', format='GIF',
+					append_images=frames[1:],
+					save_all=True,
+					duration=len(frames), loop=0)
+		
+		print("GIF created")
+		return
 
 
 	def runSimulation(self):
@@ -515,6 +531,7 @@ class Simulation:
 				self.printEndStatistics()
 				return
 		print("Reached the step limit")
+		self.createGif()
 		self.printEndStatistics()
 		return 
 
