@@ -389,7 +389,7 @@ class Simulation:
 			cmap_name='my_list'
 			cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower left', cmap=cm) 	
+			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower', cmap=cm) 	
 			ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10) 
 			ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))	
 		
