@@ -1,6 +1,6 @@
 import numpy as np
 import igraph as ig
-import Image as im
+from PIL import Image as im
 from Params import *
 
 np.set_printoptions(threshold=100000)
@@ -205,7 +205,7 @@ class Store:
 			self.exit.append(self.getCoordFromIndex(exitInd))
 			i+=CASHIERD
 		## sanity check
-		print "exits at : ", self.exit 
+		print("exits at : ", self.exit)
 		if np.isinf(checkPossiblePath):
 			raise ValueError("no path between store entrance and exit!")
 		self.exit = self.exit[::-1]

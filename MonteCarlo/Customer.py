@@ -62,7 +62,7 @@ class Customer:
 			##check if cough or just constant emission
 			if (sample < self.probSpreadPlume):
 				store.plumes[self.x,self.y] += PLUMECONCINC
-				print "Customer coughed at ({},{})".format(self.x,self.y)
+				print("Customer coughed at ({},{})".format(self.x,self.y))
 			else:
 				store.plumes[self.x,self.y] += PLUMECONCCONT # according to 1 min of emission is same as 6 coughs
 
@@ -172,7 +172,7 @@ class SmartCustomer(Customer):
 
 		## 	
 		if not len(self.path):
-			print self.x, self.y, self.shoppingList, self.headingForExit
+			print(self.x, self.y, self.shoppingList, self.headingForExit)
  
 		step = store.getCoordFromIndex(self.path[0])
 		## check that the step is possible, i.e. no other customer blocking

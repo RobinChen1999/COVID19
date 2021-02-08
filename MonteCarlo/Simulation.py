@@ -8,7 +8,7 @@ from Params import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 from numpy import linspace, meshgrid
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib as mpl
 import copy
@@ -443,7 +443,7 @@ class Simulation:
 	def runSimulation(self):
 		# before starting simulation add first customer to the system
 		approxOutFlux = 1.0/(0.5*(MAXSHOPPINGLIST+1)+1)*NEXITS 
-		print "Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux)
+		print("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))
 		if approxOutFlux<self.probNewCustomer:
 			print('Influx too large, the store will most likely fill with customers')
 
@@ -491,7 +491,7 @@ class Simulation:
 				self.timeSpent[self.customerNow]=ty
 				self.customerInfected[self.customerNow]=ti
 				self.customerNow +=1
-				print stepStr
+				print(stepStr)
 
 			## if discrete plumes, shorten their duration by 1 and check if new customer enters
 			if self.updatePlumes and not self.useDiffusion:
@@ -511,10 +511,10 @@ class Simulation:
 	
 			## end condition
 			if not self.nCustomers and not len(self.customers):
-				print "All customers have visited the store"
+				print("All customers have visited the store")
 				self.printEndStatistics()
 				return
-		print "Reached the step limit"
+		print("Reached the step limit")
 		self.printEndStatistics()
 		return 
 
