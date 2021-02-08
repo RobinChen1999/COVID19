@@ -44,3 +44,11 @@ CMakeSettings.json
 .idea
 cmake-build-debug
 *.pyc
+
+# All generated .dat files
+*.dat
+
+# All png and gif files
+*.png
+*.gif
+
