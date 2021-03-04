@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from Simulation import *
+from tkinter import messagebox
 
 
 class Gui:
@@ -59,23 +60,44 @@ class Gui:
 
         window.mainloop()
 
-    def run_simulation(self, seed, nr_customers, max_steps):
-        print("Running simulation with the following parameters:")
-        print(" Seed: ", seed)
-        print(" Nr. of Customers: ", nr_customers)
-        print(" Max Steps:", max_steps)
+    def validate_input(self, seed, nr_customers, max_steps):
+        try:
+            int_seed = int(seed)
+            int_nr_customers = int(nr_customers)
+            int_max_steps = int(max_steps)
 
-        sim = Simulation(
-            int(seed),
-            101,
-            101,
-            25,
-            int(nr_customers),
-            outputLevel=0,
-            maxSteps=int(max_steps),
-            probInfCustomer=0.01,
-            probNewCustomer=0.2,
-            imageName="ExampleSuperMarket.pbm",
-            useDiffusion=1,
-            dx=1.0)
-        sim.runSimulation()
+            if int_seed <= 0 or int_nr_customers <= 0 or int_max_steps <= 0:
+                raise Exception()
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input!")
+            return False
+        else:
+            return True
+
+    def run_simulation(self, seed, nr_customers, max_steps):
+        input_valid = self.validate_input(
+            seed=seed,
+            nr_customers=nr_customers,
+            max_steps=max_steps
+        )
+
+        if input_valid:
+            print("Running simulation with the following parameters:")
+            print(" Seed: ", seed)
+            print(" Nr. of Customers: ", nr_customers)
+            print(" Max Steps:", max_steps)
+
+            sim = Simulation(
+                int(seed),
+                101,
+                101,
+                25,
+                int(nr_customers),
+                outputLevel=0,
+                maxSteps=int(max_steps),
+                probInfCustomer=0.01,
+                probNewCustomer=0.2,
+                imageName="ExampleSuperMarket.pbm",
+                useDiffusion=1,
+                dx=1.0)
+            sim.runSimulation()
