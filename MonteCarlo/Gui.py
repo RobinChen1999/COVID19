@@ -47,7 +47,7 @@ class Gui:
         # Max Steps
         lbl_max_steps = tk.Label(frm_parameters_input, text="Max Steps:")
         ent_max_steps = tk.Entry(frm_parameters_input, width=20)
-        ent_max_steps.insert(0, 1000)
+        ent_max_steps.insert(0, 500)
         lbl_max_steps.grid(row=2, column=0, sticky="e")
         ent_max_steps.grid(row=2, column=1)
 
@@ -110,7 +110,7 @@ class Gui:
                     imageName="ExampleSuperMarket.pbm",
                     useDiffusion=1,
                     dx=1.0)
-                # sim.runSimulation()
+                sim.runSimulation()
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim).start()
@@ -130,22 +130,17 @@ class Gui:
         lbl_id_layout.pack()
 
         # Output frame
-        frm_parameters = tk.Frame(window, bg="yellow")
+        frm_output = tk.Frame(window, bg="yellow")
 
-        lbl_id_parameters = tk.Label(frm_parameters, text="Output Frame")
+        lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
 
-        self.txt_output = tk.Text(frm_parameters, height=8, width=60)
-        self.txt_output.config(state='disabled')
+        self.txt_output = tk.Text(frm_output, height=10, width=140)
+        self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        btn_run = tk.Button(frm_parameters,
-                            text="Add text",
-                            command=lambda: self.update_output("New line"))
-        btn_run.pack()
-
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        frm_parameters.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        frm_output.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
     def update_output(self, line):
         if self.txt_output == 0:
@@ -162,7 +157,7 @@ class Gui:
             # Update output
             self.txt_output.config(state='normal')
             self.txt_output.insert(tk.END, output_line)
-            self.txt_output.see(tk.END)
+            self.txt_output.see('end -1 lines')
             self.txt_output.config(state='disabled')
 
             self.output_line_nr += 1
