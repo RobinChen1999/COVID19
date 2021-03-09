@@ -126,7 +126,7 @@ class Gui:
                     101,
                     25,
                     int(nr_customers),
-                    outputLevel=0,
+                    outputLevel=1,
                     maxSteps=int(max_steps),
                     probInfCustomer=float(prob_inf),
                     probNewCustomer=float(prob_new),

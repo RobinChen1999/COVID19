@@ -51,4 +51,5 @@ cmake-build-debug
 # All png and gif files
 *.png
 *.gif
+*.mp4
 

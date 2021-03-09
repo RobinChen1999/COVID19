@@ -15,6 +15,9 @@ import copy
 from matplotlib.colors import ListedColormap
 from matplotlib import colors as cls
 from matplotlib import ticker
+import glob
+import cv2
+import os
 
 ## some plotting parameters
 from matplotlib import rc
@@ -419,7 +422,7 @@ class Simulation:
 		cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
 		cb.ax.tick_params(labelsize=font_size)
 		plt.axis('off')
-		plt.savefig("simFigure_{}_{:07d}.png".format(self.seed, step))
+		plt.savefig("simFigures/simFigure_{}_{:07d}.png".format(self.seed, step))
 		plt.close()
 		return
 
@@ -442,8 +445,27 @@ class Simulation:
 		
 		return
 		
+	def generateVideo(self):
+		imageFolder = "simFigures"
+		images = [img for img in os.listdir(imageFolder) if img.endswith(".png")]
 
+		# Determine the width and height from the first image
+		frame = cv2.imread(os.path.join(imageFolder, images[0]))
+		height, width, layers = frame.shape
 
+		# Define the codec and create VideoWriter object
+		fourcc = cv2.VideoWriter_fourcc(*'mp4v') # Be sure to use lower case
+		out = cv2.VideoWriter("video.mp4", fourcc, 20.0, (width, height))
+
+		for image in images:
+
+			path = os.path.join(imageFolder, image)
+			frame = cv2.imread(path)
+
+			out.write(frame) # Write out frame to video
+
+		cv2.destroyAllWindows()
+		return
 
 
 	def runSimulation(self):
@@ -524,6 +546,8 @@ class Simulation:
 				return
 		print("Reached the step limit")
 		self.gui.update_output("Reached the step limit")
+		self.generateVideo()
+		print("Generated video")
 		self.printEndStatistics()
 		return 
 
