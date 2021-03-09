@@ -24,7 +24,11 @@ rc('text', usetex=True)
 
 
 class Simulation:
-	def __init__(self, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
+	def __init__(self, gui, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
+		# Set gui
+		self.gui = gui
+		self.gui.update_output("initializing...")
+
 		## seed for RNG and for saving the simulation
 		self.seed = seed
 		np.random.seed(self.seed) 
@@ -341,6 +345,8 @@ class Simulation:
 	
 		##list of customers in the store
 		self.customers = []
+
+		self.gui.update_output("done")
 
 		
 	## adds a new customer to the store
