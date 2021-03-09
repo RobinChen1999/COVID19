@@ -1,4 +1,5 @@
 import tkinter as tk
+import threading
 
 from Simulation import *
 from tkinter import messagebox
@@ -92,22 +93,28 @@ class Gui:
             self.update_output("Running simulation with the following parameters:")
             self.update_output(" Seed:             " + seed)
             self.update_output(" Nr. of Customers: " + nr_customers)
-            self.update_output(" Max Steps:        " + max_steps)
+            self.update_output(" Max Steps:        " + max_steps + "\n")
 
-            # sim = Simulation(
-            #     int(seed),
-            #     101,
-            #     101,
-            #     25,
-            #     int(nr_customers),
-            #     outputLevel=0,
-            #     maxSteps=int(max_steps),
-            #     probInfCustomer=0.01,
-            #     probNewCustomer=0.2,
-            #     imageName="ExampleSuperMarket.pbm",
-            #     useDiffusion=1,
-            #     dx=1.0)
-            # sim.runSimulation()
+            def run_sim():
+                sim = Simulation(
+                    self,
+                    int(seed),
+                    101,
+                    101,
+                    25,
+                    int(nr_customers),
+                    outputLevel=0,
+                    maxSteps=int(max_steps),
+                    probInfCustomer=0.01,
+                    probNewCustomer=0.2,
+                    imageName="ExampleSuperMarket.pbm",
+                    useDiffusion=1,
+                    dx=1.0)
+                # sim.runSimulation()
+
+            # Start simulation in new thread so GUI doesn't block
+            threading.Thread(target=run_sim).start()
+
 
     # Output
     def draw_output_window(self):
@@ -128,7 +135,7 @@ class Gui:
         lbl_id_parameters = tk.Label(frm_parameters, text="Output Frame")
         lbl_id_parameters.pack()
 
-        self.txt_output = tk.Text(frm_parameters, height=5, width=60)
+        self.txt_output = tk.Text(frm_parameters, height=8, width=60)
         self.txt_output.config(state='disabled')
         self.txt_output.pack()
 
