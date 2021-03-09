@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from Simulation import *
+from StoreLayout import *
 from tkinter import messagebox
 
 
@@ -14,6 +15,9 @@ class Gui:
 
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
+
+        store_layout_canvas = StoreLayout(frm_layout)
+        store_layout_canvas.draw_store_layout()
 
         # Parameters frame
         frm_parameters = tk.Frame(window, bg="yellow")
