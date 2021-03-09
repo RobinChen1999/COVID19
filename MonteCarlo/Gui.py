@@ -55,7 +55,8 @@ class Gui:
                             command=lambda: self.run_simulation(
                                 seed=ent_seed.get(),
                                 nr_customers=ent_nr_customers.get(),
-                                max_steps=ent_max_steps.get()
+                                max_steps=ent_max_steps.get(),
+                                store_canvas=store_layout_canvas
                             ))
         btn_run.pack()
 
@@ -78,7 +79,7 @@ class Gui:
         else:
             return True
 
-    def run_simulation(self, seed, nr_customers, max_steps):
+    def run_simulation(self, seed, nr_customers, max_steps, store_canvas):
         input_valid = self.validate_input(
             seed=seed,
             nr_customers=nr_customers,
@@ -101,7 +102,7 @@ class Gui:
                 maxSteps=int(max_steps),
                 probInfCustomer=0.01,
                 probNewCustomer=0.2,
-                imageName="ExampleSuperMarket.pbm",
+                imageName=store_canvas.saveCanvas(),  #"ExampleSuperMarket.pbm",
                 useDiffusion=1,
                 dx=1.0)
             sim.runSimulation()
