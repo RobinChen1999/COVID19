@@ -1,4 +1,5 @@
 import tkinter as tk
+import threading
 
 from Simulation import *
 from StoreLayout import *
@@ -6,7 +7,12 @@ from tkinter import messagebox
 
 
 class Gui:
-    def draw_main_window(self):
+    def __init__(self):
+        self.txt_output = 0
+        self.output_line_nr = 0
+
+    # Input window
+    def draw_input_window(self):
         window = tk.Tk()
         window.geometry('{}x{}'.format(800, 400))
 
@@ -45,9 +51,23 @@ class Gui:
         # Max Steps
         lbl_max_steps = tk.Label(frm_parameters_input, text="Max Steps:")
         ent_max_steps = tk.Entry(frm_parameters_input, width=20)
-        ent_max_steps.insert(0, 1000)
+        ent_max_steps.insert(0, 500)
         lbl_max_steps.grid(row=2, column=0, sticky="e")
         ent_max_steps.grid(row=2, column=1)
+
+        # Prob. Infected Customer
+        lbl_prob_inf = tk.Label(frm_parameters_input, text="Prob. Infected Customer:")
+        ent_prob_inf = tk.Entry(frm_parameters_input, width=20)
+        ent_prob_inf.insert(0, 0.01)
+        lbl_prob_inf.grid(row=3, column=0, sticky="e")
+        ent_prob_inf.grid(row=3, column=1)
+
+        # Prob. New Customer
+        lbl_prob_new = tk.Label(frm_parameters_input, text="Prob. New Customer:")
+        ent_prob_new = tk.Entry(frm_parameters_input, width=20)
+        ent_prob_new.insert(0, 0.2)
+        lbl_prob_new.grid(row=4, column=0, sticky="e")
+        ent_prob_new.grid(row=4, column=1)
 
         # Run button
         btn_run = tk.Button(frm_parameters,
@@ -56,7 +76,9 @@ class Gui:
                                 seed=ent_seed.get(),
                                 nr_customers=ent_nr_customers.get(),
                                 max_steps=ent_max_steps.get(),
-                                store_canvas=store_layout_canvas
+                                prob_inf=ent_prob_inf.get(),
+                                prob_new=ent_prob_new.get(),
+                                store_layout=store_layout_canvas
                             ))
         btn_run.pack()
 
@@ -65,13 +87,16 @@ class Gui:
 
         window.mainloop()
 
-    def validate_input(self, seed, nr_customers, max_steps):
+    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new):
         try:
             int_seed = int(seed)
             int_nr_customers = int(nr_customers)
             int_max_steps = int(max_steps)
+            int_prob_inf = float(prob_inf)
+            int_prob_new = float(prob_new)
 
-            if int_seed <= 0 or int_nr_customers <= 0 or int_max_steps <= 0:
+            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, int_prob_inf, int_prob_new)) \
+                    or any(x >= 1 for x in (int_prob_inf, int_prob_new)):
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input!")
@@ -79,30 +104,88 @@ class Gui:
         else:
             return True
 
-    def run_simulation(self, seed, nr_customers, max_steps, store_canvas):
+    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout):
         input_valid = self.validate_input(
             seed=seed,
             nr_customers=nr_customers,
-            max_steps=max_steps
+            max_steps=max_steps,
+            prob_inf=prob_inf,
+            prob_new=prob_new
         )
 
         if input_valid:
-            print("Running simulation with the following parameters:")
-            print(" Seed: ", seed)
-            print(" Nr. of Customers: ", nr_customers)
-            print(" Max Steps:", max_steps)
+            self.draw_output_window()
 
-            sim = Simulation(
-                int(seed),
-                101,
-                101,
-                25,
-                int(nr_customers),
-                outputLevel=0,
-                maxSteps=int(max_steps),
-                probInfCustomer=0.01,
-                probNewCustomer=0.2,
-                imageName=store_canvas.saveCanvas(),  #"ExampleSuperMarket.pbm",
-                useDiffusion=1,
-                dx=1.0)
-            sim.runSimulation()
+            self.update_output("Running simulation with the following parameters:")
+            self.update_output(" Seed:                    " + seed)
+            self.update_output(" Nr. of Customers:        " + nr_customers)
+            self.update_output(" Max Steps:               " + max_steps)
+            self.update_output(" Prob. Infected Customer: " + prob_inf)
+            self.update_output(" Prob. New Customer:      " + prob_new)
+
+            def run_sim():
+                sim = Simulation(
+                    self,
+                    int(seed),
+                    101,
+                    101,
+                    25,
+                    int(nr_customers),
+                    outputLevel=0,
+                    maxSteps=int(max_steps),
+                    probInfCustomer=float(prob_inf),
+                    probNewCustomer=float(prob_new),
+                    imageName=store_layout.saveCanvas(),
+                    useDiffusion=1,
+                    dx=1.0)
+                sim.runSimulation()
+
+            # Start simulation in new thread so GUI doesn't block
+            threading.Thread(target=run_sim).start()
+
+
+    # Output
+    def draw_output_window(self):
+        self.output_line_nr = 0
+
+        window = tk.Toplevel()
+        window.geometry('{}x{}'.format(800, 400))
+
+        # Layout frame
+        frm_layout = tk.Frame(window, bg="red")
+
+        lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
+        lbl_id_layout.pack()
+
+        # Output frame
+        frm_output = tk.Frame(window, bg="yellow")
+
+        lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
+        lbl_id_parameters.pack()
+
+        self.txt_output = tk.Text(frm_output, height=10, width=140)
+        self.txt_output.config(wrap='none', state='disabled')
+        self.txt_output.pack()
+
+        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        frm_output.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+
+    def update_output(self, line):
+        if self.txt_output == 0:
+            raise Exception("Output text is undefined")
+        else:
+            # Construct output line
+            output_line = ""
+            if self.txt_output.get("1.0", tk.END) != "\n":
+                output_line += "\n"
+
+            # output_line += str(self.output_line_nr) + ": " + line
+            output_line += " " + line
+
+            # Update output
+            self.txt_output.config(state='normal')
+            self.txt_output.insert(tk.END, output_line)
+            self.txt_output.see('end -1 lines')
+            self.txt_output.config(state='disabled')
+
+            self.output_line_nr += 1
