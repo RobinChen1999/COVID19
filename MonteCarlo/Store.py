@@ -61,7 +61,7 @@ class Store:
 		self.free = np.zeros((self.Lx,self.Ly))	
 		for i in range(0,self.Lx):
 			for j in range(0,self.Ly):
-				if not px[i,j]:
+				if not px[i,j][0]:
 					self.blocked[i,j] = 1
 					self.diffusionCoeff[i,j] = 0
 		self.blockedShelves=np.copy(self.blocked)
