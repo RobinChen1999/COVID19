@@ -456,7 +456,7 @@ class Simulation:
 		frames[0].save('png_to_gif.gif', format='GIF',
 					append_images=frames[1:],
 					save_all=True,
-					duration=len(frames), loop=0)
+					duration=40, loop=0)
 		
 		print("GIF created")
 		return
