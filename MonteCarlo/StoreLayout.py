@@ -32,12 +32,12 @@ class StoreLayout:
 
         # button to show/hide the grid
         self.show_grid = tk.IntVar()
-        btn_grid = tk.Checkbutton(frame,
+        self.btn_grid = tk.Checkbutton(frame,
                                 text="Show Grid", 
                                 variable=self.show_grid, 
                                 onvalue=1, offvalue=0, 
                                 command=self.hide_grid_lines)
-        btn_grid.pack()
+        self.btn_grid.pack()
 
         
         
@@ -83,7 +83,11 @@ class StoreLayout:
     # save the canvas as .png and return its file name
     def saveCanvas(self):
         fileName = "storeMap.png"
-        preMadeLayout = "ExampleSuperMarket.png"
+        preMadeLayout = "ExampleSuperMarket.pbm"
+        
+        # remove grid before saving
+        self.btn_grid.deselect()
+        self.hide_grid_lines()
         
         # create postscript image from canvas
         ps = self.canvas.postscript(colormode="mono", pageheight='101', pagewidth='101')
