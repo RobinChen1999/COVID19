@@ -52,4 +52,5 @@ cmake-build-debug
 *.png
 *.gif
 *.mp4
+*.mkv
 

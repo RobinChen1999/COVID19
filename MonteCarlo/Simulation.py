@@ -454,8 +454,8 @@ class Simulation:
 		height, width, layers = frame.shape
 
 		# Define the codec and create VideoWriter object
-		fourcc = cv2.VideoWriter_fourcc(*'mp4v') # Be sure to use lower case
-		out = cv2.VideoWriter("video.mp4", fourcc, 20.0, (width, height))
+		fourcc = cv2.VideoWriter_fourcc(*'XVID') # Be sure to use lower case
+		out = cv2.VideoWriter("video.mkv", fourcc, 20.0, (width, height))
 
 		for image in images:
 
@@ -466,7 +466,6 @@ class Simulation:
 
 		cv2.destroyAllWindows()
 		return
-
 
 	def runSimulation(self):
 		# before starting simulation add first customer to the system

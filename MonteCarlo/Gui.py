@@ -1,14 +1,18 @@
 import tkinter as tk
 import threading
+import imageio
+import shutil
 
+from tkinter import *
+from PIL import Image, ImageTk
 from Simulation import *
-from tkinter import messagebox
 
 
 class Gui:
     def __init__(self):
         self.txt_output = 0
         self.output_line_nr = 0
+        self.simulating = True
 
     # Input window
     def draw_input_window(self):
@@ -99,7 +103,18 @@ class Gui:
         else:
             return True
 
+    # clear contents of simFigures folder
+    def clear_folder(self):
+        dir = 'simFigures'
+        for f in os.listdir(dir):
+            os.remove(os.path.join(dir, f))
+        # shutil.rmtree('simFigures')
+        # os.makedirs('simFigures')
+
     def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new):
+        # clear the figures of previous simulations
+        self.clear_folder()
+
         input_valid = self.validate_input(
             seed=seed,
             nr_customers=nr_customers,
@@ -109,7 +124,7 @@ class Gui:
         )
 
         if input_valid:
-            self.draw_output_window()
+            label = self.draw_output_window()
 
             self.update_output("Running simulation with the following parameters:")
             self.update_output(" Seed:                    " + seed)
@@ -117,6 +132,15 @@ class Gui:
             self.update_output(" Max Steps:               " + max_steps)
             self.update_output(" Prob. Infected Customer: " + prob_inf)
             self.update_output(" Prob. New Customer:      " + prob_new)
+
+            # Stream video
+            def stream():
+                video = imageio.get_reader("video.mkv")
+                for image in video.iter_data():
+                    image_frame = Image.fromarray(image)          
+                    frame_image = ImageTk.PhotoImage(image_frame)
+                    label.config(image=frame_image)
+                    label.image = frame_image
 
             def run_sim():
                 sim = Simulation(
@@ -134,10 +158,35 @@ class Gui:
                     useDiffusion=1,
                     dx=1.0)
                 sim.runSimulation()
+                self.simulating = False
+            
+            # load the already simulated figures
+            def load_figures():
+                while self.simulating:
+                    # when simFigures not empty
+                    if os.listdir('simFigures'):
+                        figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
+                        latest_figure = max(figureList, key=os.path.getctime)  
+                        print(latest_figure)
+                        # fig = os.path.split(latest_figure)       
+                        # frame_image = ImageTk.PhotoImage('simFigures/' + fig[1])
+                        frm_img = ImageTk.PhotoImage(latest_figure)
+                        label.config(image=frm_img)
+                        label.image = frm_img
+                stream()
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim).start()
+            t = threading.Thread(target=load_figures)
+            t.setDaemon(True)
+            t.start()
+            # t.root.quit()
 
+    #updates simulation frame
+    def update_figure(self, label, id, step):
+        img = ImageTk.PhotoImage(Image.open('simFigures/simFigure_%d_%07d.png'%(id, step)))
+        label.configure(image=img)
+        label.image = img
 
     # Output
     def draw_output_window(self):
@@ -146,11 +195,13 @@ class Gui:
         window = tk.Toplevel()
         window.geometry('{}x{}'.format(800, 400))
 
-        # Layout frame
-        frm_layout = tk.Frame(window, bg="red")
+        # Simulation frame
+        frm_sim = tk.Frame(window, bg="red")
 
-        lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
-        lbl_id_layout.pack()
+        lbl_id_sim = tk.Label(frm_sim, text="Simulation Frame")
+        lbl_id_sim.pack()
+        btn_frame = tk.Button(frm_sim, text="Show simulation frame", command=lambda: self.update_figure(lbl_id_sim, 888892, 1))
+        btn_frame.pack()
 
         # Output frame
         frm_output = tk.Frame(window, bg="yellow")
@@ -162,8 +213,10 @@ class Gui:
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+
+        return lbl_id_sim
 
     def update_output(self, line):
         if self.txt_output == 0:
