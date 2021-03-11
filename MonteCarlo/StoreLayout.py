@@ -91,8 +91,10 @@ class StoreLayout:
         
         # create postscript image from canvas
         ps = self.canvas.postscript(colormode="mono", pageheight='101', pagewidth='101')
-        # grab postscript from IO and save as .png
-        Image.open(io.BytesIO(ps.encode('utf-8'))).save(fileName)
+        # grab postscript from IO and 
+        img = Image.open(io.BytesIO(ps.encode('utf-8')))
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)              # flip image
+        img.save(fileName)                                      # save as .png
 
         return str(fileName)
 
