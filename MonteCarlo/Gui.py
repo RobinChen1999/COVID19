@@ -13,6 +13,8 @@ class Gui:
         self.txt_output = 0
         self.output_line_nr = 0
         self.simulating = True
+        self.window_width = 1600
+        self.window_height = 800
 
     # Input window
     def draw_input_window(self):
@@ -124,7 +126,7 @@ class Gui:
         )
 
         if input_valid:
-            label = self.draw_output_window()
+            self.label = self.draw_output_window()
 
             self.update_output("Running simulation with the following parameters:")
             self.update_output(" Seed:                    " + seed)
@@ -138,9 +140,9 @@ class Gui:
                 video = imageio.get_reader("video.mkv")
                 for image in video.iter_data():
                     image_frame = Image.fromarray(image)          
-                    frame_image = ImageTk.PhotoImage(image_frame)
-                    label.config(image=frame_image)
-                    label.image = frame_image
+                    frame_image = ImageTk.PhotoImage(image_frame.resize((int(self.window_width/2), int(self.window_height/1.5))))
+                    self.label.config(image=frame_image)
+                    self.label.image = frame_image
 
             def run_sim():
                 sim = Simulation(
@@ -159,21 +161,19 @@ class Gui:
                     dx=1.0)
                 sim.runSimulation()
                 self.simulating = False
+                stream()
             
             # load the already simulated figures
             def load_figures():
                 while self.simulating:
-                    # when simFigures not empty
-                    if os.listdir('simFigures'):
+                    # when simFigures has at least 2 figures
+                    if len(os.listdir('simFigures')) > 1:
                         figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
-                        latest_figure = max(figureList, key=os.path.getctime)  
-                        print(latest_figure)
-                        # fig = os.path.split(latest_figure)       
-                        # frame_image = ImageTk.PhotoImage('simFigures/' + fig[1])
-                        frm_img = ImageTk.PhotoImage(latest_figure)
-                        label.config(image=frm_img)
-                        label.image = frm_img
-                stream()
+                        latest_figure = figureList[-2] # get second last element  
+                        img = Image.open(latest_figure)
+                        frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
+                        self.label.config(image=frm_img)
+                        self.label.image = frm_img
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim).start()
@@ -184,7 +184,7 @@ class Gui:
 
     #updates simulation frame
     def update_figure(self, label, id, step):
-        img = ImageTk.PhotoImage(Image.open('simFigures/simFigure_%d_%07d.png'%(id, step)))
+        img = ImageTk.PhotoImage(Image.open('simFigures/simFigure_%d_%07d.png'%(id, step).resize((int(self.window_width/2), int(self.window_height/1.5)))))
         label.configure(image=img)
         label.image = img
 
@@ -193,10 +193,10 @@ class Gui:
         self.output_line_nr = 0
 
         window = tk.Toplevel()
-        window.geometry('{}x{}'.format(800, 400))
+        window.geometry('{}x{}'.format(self.window_width, self.window_height))
 
         # Simulation frame
-        frm_sim = tk.Frame(window, bg="red")
+        frm_sim = tk.Frame(window, height=self.window_height/2, width=self.window_width/2, bg="red")
 
         lbl_id_sim = tk.Label(frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
@@ -204,17 +204,17 @@ class Gui:
         btn_frame.pack()
 
         # Output frame
-        frm_output = tk.Frame(window, bg="yellow")
+        frm_output = tk.Frame(window, height=self.window_height/2, width=self.window_width/2, bg="yellow")
 
         lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
 
-        self.txt_output = tk.Text(frm_output, height=10, width=140)
+        self.txt_output = tk.Text(frm_output, height=15, width=70, cursor='watch')
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
         frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        frm_output.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
         return lbl_id_sim
 
