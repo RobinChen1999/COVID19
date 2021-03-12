@@ -416,7 +416,7 @@ class Simulation:
 
 		plt.xlim([0.,self.store.Lx])  	
 		plt.ylim([0.,self.store.Ly])  	
-		cb = fig.colorbar(difPlumes, cmap=self.parula_map, norm=mpl.colors.LogNorm(vmin=0.1,vmax=100.0), extend='min', ticks=[0.1, 1.0, 10.0, 100.0])
+		cb = fig.colorbar(difPlumes, ticks=[0.1, 1.0, 10.0, 100.0])
 		
 		font_size = 36
 		cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
@@ -546,7 +546,6 @@ class Simulation:
 		print("Reached the step limit")
 		self.gui.update_output("Reached the step limit")
 		self.generateVideo()
-		print("Generated video")
 		self.printEndStatistics()
 		return 
 

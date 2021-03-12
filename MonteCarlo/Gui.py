@@ -110,8 +110,13 @@ class Gui:
         dir = 'simFigures'
         for f in os.listdir(dir):
             os.remove(os.path.join(dir, f))
-        # shutil.rmtree('simFigures')
-        # os.makedirs('simFigures')
+
+    # updates output window after simulation is done
+    def update_output_window(self):
+        self.txt_output.config(cursor='arrow')
+        self.txt_output.pack()
+        self.update_output("Simulation finished!")
+        # More stuff TODO after simulation
 
     def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new):
         # clear the figures of previous simulations
@@ -161,6 +166,7 @@ class Gui:
                     dx=1.0)
                 sim.runSimulation()
                 self.simulating = False
+                self.update_output_window()
                 stream()
             
             # load the already simulated figures
@@ -180,11 +186,11 @@ class Gui:
             t = threading.Thread(target=load_figures)
             t.setDaemon(True)
             t.start()
-            # t.root.quit()
-
+        
     #updates simulation frame
     def update_figure(self, label, id, step):
-        img = ImageTk.PhotoImage(Image.open('simFigures/simFigure_%d_%07d.png'%(id, step).resize((int(self.window_width/2), int(self.window_height/1.5)))))
+        image = Image.open('simFigures/simFigure_%d_%07d.png'%(id, step))
+        img = ImageTk.PhotoImage(image.resize((int(self.window_width/2), int(self.window_height/1.5))))
         label.configure(image=img)
         label.image = img
 
