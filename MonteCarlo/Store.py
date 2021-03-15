@@ -61,7 +61,9 @@ class Store:
 		self.free = np.zeros((self.Lx,self.Ly))	
 		for i in range(0,self.Lx):
 			for j in range(0,self.Ly):
-				if not px[i,j]:
+				try: pixel = px[i,j][0]		# takes first rgb value from .png
+				except: pixel = px[i,j]		# for monochrome .pbm
+				if not pixel:
 					self.blocked[i,j] = 1
 					self.diffusionCoeff[i,j] = 0
 		self.blockedShelves=np.copy(self.blocked)

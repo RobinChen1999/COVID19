@@ -6,6 +6,8 @@ import shutil
 from tkinter import *
 from PIL import Image, ImageTk
 from Simulation import *
+from StoreLayout import *
+from tkinter import messagebox
 
 
 class Gui:
@@ -26,6 +28,9 @@ class Gui:
 
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
+
+        store_layout_canvas = StoreLayout(frm_layout)
+        store_layout_canvas.draw_store_layout()
 
         # Parameters frame
         frm_parameters = tk.Frame(window, bg="yellow")
@@ -79,7 +84,8 @@ class Gui:
                                 nr_customers=ent_nr_customers.get(),
                                 max_steps=ent_max_steps.get(),
                                 prob_inf=ent_prob_inf.get(),
-                                prob_new=ent_prob_new.get()
+                                prob_new=ent_prob_new.get(),
+                                store_layout=store_layout_canvas
                             ))
         btn_run.pack()
 
@@ -118,7 +124,7 @@ class Gui:
         self.update_output("Simulation finished!")
         # More stuff TODO after simulation
 
-    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new):
+    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout):
         # clear the figures of previous simulations
         self.clear_folder()
 
@@ -161,7 +167,7 @@ class Gui:
                     maxSteps=int(max_steps),
                     probInfCustomer=float(prob_inf),
                     probNewCustomer=float(prob_new),
-                    imageName="ExampleSuperMarket.pbm",
+                    imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
                 sim.runSimulation()
