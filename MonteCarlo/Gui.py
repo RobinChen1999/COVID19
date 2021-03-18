@@ -98,10 +98,19 @@ class Gui:
                                        "How many customers will enter the store.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
-                                            "Probability on each time step a new customer will enter the store. ")
+                                            "Probability on each time step a new customer will enter the store.")
 
         prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
                                             "Probability of a new customer being infected.")
+
+        prob_block_random_step = add_param_input(tab_customer, 3, "Prob. Random Step:", 0.8,
+                                                 "Probability of customer taking a random step when their path is blocked.")
+
+        prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
+                                     "Probability of a customer coughing per second.")
+
+        max_shopping_list = add_param_input(tab_customer, 5, "Max Items on Shopping List:", 20,
+                                            "Maximum number of items on a customer's shopping list.")
 
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
@@ -141,7 +150,10 @@ class Gui:
                                 customer_params={
                                     "nr_customers": nr_customers.get(),
                                     "prob_new_customer": prob_new_customer.get(),
-                                    "prob_inf_customer": prob_inf_customer.get()
+                                    "prob_inf_customer": prob_inf_customer.get(),
+                                    "prob_block_random_step": prob_block_random_step.get(),
+                                    "prob_cough": prob_cough.get(),
+                                    "max_shopping_list": max_shopping_list.get()
                                 },
                                 exit_params={},
                                 diffusion_params={
@@ -174,9 +186,15 @@ class Gui:
             int_nr_customers = int(customer_params["nr_customers"])
             float_prob_new_customer = float(customer_params["prob_new_customer"])
             float_prob_inf_customer = float(customer_params["prob_inf_customer"])
+            float_prob_block_random_step = float(customer_params["prob_block_random_step"])
+            float_prob_cough = float(customer_params["prob_cough"])
+            int_max_shopping_list = int(customer_params["max_shopping_list"])
 
-            if any(x <= 0 for x in (int_nr_customers, float_prob_new_customer, float_prob_inf_customer)) \
-                    or any(x >= 1 for x in (float_prob_new_customer, float_prob_inf_customer)):
+            if any(x <= 0 for x in (
+                    int_nr_customers, float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step,
+                    float_prob_cough, int_max_shopping_list)) \
+                    or any(x >= 1 for x in (
+                    float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step, float_prob_cough)):
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Customer tab!")
@@ -264,9 +282,16 @@ class Gui:
             def run_sim():
                 # Update global params
                 params = eval(os.environ["Params"])
+
+                # Customer
+                params["BLOCKRANDOMSTEP"] = float(customer_params["prob_block_random_step"])
+                params["PROBSPREADPLUME"] = float(customer_params["prob_cough"])
+                params["MAXSHOPPINGLIST"] = int(customer_params["max_shopping_list"])
+
+                # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
+
                 os.environ["PARAMS"] = str(params)
-                print(os.environ)
 
                 sim = Simulation(
                     self,
