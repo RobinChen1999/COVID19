@@ -369,7 +369,7 @@ class Simulation:
 			infected = 1
 		else:
 			infected = 0
-		new = SmartCustomer(self.store.entrance[0],self.store.entrance[1], infected=infected)
+		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], infected=infected)
 		new.initShoppingList(self.store, self.MAXSHOPPINGLIST)
 		self.customers.append(new)
 		return len(self.customers)
@@ -495,8 +495,6 @@ class Simulation:
 		return
 
 	def runSimulation(self):
-		print(self.DIFFCOEFF)
-
 		# before starting simulation add first customer to the system
 		approxOutFlux = 1.0/(0.5*(self.MAXSHOPPINGLIST+1)+1)*self.NEXITS
 		print("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))

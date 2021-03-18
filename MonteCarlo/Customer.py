@@ -6,7 +6,9 @@ DIRECTIONS = [np.array([-1,0]), np.array([0,1]),np.array([1,0]),np.array([0,-1])
 class Customer:
 
 
-	def __init__(self, x,y, infected=0, probSpreadPlume=-1):
+	def __init__(self, gui, x,y, infected=0, probSpreadPlume=-1):
+		self.gui = gui
+
 		self.x =x ## initial position
 		self.y =y  
 		self.infected=infected ## int boolean
@@ -77,6 +79,7 @@ class Customer:
 			if (sample < self.probSpreadPlume):
 				store.plumes[self.x,self.y] += self.PLUMECONCINC
 				print("Customer coughed at ({},{})".format(self.x,self.y))
+				self.gui.update_output("Customer coughed at ({},{})".format(self.x,self.y))
 			else:
 				store.plumes[self.x,self.y] += self.PLUMECONCCONT # according to 1 min of emission is same as 6 coughs
 
