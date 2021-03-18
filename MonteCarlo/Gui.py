@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 from Simulation import *
 from StoreLayout import *
 from tkinter import messagebox
+from tkinter import ttk
 
 
 class Gui:
@@ -43,52 +44,149 @@ class Gui:
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
 
-        frm_parameters_input = tk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
-        frm_parameters_input.pack()
+        def create_tool_tip(widget, text):
+            tool_tip = ToolTip(widget)
 
-        # Seed
-        lbl_seed = tk.Label(frm_parameters_input, text="Seed:")
-        ent_seed = tk.Entry(frm_parameters_input, width=20)
-        ent_seed.insert(0, 888892)
-        lbl_seed.grid(row=0, column=0, sticky="e")
-        ent_seed.grid(row=0, column=1)
+            def enter(event):
+                tool_tip.showtip(text)
 
-        # Nr. of Customers
-        lbl_nr_customers = tk.Label(frm_parameters_input, text="Nr. of Customers:")
-        ent_nr_customers = tk.Entry(frm_parameters_input, width=20)
-        ent_nr_customers.insert(0, 10000)
-        lbl_nr_customers.grid(row=1, column=0, sticky="e")
-        ent_nr_customers.grid(row=1, column=1)
+            def leave(event):
+                tool_tip.hidetip()
 
-        # Max Steps
-        lbl_max_steps = tk.Label(frm_parameters_input, text="Max Steps:")
-        ent_max_steps = tk.Entry(frm_parameters_input, width=20)
-        ent_max_steps.insert(0, 500)
-        lbl_max_steps.grid(row=2, column=0, sticky="e")
-        ent_max_steps.grid(row=2, column=1)
+            widget.bind('<Enter>', enter)
+            widget.bind('<Leave>', leave)
 
-        # Prob. Infected Customer
-        lbl_prob_inf = tk.Label(frm_parameters_input, text="Prob. Infected Customer:")
-        ent_prob_inf = tk.Entry(frm_parameters_input, width=20)
-        ent_prob_inf.insert(0, 0.01)
-        lbl_prob_inf.grid(row=3, column=0, sticky="e")
-        ent_prob_inf.grid(row=3, column=1)
-
-        # Prob. New Customer
-        lbl_prob_new = tk.Label(frm_parameters_input, text="Prob. New Customer:")
-        ent_prob_new = tk.Entry(frm_parameters_input, width=20)
-        ent_prob_new.insert(0, 0.2)
-        lbl_prob_new.grid(row=4, column=0, sticky="e")
-        ent_prob_new.grid(row=4, column=1)
-
+        column_size_text = 200
+        column_size_input = 100
+        img = ImageTk.PhotoImage(Image.open("questionmark.png").resize((15, 15)))
         params = eval(os.environ["PARAMS"])
 
-        # Diff Coef
-        lbl_diff_coef = tk.Label(frm_parameters_input, text="Diffusion Coefficient:")
-        ent_diff_coef = tk.Entry(frm_parameters_input, width=20)
-        ent_diff_coef.insert(0, params["DIFFCOEFF"])
-        lbl_diff_coef.grid(row=21, column=0, sticky="e")
-        ent_diff_coef.grid(row=21, column=1)
+        input_tab_control = ttk.Notebook(frm_parameters)
+
+        # ----- Simulation Tab
+        tab_simulation = ttk.Frame(input_tab_control)
+        tab_simulation.grid_columnconfigure(0, minsize=column_size_text)
+        tab_simulation.grid_columnconfigure(2, minsize=column_size_input)
+
+        # Seed
+        lbl_seed = tk.Label(tab_simulation, text="Seed:")
+        lbl_seed.grid(row=0, column=0, sticky="w")
+
+        inf_seed = tk.Label(tab_simulation, image=img)
+        create_tool_tip(inf_seed, "The seed is the id of the simulation.\n"
+                                       "This is used when generating random variables.\n"
+                                       "Rerunning a simulation with the same seed will use the same random variables.")
+        inf_seed.grid(row=0, column=1, sticky="e")
+
+        ent_seed = tk.Entry(tab_simulation)
+        ent_seed.insert(0, 888892)
+        ent_seed.grid(row=0, column=2, sticky="we")
+
+        # Max Steps
+        lbl_max_steps = tk.Label(tab_simulation, text="Max Steps:")
+        lbl_max_steps.grid(row=1, column=0, sticky="w")
+
+        inf_max_steps = tk.Label(tab_simulation, image=img)
+        create_tool_tip(inf_max_steps, "For how many steps the simulation will maximally run.")
+        inf_max_steps.grid(row=1, column=1, sticky="e")
+
+        ent_max_steps = tk.Entry(tab_simulation)
+        ent_max_steps.insert(0, 500)
+        ent_max_steps.grid(row=1, column=2, sticky="we")
+        # -----
+
+        # ----- Customer Tab
+        tab_customer = ttk.Frame(input_tab_control)
+        tab_customer.grid_columnconfigure(0, minsize=column_size_text)
+        tab_customer.grid_columnconfigure(2, minsize=column_size_input)
+
+        # Nr. of Customers
+        lbl_nr_customers = tk.Label(tab_customer, text="Nr. of Customers:")
+        lbl_nr_customers.grid(row=0, column=0, sticky="w")
+
+        inf_nr_customers = tk.Label(tab_customer, image=img)
+        create_tool_tip(inf_nr_customers, "How many customers will enter the store.")
+        inf_nr_customers.grid(row=0, column=1, sticky="e")
+
+        ent_nr_customers = tk.Entry(tab_customer)
+        ent_nr_customers.insert(0, 10000)
+        ent_nr_customers.grid(row=0, column=2, sticky="we")
+
+        # Prob. New Customer
+        lbl_prob_new = tk.Label(tab_customer, text="Prob. New Customer:")
+        lbl_prob_new.grid(row=1, column=0, sticky="w")
+
+        inf_prob_new = tk.Label(tab_customer, image=img)
+        create_tool_tip(inf_prob_new, "Probability on each time step a new customer will enter the store. ")
+        inf_prob_new.grid(row=1, column=1, sticky="e")
+
+        ent_prob_new = tk.Entry(tab_customer)
+        ent_prob_new.insert(0, 0.2)
+        ent_prob_new.grid(row=1, column=2, sticky="we")
+
+        # Prob. Infected Customer
+        lbl_prob_inf = tk.Label(tab_customer, text="Prob. Infected Customer:")
+        lbl_prob_inf.grid(row=2, column=0, sticky="w")
+
+        inf_prob_inf = tk.Label(tab_customer, image=img)
+        create_tool_tip(inf_prob_inf, "Probability of a new customer being infected.")
+        inf_prob_inf.grid(row=2, column=1, sticky="e")
+
+        ent_prob_inf = tk.Entry(tab_customer)
+        ent_prob_inf.insert(0, 0.01)
+        ent_prob_inf.grid(row=2, column=2, sticky="we")
+        # -----
+
+        # ----- Exits Tab
+        tab_exits = ttk.Frame(input_tab_control)
+        tab_exits.grid_columnconfigure(0, minsize=column_size_text)
+        tab_exits.grid_columnconfigure(2, minsize=column_size_input)
+
+        # TODO: Add
+
+        # -----
+
+        # ----- Diffusion Tab
+        tab_diffusion = ttk.Frame(input_tab_control)
+        tab_diffusion.grid_columnconfigure(0, minsize=column_size_text)
+        tab_diffusion.grid_columnconfigure(2, minsize=column_size_input)
+
+        # Diff Coeff
+        lbl_diff_coeff = tk.Label(tab_diffusion, text="Diffusion Coefficient:")
+        lbl_diff_coeff.grid(row=0, column=0, sticky="w")
+
+        inf_diff_coeff = tk.Label(tab_diffusion, image=img)
+        create_tool_tip(inf_diff_coeff, "Diffusion coefficient.")
+        inf_diff_coeff.grid(row=0, column=1, sticky="e")
+
+        ent_diff_coeff = tk.Entry(tab_diffusion, width=20)
+        ent_diff_coeff.insert(0, params["DIFFCOEFF"])
+        ent_diff_coeff.grid(row=0, column=2, sticky="we")
+
+        # TODO: Add
+
+        # -----
+
+        # ----- Plume Tab
+        tab_plume = ttk.Frame(input_tab_control)
+        tab_plume.grid_columnconfigure(0, minsize=column_size_text)
+        tab_plume.grid_columnconfigure(2, minsize=column_size_input)
+
+        # TODO: Add
+
+        # -----
+
+        # Add all tabs
+        input_tab_control.add(tab_simulation, text="Simulation")
+        input_tab_control.add(tab_customer, text="Customer")
+        input_tab_control.add(tab_exits, text="Exits")
+        input_tab_control.add(tab_diffusion, text="Diffusion")
+        input_tab_control.add(tab_plume, text="Plume")
+
+        input_tab_control.pack(expand=0)
+
+        frm_parameters_input = tk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
+        frm_parameters_input.pack()
 
         # Run button
         btn_run = tk.Button(frm_parameters,
@@ -100,7 +198,7 @@ class Gui:
                                 prob_inf=ent_prob_inf.get(),
                                 prob_new=ent_prob_new.get(),
                                 store_layout=store_layout_canvas,
-                                diff_coef=ent_diff_coef.get()
+                                diff_coeff=ent_diff_coeff.get()
                             ))
         btn_run.pack()
 
@@ -109,17 +207,17 @@ class Gui:
 
         window.mainloop()
 
-    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new, diff_coef):
+    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new, diff_coeff):
         try:
             int_seed = int(seed)
             int_nr_customers = int(nr_customers)
             int_max_steps = int(max_steps)
             float_prob_inf = float(prob_inf)
             float_prob_new = float(prob_new)
-            float_diff_coef = float(diff_coef)
+            float_diff_coeff = float(diff_coeff)
 
-            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, float_prob_inf, float_prob_new, float_diff_coef)) \
-                    or any(x >= 1 for x in (float_prob_inf, float_prob_new, float_diff_coef)):
+            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, float_prob_inf, float_prob_new, float_diff_coeff)) \
+                    or any(x >= 1 for x in (float_prob_inf, float_prob_new, float_diff_coeff)):
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input!")
@@ -140,7 +238,7 @@ class Gui:
         self.update_output("Simulation finished!")
         # More stuff TODO after simulation
 
-    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout, diff_coef):
+    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout, diff_coeff):
         # clear the figures of previous simulations
         self.clear_folder()
 
@@ -150,7 +248,7 @@ class Gui:
             max_steps=max_steps,
             prob_inf=prob_inf,
             prob_new=prob_new,
-            diff_coef=diff_coef
+            diff_coeff=diff_coeff
         )
 
         if input_valid:
@@ -162,7 +260,7 @@ class Gui:
                                   "  Max Steps:               {}\n" \
                                   "  Prob. Infected Customer: {}\n" \
                                   "  Prob. New Customer:      {}\n" \
-                                  "  Diffusion Coefficient:   {}".format(seed, nr_customers, max_steps, prob_inf, prob_new, diff_coef)
+                                  "  Diffusion Coefficient:   {}".format(seed, nr_customers, max_steps, prob_inf, prob_new, diff_coeff)
 
             self.update_output(initial_output_text)
 
@@ -178,7 +276,7 @@ class Gui:
             def run_sim():
                 # Update global params
                 params = eval(os.environ["Params"])
-                params["DIFFCOEFF"] = float(diff_coef)
+                params["DIFFCOEFF"] = float(diff_coeff)
                 os.environ["PARAMS"] = str(params)
                 print(os.environ)
 
@@ -298,3 +396,34 @@ class Gui:
             self.txt_step_output.delete('1.0', tk.END)
             self.txt_step_output.insert(tk.END, output)
             self.txt_step_output.config(state='disabled')
+
+
+class ToolTip(object):
+    def __init__(self, widget):
+        self.text = ""
+        self.widget = widget
+        self.tip_window = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        self.text = text
+        "Display text in tooltip window"
+        if self.tip_window or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() - 100
+        y = y + cy + self.widget.winfo_rooty() + 20
+        self.tip_window = tw = Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = Label(tw, text=self.text, justify=LEFT,
+                      background="#ffffe0", relief=SOLID, borderwidth=1,
+                      font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tip_window
+        self.tip_window = None
+        if tw:
+            tw.destroy()
