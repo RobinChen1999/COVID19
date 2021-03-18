@@ -1,18 +1,17 @@
 import numpy as np
-from Params import *
+import os
 
 DIRECTIONS = [np.array([-1,0]), np.array([0,1]),np.array([1,0]),np.array([0,-1])]
 
 class Customer:
 
 
-	def __init__(self, x,y, infected=0, probSpreadPlume=PROBSPREADPLUME):
+	def __init__(self, x,y, infected=0, probSpreadPlume=-1):
 		self.x =x ## initial position
 		self.y =y  
 		self.infected=infected ## int boolean
 		self.shoppingList=[] ## list of points to visit
 		self.path=None
-		self.probSpreadPlume = probSpreadPlume
 		self.exposure=0
 		self.exposureTime=0
 		self.exposureTimeThres=0
@@ -21,6 +20,21 @@ class Customer:
 		self.cashierWaitingTime = None
 		self.waitingTime = 0
 		self.headingForExit = 0
+
+		# Set Params
+		params = eval(os.environ["PARAMS"])
+		self.PROBSREADPLUME = params["PROBSPREADPLUME"]
+		self.PLUMELIFETIME = params["PLUMELIFETIME"]
+		self.PLUMECONCINC = params["PLUMECONCINC"]
+		self.PLUMECONCCONT = params["PLUMECONCCONT"]
+		self.CASHIERTIMEPERITEM = params["CASHIERTIMEPERITEM"]
+		self.EXPOSURELIMIT = params["EXPOSURELIMIT"]
+		self.MINWAITINGTIME = params["MINWAITINGTIME"]
+		self.MAXWAITINGTIME = params["MAXWAITINGTIME"]
+		self.BLOCKRANDOMSTEP = params["BLOCKRANDOMSTEP"]
+
+		if probSpreadPlume == -1:
+			self.probSpreadPlume = self.PROBSREADPLUME
 
 	## adds coordinate to the shopping list
 	def addTarget(self, target):
@@ -57,14 +71,14 @@ class Customer:
 	def spreadViralPlumes(self,store):
 		sample = np.random.random()
 		if (sample < self.probSpreadPlume) and not store.useDiffusion:
-			store.plumes[self.x,self.y] = PLUMELIFETIME
+			store.plumes[self.x,self.y] = self.PLUMELIFETIME
 		elif store.useDiffusion:
 			##check if cough or just constant emission
 			if (sample < self.probSpreadPlume):
-				store.plumes[self.x,self.y] += PLUMECONCINC
+				store.plumes[self.x,self.y] += self.PLUMECONCINC
 				print("Customer coughed at ({},{})".format(self.x,self.y))
 			else:
-				store.plumes[self.x,self.y] += PLUMECONCCONT # according to 1 min of emission is same as 6 coughs
+				store.plumes[self.x,self.y] += self.PLUMECONCCONT # according to 1 min of emission is same as 6 coughs
 
 	## randomly add 1...N coordinates to the shoppping list 
 	def initShoppingList(self,store,maxN):
@@ -77,7 +91,7 @@ class Customer:
 				ty = np.random.randint(store.Ly)
 			self.addTarget([tx,ty])
 		self.initItemsList = len(self.shoppingList)
-		self.cashierWaitingTime = CASHIERTIMEPERITEM*targetsDrawn
+		self.cashierWaitingTime = self.CASHIERTIMEPERITEM*targetsDrawn
 		return targetsDrawn
 
 	## when customer leaves the store, return some statistics
@@ -128,7 +142,7 @@ class SmartCustomer(Customer):
 				store.storeWideExposure+=store.plumes[self.x,self.y]*store.dt
 			if store.plumes[self.x,self.y]>0: 
 				self.exposureTime+=1
-				if store.plumes[self.x,self.y]>EXPOSURELIMIT: 
+				if store.plumes[self.x,self.y]>self.EXPOSURELIMIT:
 					self.exposureTimeThres+=1
 		if (self.infected):
 			self.spreadViralPlumes(store)
@@ -153,7 +167,7 @@ class SmartCustomer(Customer):
 		
 		if self.itemFound():
 			itemPos = self.shoppingList.pop(0)
-			self.waitingTime = np.random.randint(MINWAITINGTIME,MAXWAITINGTIME)
+			self.waitingTime = np.random.randint(self.MINWAITINGTIME,self.MAXWAITINGTIME)
 			return itemPos
 			
 		## Get the path to the next target coordinate
@@ -189,7 +203,7 @@ class SmartCustomer(Customer):
 			store.createStaticGraph()
 			self.path=None
 		## if step blocked by customer, maybe take one random step and compute new route to the next item (during next step)
-		elif (not self.headingForExit and np.random.rand()<BLOCKRANDOMSTEP) or np.random.rand()<BLOCKRANDOMSTEP*1e-2: ## no point in random step if queing for exit
+		elif (not self.headingForExit and np.random.rand()<self.BLOCKRANDOMSTEP) or np.random.rand()<self.BLOCKRANDOMSTEP*1e-2: ## no point in random step if queing for exit
 			self.takeRandomStep(store)
 			self.path=None
 

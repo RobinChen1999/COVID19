@@ -2,6 +2,8 @@ import tkinter as tk
 import threading
 import imageio
 import shutil
+import Params
+import os
 
 from tkinter import *
 from PIL import Image, ImageTk
@@ -18,6 +20,8 @@ class Gui:
         self.simulating = True
         self.window_width = 1600
         self.window_height = 800
+
+        Params.set_params()
 
     # Input window
     def draw_input_window(self):
@@ -77,6 +81,15 @@ class Gui:
         lbl_prob_new.grid(row=4, column=0, sticky="e")
         ent_prob_new.grid(row=4, column=1)
 
+        params = eval(os.environ["PARAMS"])
+
+        # Diff Coef
+        lbl_diff_coef = tk.Label(frm_parameters_input, text="Diffusion Coefficient:")
+        ent_diff_coef = tk.Entry(frm_parameters_input, width=20)
+        ent_diff_coef.insert(0, params["DIFFCOEFF"])
+        lbl_diff_coef.grid(row=21, column=0, sticky="e")
+        ent_diff_coef.grid(row=21, column=1)
+
         # Run button
         btn_run = tk.Button(frm_parameters,
                             text="Run",
@@ -86,7 +99,8 @@ class Gui:
                                 max_steps=ent_max_steps.get(),
                                 prob_inf=ent_prob_inf.get(),
                                 prob_new=ent_prob_new.get(),
-                                store_layout=store_layout_canvas
+                                store_layout=store_layout_canvas,
+                                diff_coef=ent_diff_coef.get()
                             ))
         btn_run.pack()
 
@@ -95,16 +109,17 @@ class Gui:
 
         window.mainloop()
 
-    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new):
+    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new, diff_coef):
         try:
             int_seed = int(seed)
             int_nr_customers = int(nr_customers)
             int_max_steps = int(max_steps)
-            int_prob_inf = float(prob_inf)
-            int_prob_new = float(prob_new)
+            float_prob_inf = float(prob_inf)
+            float_prob_new = float(prob_new)
+            float_diff_coef = float(diff_coef)
 
-            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, int_prob_inf, int_prob_new)) \
-                    or any(x >= 1 for x in (int_prob_inf, int_prob_new)):
+            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, float_prob_inf, float_prob_new, float_diff_coef)) \
+                    or any(x >= 1 for x in (float_prob_inf, float_prob_new, float_diff_coef)):
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input!")
@@ -125,7 +140,7 @@ class Gui:
         self.update_output("Simulation finished!")
         # More stuff TODO after simulation
 
-    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout):
+    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout, diff_coef):
         # clear the figures of previous simulations
         self.clear_folder()
 
@@ -134,18 +149,22 @@ class Gui:
             nr_customers=nr_customers,
             max_steps=max_steps,
             prob_inf=prob_inf,
-            prob_new=prob_new
+            prob_new=prob_new,
+            diff_coef=diff_coef
         )
 
         if input_valid:
             self.label = self.draw_output_window()
 
-            self.update_output("Running simulation with the following parameters:")
-            self.update_output(" Seed:                    " + seed)
-            self.update_output(" Nr. of Customers:        " + nr_customers)
-            self.update_output(" Max Steps:               " + max_steps)
-            self.update_output(" Prob. Infected Customer: " + prob_inf)
-            self.update_output(" Prob. New Customer:      " + prob_new)
+            initial_output_text = "Running simulation with the following parameters:\n" \
+                                  "  Seed:                    {}\n" \
+                                  "  Nr. of Customers:        {}\n" \
+                                  "  Max Steps:               {}\n" \
+                                  "  Prob. Infected Customer: {}\n" \
+                                  "  Prob. New Customer:      {}\n" \
+                                  "  Diffusion Coefficient:   {}".format(seed, nr_customers, max_steps, prob_inf, prob_new, diff_coef)
+
+            self.update_output(initial_output_text)
 
             # Stream video
             def stream():
@@ -157,6 +176,12 @@ class Gui:
                     self.label.image = frame_image
 
             def run_sim():
+                # Update global params
+                params = eval(os.environ["Params"])
+                params["DIFFCOEFF"] = float(diff_coef)
+                os.environ["PARAMS"] = str(params)
+                print(os.environ)
+
                 sim = Simulation(
                     self,
                     int(seed),
