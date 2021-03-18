@@ -205,7 +205,7 @@ class Gui:
         self.output_line_nr = 0
 
         window = tk.Toplevel()
-        window.geometry('{}x{}'.format(self.window_width, self.window_height))
+        window.state('zoomed')
 
         # Simulation frame
         frm_sim = tk.Frame(window, height=self.window_height/2, width=self.window_width/2, bg="red")
