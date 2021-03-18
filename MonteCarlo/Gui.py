@@ -95,22 +95,23 @@ class Gui:
         tab_customer = ttk.Frame(input_tab_control)
 
         nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 1000,
-                                           "How many customers will enter the store.")
+                                       "How many customers will enter the store.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
-                                       "Probability on each time step a new customer will enter the store. ")
+                                            "Probability on each time step a new customer will enter the store. ")
 
         prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
-                                       "Probability of a new customer being infected.")
+                                            "Probability of a new customer being infected.")
 
         # Exits Tab
-        tab_exits = ttk.Frame(input_tab_control)
+        tab_exit = ttk.Frame(input_tab_control)
         # TODO: Add
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
 
-        diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"], "Diffusion coefficient.")
+        diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
+                                     "Diffusion coefficient.")
         # TODO: Add
 
         # Plume Tab
@@ -120,7 +121,7 @@ class Gui:
         # Add all tabs
         input_tab_control.add(tab_simulation, text="Simulation")
         input_tab_control.add(tab_customer, text="Customer")
-        input_tab_control.add(tab_exits, text="Exits")
+        input_tab_control.add(tab_exit, text="Exits")
         input_tab_control.add(tab_diffusion, text="Diffusion")
         input_tab_control.add(tab_plume, text="Plume")
 
@@ -133,13 +134,21 @@ class Gui:
         btn_run = tk.Button(frm_parameters,
                             text="Run",
                             command=lambda: self.run_simulation(
-                                seed=seed.get(),
-                                nr_customers=nr_customers.get(),
-                                max_steps=max_steps.get(),
-                                prob_inf=prob_inf_customer.get(),
-                                prob_new=prob_new_customer.get(),
-                                store_layout=store_layout_canvas,
-                                diff_coeff=diff_coeff.get()
+                                simulation_params={
+                                    "seed": seed.get(),
+                                    "max_steps": max_steps.get()
+                                },
+                                customer_params={
+                                    "nr_customers": nr_customers.get(),
+                                    "prob_new_customer": prob_new_customer.get(),
+                                    "prob_inf_customer": prob_inf_customer.get()
+                                },
+                                exit_params={},
+                                diffusion_params={
+                                    "diff_coeff": diff_coeff.get(),
+                                },
+                                plume_params={},
+                                store_layout=store_layout_canvas
                             ))
         btn_run.pack()
 
@@ -148,21 +157,55 @@ class Gui:
 
         window.mainloop()
 
-    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new, diff_coeff):
+    def validate_input(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params):
+        # Simulation
         try:
-            int_seed = int(seed)
-            int_nr_customers = int(nr_customers)
-            int_max_steps = int(max_steps)
-            float_prob_inf = float(prob_inf)
-            float_prob_new = float(prob_new)
-            float_diff_coeff = float(diff_coeff)
+            int_seed = int(simulation_params["seed"])
+            int_max_steps = int(simulation_params["max_steps"])
 
-            if any(x <= 0 for x in
-                   (int_seed, int_nr_customers, int_max_steps, float_prob_inf, float_prob_new, float_diff_coeff)) \
-                    or any(x >= 1 for x in (float_prob_inf, float_prob_new, float_diff_coeff)):
+            if any(x <= 0 for x in (int_seed, int_max_steps)):
                 raise Exception()
         except:
-            tk.messagebox.showerror("Error!", "Invalid input!")
+            tk.messagebox.showerror("Error!", "Invalid input in Simulation tab!")
+            return False
+
+        # Customer
+        try:
+            int_nr_customers = int(customer_params["nr_customers"])
+            float_prob_new_customer = float(customer_params["prob_new_customer"])
+            float_prob_inf_customer = float(customer_params["prob_inf_customer"])
+
+            if any(x <= 0 for x in (int_nr_customers, float_prob_new_customer, float_prob_inf_customer)) \
+                    or any(x >= 1 for x in (float_prob_new_customer, float_prob_inf_customer)):
+                raise Exception()
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Customer tab!")
+            return False
+
+        # Exit
+        try:
+            # TODO: Add
+            True
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Exit tab!")
+            return False
+
+        # Diffusion
+        try:
+            float_diff_coeff = float(diffusion_params["diff_coeff"])
+
+            if float_diff_coeff <= 0 or float_diff_coeff >= 1:
+                raise Exception()
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Diffusion tab!")
+            return False
+
+        # Plume
+        try:
+            # TODO: Add
+            True
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
         else:
             return True
@@ -180,31 +223,32 @@ class Gui:
         self.update_output("Simulation finished!")
         # More stuff TODO after simulation
 
-    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout, diff_coeff):
+    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
+                       store_layout):
         # clear the figures of previous simulations
         self.clear_folder()
 
         input_valid = self.validate_input(
-            seed=seed,
-            nr_customers=nr_customers,
-            max_steps=max_steps,
-            prob_inf=prob_inf,
-            prob_new=prob_new,
-            diff_coeff=diff_coeff
+            simulation_params=simulation_params,
+            customer_params=customer_params,
+            exit_params=exit_params,
+            diffusion_params=diffusion_params,
+            plume_params=plume_params
         )
 
         if input_valid:
             self.label = self.draw_output_window()
 
-            initial_output_text = "Running simulation with the following parameters:\n" \
-                                  "  Seed:                    {}\n" \
-                                  "  Nr. of Customers:        {}\n" \
-                                  "  Max Steps:               {}\n" \
-                                  "  Prob. Infected Customer: {}\n" \
-                                  "  Prob. New Customer:      {}\n" \
-                                  "  Diffusion Coefficient:   {}".format(seed, nr_customers, max_steps, prob_inf,
-                                                                         prob_new, diff_coeff)
+            # initial_output_text = "Running simulation with the following parameters:\n" \
+            #                       "  Seed:                    {}\n" \
+            #                       "  Nr. of Customers:        {}\n" \
+            #                       "  Max Steps:               {}\n" \
+            #                       "  Prob. Infected Customer: {}\n" \
+            #                       "  Prob. New Customer:      {}\n" \
+            #                       "  Diffusion Coefficient:   {}".format(seed, nr_customers, max_steps, prob_inf,
+            #                                                              prob_new, diff_coeff)
 
+            initial_output_text = "Running simulation"
             self.update_output(initial_output_text)
 
             # Stream video
@@ -220,21 +264,21 @@ class Gui:
             def run_sim():
                 # Update global params
                 params = eval(os.environ["Params"])
-                params["DIFFCOEFF"] = float(diff_coeff)
+                params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
                 os.environ["PARAMS"] = str(params)
                 print(os.environ)
 
                 sim = Simulation(
                     self,
-                    int(seed),
+                    int(simulation_params["seed"]),
                     101,
                     101,
                     25,
-                    int(nr_customers),
+                    int(customer_params["nr_customers"]),
                     outputLevel=1,
-                    maxSteps=int(max_steps),
-                    probInfCustomer=float(prob_inf),
-                    probNewCustomer=float(prob_new),
+                    maxSteps=int(simulation_params["max_steps"]),
+                    probInfCustomer=float(customer_params["prob_inf_customer"]),
+                    probNewCustomer=float(customer_params["prob_new_customer"]),
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
@@ -248,7 +292,7 @@ class Gui:
                 while self.simulating:
                     # when simFigures has at least 2 figures
                     if len(os.listdir('simFigures')) > 1:
-                        figureList = glob.glob('simFigures/simFigure_%s_*' % seed + '.png')
+                        figureList = glob.glob('simFigures/simFigure_%s_*' % simulation_params["seed"] + '.png')
                         latest_figure = figureList[-2]  # get second last element
                         img = Image.open(latest_figure)
                         frm_img = ImageTk.PhotoImage(
