@@ -259,7 +259,7 @@ class Gui:
         if self.txt_step_output == 0:
             raise Exception("Step output text is undefined")
         else:
-            if (x == -1 for x in [customers_in_store, customers_in_queue, emitting_customers_in_store, exposure]):
+            if any(x == -1 for x in [customers_in_store, customers_in_queue, emitting_customers_in_store, exposure]):
                 print("todo")
                 # TODO: Get data from store_data.dat file
 
