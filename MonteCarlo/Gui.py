@@ -13,18 +13,16 @@ from tkinter import messagebox
 class Gui:
     def __init__(self):
         self.txt_output = 0
+        self.txt_step_output = 0
         self.output_line_nr = 0
         self.simulating = True
         self.window_width = 1600
         self.window_height = 800
-        self.displayed_step = ""
 
     # Input window
     def draw_input_window(self):
         window = tk.Tk()
         window.geometry('{}x{}'.format(800, 400))
-
-        self.displayed_step = tk.StringVar()
 
         # Layout frame
         frm_layout = tk.Frame(window, bg="red")
@@ -228,9 +226,9 @@ class Gui:
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        self.displayed_step.set("Step: 0")
-        lbl_displayed_step = tk.Label(frm_output, textvariable=self.displayed_step)
-        lbl_displayed_step.pack()
+        self.txt_step_output = tk.Text(frm_output, height=5, width=70)
+        self.txt_step_output.config(wrap='none', state='disabled')
+        self.txt_step_output.pack()
 
         frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
@@ -257,5 +255,21 @@ class Gui:
 
             self.output_line_nr += 1
 
-    def update_displayed_step(self, step):
-        self.displayed_step.set("Step: {}".format(step))
+    def update_displayed_step(self, step, customers_in_store=-1, customers_in_queue=-1, emitting_customers_in_store=-1, exposure=-1):
+        if self.txt_step_output == 0:
+            raise Exception("Step output text is undefined")
+        else:
+            if (x == -1 for x in [customers_in_store, customers_in_queue, emitting_customers_in_store, exposure]):
+                print("todo")
+                # TODO: Get data from store_data.dat file
+
+            output = " Step: {}\n" \
+                     "  Customers in store:            {:.0f}\n" \
+                     "  Customers heading for exit:    {:.0f}\n" \
+                     "  Infected customers:            {:.0f}\n" \
+                     "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store, customers_in_queue, emitting_customers_in_store, exposure)
+
+            self.txt_step_output.config(state='normal')
+            self.txt_step_output.delete('1.0', tk.END)
+            self.txt_step_output.insert(tk.END, output)
+            self.txt_step_output.config(state='disabled')
