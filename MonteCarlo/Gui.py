@@ -17,11 +17,14 @@ class Gui:
         self.simulating = True
         self.window_width = 1600
         self.window_height = 800
+        self.displayed_step = ""
 
     # Input window
     def draw_input_window(self):
         window = tk.Tk()
         window.geometry('{}x{}'.format(800, 400))
+
+        self.displayed_step = tk.StringVar()
 
         # Layout frame
         frm_layout = tk.Frame(window, bg="red")
@@ -225,6 +228,10 @@ class Gui:
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
+        self.displayed_step.set("Step: 0")
+        lbl_displayed_step = tk.Label(frm_output, textvariable=self.displayed_step)
+        lbl_displayed_step.pack()
+
         frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
@@ -249,3 +256,6 @@ class Gui:
             self.txt_output.config(state='disabled')
 
             self.output_line_nr += 1
+
+    def update_displayed_step(self, step):
+        self.displayed_step.set("Step: {}".format(step))

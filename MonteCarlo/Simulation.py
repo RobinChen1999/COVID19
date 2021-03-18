@@ -509,6 +509,8 @@ class Simulation:
 			self.store.initializeExposureDuringTimeStep()
 
 			self.stepNow+=1
+			self.gui.update_displayed_step(self.stepNow)
+
 			if customersHeadExit>maxQueue:
 				maxQueue = customersHeadExit
 
