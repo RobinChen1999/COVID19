@@ -50,7 +50,7 @@ cmake-build-debug
 
 # All png and gif files
 storeMap.png
-simFigures/
+/simFigures/
 *.gif
 *.mp4
 *.mkv
