@@ -274,9 +274,9 @@ class Gui:
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
-                sim.runSimulation()
+                store_plot = sim.runSimulation()
                 outputGui.simulating = False
-                outputGui.update_output_window()
+                outputGui.update_output_window(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim).start()
