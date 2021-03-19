@@ -9,11 +9,6 @@ from matplotlib.colors import ListedColormap
 import copy
 import matplotlib as mpl
 from matplotlib.colors import LinearSegmentedColormap
-from numpy import linspace, meshgrid
-import matplotlib.tri as tri
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colors import LogNorm
-import matplotlib.pyplot as plt
 from Store import *
 from Customer import *
 from Params import *
@@ -21,13 +16,17 @@ from StorePlot import *
 
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.tri as tri
+from numpy import linspace, meshgrid
 #from matplotlib.mlab import griddata
 
 
 # some plotting parameters
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'], 'size': 24})
 rc('text', usetex=True)
-
 
 class Simulation:
     def __init__(self, gui, seed, Lx, Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
