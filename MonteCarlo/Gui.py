@@ -39,7 +39,8 @@ class Gui:
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
 
-        frm_parameters_input = tk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
+        frm_parameters_input = tk.Frame(
+            frm_parameters, relief=tk.SUNKEN, borderwidth=2)
         frm_parameters_input.pack()
 
         # Seed
@@ -50,7 +51,8 @@ class Gui:
         ent_seed.grid(row=0, column=1)
 
         # Nr. of Customers
-        lbl_nr_customers = tk.Label(frm_parameters_input, text="Nr. of Customers:")
+        lbl_nr_customers = tk.Label(
+            frm_parameters_input, text="Nr. of Customers:")
         ent_nr_customers = tk.Entry(frm_parameters_input, width=20)
         ent_nr_customers.insert(0, 10000)
         lbl_nr_customers.grid(row=1, column=0, sticky="e")
@@ -64,14 +66,16 @@ class Gui:
         ent_max_steps.grid(row=2, column=1)
 
         # Prob. Infected Customer
-        lbl_prob_inf = tk.Label(frm_parameters_input, text="Prob. Infected Customer:")
+        lbl_prob_inf = tk.Label(frm_parameters_input,
+                                text="Prob. Infected Customer:")
         ent_prob_inf = tk.Entry(frm_parameters_input, width=20)
         ent_prob_inf.insert(0, 0.01)
         lbl_prob_inf.grid(row=3, column=0, sticky="e")
         ent_prob_inf.grid(row=3, column=1)
 
         # Prob. New Customer
-        lbl_prob_new = tk.Label(frm_parameters_input, text="Prob. New Customer:")
+        lbl_prob_new = tk.Label(frm_parameters_input,
+                                text="Prob. New Customer:")
         ent_prob_new = tk.Entry(frm_parameters_input, width=20)
         ent_prob_new.insert(0, 0.2)
         lbl_prob_new.grid(row=4, column=0, sticky="e")
@@ -131,11 +135,11 @@ class Gui:
         )
 
         if input_valid:
-            outputGui = GuiOutput(seed=seed, 
-                                    nr_customers=nr_customers, 
-                                    max_steps=max_steps, 
-                                    prob_inf=prob_inf, 
-                                    prob_new=prob_new)
+            outputGui = GuiOutput(seed=seed,
+                                  nr_customers=nr_customers,
+                                  max_steps=max_steps,
+                                  prob_inf=prob_inf,
+                                  prob_new=prob_new)
 
             def run_sim():
                 sim = Simulation(
@@ -152,19 +156,22 @@ class Gui:
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
-                sim.runSimulation()
+                storePlot = sim.runSimulation()
                 self.simulating = False
-                outputGui.update_output_window()
-            
+                outputGui.update_output_window(storePlot=storePlot)
+
             # load the already simulated figures
             def load_figures():
                 while self.simulating:
                     # when simFigures has at least 2 figures
                     if len(os.listdir('simFigures')) > 1:
-                        figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
-                        latest_figure = figureList[-2] # get second last element  
+                        figureList = glob.glob(
+                            'simFigures/simFigure_%s_*' % seed + '.png')
+                        # get second last element
+                        latest_figure = figureList[-2]
                         img = Image.open(latest_figure)
-                        frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
+                        frm_img = ImageTk.PhotoImage(img.resize(
+                            (int(self.window_width/2), int(self.window_height/1.5))))
                         outputGui.label.config(image=frm_img)
                         outputGui.label.image = frm_img
 
@@ -173,4 +180,3 @@ class Gui:
             t = threading.Thread(target=load_figures)
             t.setDaemon(True)
             t.start()
-        

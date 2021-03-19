@@ -1,8 +1,15 @@
+from StorePlot import *
+
 import tkinter as tk
 import threading
 import imageio
 import shutil
 from PIL import Image, ImageTk
+
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 class GuiOutput:
     window_width = 1600
@@ -18,38 +25,53 @@ class GuiOutput:
         self.update_output(" Prob. New Customer:      " + prob_new)
 
     # updates output window after simulation is done
-    def update_output_window(self):
+    def update_output_window(self, storePlot):
         self.txt_output.config(cursor='arrow')
         self.txt_output.pack()
         self.update_output("Simulation finished!")
+        self.storePlot = storePlot
+        self.update_storeplot()
         self.stream()
         # More stuff TODO after simulation
 
-        #updates simulation frame
+    def update_storeplot(self):
+        window = tk.Toplevel()
+        window.geometry('{}x{}'.format(self.window_width, self.window_height))
+
+        step_slider = tk.Scale(window, from_=0, to=50)
+        step_slider.set(0)
+        step_slider.pack()
+        fig = self.storePlot.showStore(step_slider.get())
+        bar = FigureCanvasTkAgg(fig, window)
+        bar.get_tk_widget().pack()
+
+        # updates simulation frame
     def update_figure(self, label, id, step):
-        image = Image.open('simFigures/simFigure_%d_%07d.png'%(id, step))
-        img = ImageTk.PhotoImage(image.resize((int(self.window_width/2), int(self.window_height/1.5))))
+        image = Image.open('simFigures/simFigure_%d_%07d.png' % (id, step))
+        img = ImageTk.PhotoImage(image.resize(
+            (int(self.window_width/2), int(self.window_height/1.5))))
         label.configure(image=img)
         label.image = img
-    
+
     # load the already simulated figures
-    def load_figures(self):
-        while self.simulating:
-            # when simFigures has at least 2 figures
-            if len(os.listdir('simFigures')) > 1:
-                figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
-                latest_figure = figureList[-2] # get second last element  
-                img = Image.open(latest_figure)
-                frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
-                self.label.config(image=frm_img)
-                self.label.image = frm_img
+    # def load_figures(self):
+    #     while self.simulating:
+    #         # when simFigures has at least 2 figures
+    #         if len(os.listdir('simFigures')) > 1:
+    #             figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
+    #             latest_figure = figureList[-2] # get second last element
+    #             img = Image.open(latest_figure)
+    #             frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
+    #             self.label.config(image=frm_img)
+    #             self.label.image = frm_img
 
     # Stream video
     def stream(self):
         video = imageio.get_reader("video.mkv")
         for image in video.iter_data():
-            image_frame = Image.fromarray(image)          
-            frame_image = ImageTk.PhotoImage(image_frame.resize((int(self.window_width/2), int(self.window_height/1.5))))
+            image_frame = Image.fromarray(image)
+            frame_image = ImageTk.PhotoImage(image_frame.resize(
+                (int(self.window_width/2), int(self.window_height/1.5))))
             self.label.config(image=frame_image)
             self.label.image = frame_image
 
@@ -61,24 +83,28 @@ class GuiOutput:
         window.geometry('{}x{}'.format(self.window_width, self.window_height))
 
         # Simulation frame
-        frm_sim = tk.Frame(window, height=self.window_height/2, width=self.window_width/2, bg="red")
+        self.frm_sim = tk.Frame(window, height=self.window_height/2,
+                                width=self.window_width/2, bg="red")
 
-        lbl_id_sim = tk.Label(frm_sim, text="Simulation Frame")
+        lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
-        btn_frame = tk.Button(frm_sim, text="Show simulation frame", command=lambda: self.update_figure(lbl_id_sim, 888892, 1))
+        btn_frame = tk.Button(self.frm_sim, text="Show simulation frame",
+                              command=lambda: self.update_figure(lbl_id_sim, 888892, 1))
         btn_frame.pack()
 
         # Output frame
-        frm_output = tk.Frame(window, height=self.window_height/2, width=self.window_width/2, bg="yellow")
+        frm_output = tk.Frame(
+            window, height=self.window_height/2, width=self.window_width/2, bg="yellow")
 
         lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
 
-        self.txt_output = tk.Text(frm_output, height=15, width=70, cursor='watch')
+        self.txt_output = tk.Text(
+            frm_output, height=15, width=70, cursor='watch')
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
         self.label = lbl_id_sim
