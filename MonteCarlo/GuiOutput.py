@@ -45,21 +45,6 @@ class GuiOutput:
         slider.pack()
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
-        self.storePlot = storePlot
-        self.update_storeplot()
-        self.stream()
-        # More stuff TODO after simulation
-
-    def update_storeplot(self):
-        window = tk.Toplevel()
-        window.geometry('{}x{}'.format(self.window_width, self.window_height))
-
-        step_slider = tk.Scale(window, from_=0, to=50)
-        step_slider.set(0)
-        step_slider.pack()
-        fig = self.storePlot.showStore(step_slider.get())
-        bar = FigureCanvasTkAgg(fig, window)
-        bar.get_tk_widget().pack()
 
     # opens a 'save-as' window to save the video
     def save_file(self):

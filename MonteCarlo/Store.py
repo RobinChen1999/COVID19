@@ -1,7 +1,7 @@
 import numpy as np
 import igraph as ig
 from PIL import Image as im
-from Params import *
+import os
 
 np.set_printoptions(threshold=100000)
 
@@ -22,15 +22,26 @@ class Store:
 		self.entrance=None
 		self.useDiffusion=None
 		self.exit=[]
-		self.exitActive=np.zeros(NEXITS)
 		self.plumes = np.zeros((self.Lx,self.Ly)) ##This contains natural numbers, 0 means no viral plume is present at the grid point,
 		self.plumesNew = np.zeros((self.Lx,self.Ly)) ##This contains natural numbers, 0 means no viral plume is present at the grid point, while a value > 0 presents how many more temporal turns the plume will be present at a grid point
 		self.plumesIntegrated = np.zeros((self.Lx,self.Ly)) ##This contains natural numbers, 0 means no viral plume is present at the grid point, while a value > 0 presents how many more temporal turns the plume will be present at a grid point
-		self.diffusionCoeff = np.ones((self.Lx,self.Ly))*DIFFCOEFF
-		self.ACSinkCoeff = np.ones((self.Lx,self.Ly))*ACSINKCOEFF ##Coefficient for the sink term of the form: -k*c.
 		self.storeWideExposure = 0
 
-	def initializeExposureDuringTimeStep(self):	
+		# Set Params
+		params = eval(os.environ["PARAMS"])
+		self.NEXITS = params["NEXITS"]
+		self.DIFFCOEFF = params["DIFFCOEFF"]
+		self.ACSINKCOEFF = params["ACSINKCOEFF"]
+		self.PLUMEMIN = params["PLUMEMIN"]
+		self.ENTRANCEPOS = params["ENTRANCEPOS"]
+		self.EXITPOS = params["EXITPOS"]
+		self.CASHIERD = params["CASHIERD"]
+
+		self.exitActive=np.zeros(self.NEXITS)
+		self.diffusionCoeff = np.ones((self.Lx,self.Ly))*self.DIFFCOEFF
+		self.ACSinkCoeff = np.ones((self.Lx, self.Ly)) * self.ACSINKCOEFF  ##Coefficient for the sink term of the form: -k*c.
+
+	def initializeExposureDuringTimeStep(self):
 		self.storeWideExposure = 0
 
 	## randomly place shelves into the store grid until area fraction af covered  
@@ -76,15 +87,15 @@ class Store:
 	
 	def updateDiffusion(self):
 		self.plumesNew = np.copy(self.plumes)
-		self.plumesNew[1:,:]  +=  self.diffusionCoeff[1:,:]  * self.diffusionCoeff[:-1,:] * self.dt * (self.plumes[:-1,:] - self.plumes[1:,:])/(self.dx**2) /DIFFCOEFF 
-		self.plumesNew[:-1,:]  += self.diffusionCoeff[:-1,:] * self.diffusionCoeff[1:,:]  * self.dt * (self.plumes[1:,:] - self.plumes[:-1,:])/(self.dx**2) /DIFFCOEFF
-		self.plumesNew[:,1:]  +=  self.diffusionCoeff[:,1:]  * self.diffusionCoeff[:,:-1] * self.dt * (self.plumes[:,:-1] - self.plumes[:,1:])/(self.dy**2) /DIFFCOEFF
-		self.plumesNew[:,:-1]  += self.diffusionCoeff[:,:-1] * self.diffusionCoeff[:,1:]  * self.dt * (self.plumes[:,1:] - self.plumes[:,:-1])/(self.dy**2) /DIFFCOEFF
+		self.plumesNew[1:,:]  +=  self.diffusionCoeff[1:,:]  * self.diffusionCoeff[:-1,:] * self.dt * (self.plumes[:-1,:] - self.plumes[1:,:])/(self.dx**2) /self.DIFFCOEFF
+		self.plumesNew[:-1,:]  += self.diffusionCoeff[:-1,:] * self.diffusionCoeff[1:,:]  * self.dt * (self.plumes[1:,:] - self.plumes[:-1,:])/(self.dx**2) /self.DIFFCOEFF
+		self.plumesNew[:,1:]  +=  self.diffusionCoeff[:,1:]  * self.diffusionCoeff[:,:-1] * self.dt * (self.plumes[:,:-1] - self.plumes[:,1:])/(self.dy**2) /self.DIFFCOEFF
+		self.plumesNew[:,:-1]  += self.diffusionCoeff[:,:-1] * self.diffusionCoeff[:,1:]  * self.dt * (self.plumes[:,1:] - self.plumes[:,:-1])/(self.dy**2) /self.DIFFCOEFF
 		
 		self.plumesNew[:,:] -= self.ACSinkCoeff[:,:] * self.dt * self.plumes[:,:] #Finally, apply the sink term where applicable
 	
 		self.plumes = self.plumesNew
-		self.plumes[self.plumes<PLUMEMIN] = 0
+		self.plumes[self.plumes<self.PLUMEMIN] = 0
 
 		## compute the plume concentration through siumulation
 		self.plumesIntegrated += self.plumes
@@ -189,12 +200,12 @@ class Store:
 	## randomly place doors to the store 
 	def initializeDoors(self):
 		## by default, exit and entrance are in corners
-		entranceInd = self.getIndexFromCoord([ENTRANCEPOS,0])
+		entranceInd = self.getIndexFromCoord([self.ENTRANCEPOS,0])
 		self.entrance= self.getCoordFromIndex(entranceInd)
 
 
-		i = EXITPOS
-		while len(self.exit)<NEXITS:
+		i = self.EXITPOS
+		while len(self.exit)<self.NEXITS:
 			exitInd = self.getIndexFromCoord([self.Lx-i,0])
 
 			## ensure that there is a path between entrance and exit for obvious reasons
@@ -205,7 +216,7 @@ class Store:
 				checkPossiblePath = self.staticGraph.shortest_paths_dijkstra(source=entranceInd,target=exitInd,weights=None)[0][0]
 			
 			self.exit.append(self.getCoordFromIndex(exitInd))
-			i+=CASHIERD
+			i+=self.CASHIERD
 		## sanity check
 		print("exits at : ", self.exit)
 		if np.isinf(checkPossiblePath):
