@@ -5,16 +5,21 @@ import shutil
 import Params
 import os
 
+from pathlib import Path
+
 from tkinter import *
 from PIL import Image, ImageTk
 from Simulation import *
 from StoreLayout import *
 from tkinter import messagebox
 from tkinter import ttk
+from tkinter.filedialog import asksaveasfile
 
 
 class Gui:
     def __init__(self):
+        self.frm_sim = 0
+        self.lbl_sim = 0
         self.txt_output = 0
         self.txt_step_output = 0
         self.output_line_nr = 0
@@ -234,15 +239,18 @@ class Gui:
         for f in os.listdir(dir):
             os.remove(os.path.join(dir, f))
 
-    # updates output window after simulation is done
-    def update_output_window(self):
-        self.txt_output.config(cursor='arrow')
-        self.txt_output.pack()
-        self.update_output("Simulation finished!")
-        # More stuff TODO after simulation
+    # opens a 'save-as' window to save the video
+    def save_file(self):
+        file = asksaveasfile(mode="wb", title="Save Figure", defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
+        if file is None:
+            return None
+        vid_to_save = open("video.mkv","rb").read()
+        file.write(vid_to_save)
+        file.close()
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
                        store_layout):
+        self.simulating = True
         # clear the figures of previous simulations
         self.clear_folder()
 
@@ -270,14 +278,35 @@ class Gui:
             self.update_output(initial_output_text)
 
             # Stream video
-            def stream():
-                video = imageio.get_reader("video.mkv")
-                for image in video.iter_data():
-                    image_frame = Image.fromarray(image)
-                    frame_image = ImageTk.PhotoImage(
-                        image_frame.resize((int(self.window_width / 2), int(self.window_height / 1.5))))
-                    self.label.config(image=frame_image)
-                    self.label.image = frame_image
+            # def stream():
+            #     video = imageio.get_reader("video.mkv")
+            #     for image in video.iter_data():
+            #         image_frame = Image.fromarray(image)          
+            #         frame_image = ImageTk.PhotoImage(image_frame.resize((int(self.window_width/2), int(self.window_height/1.5))))
+            #         self.label.config(image=frame_image)
+            #         self.label.image = frame_image
+            # updates simulation frame
+
+            def update_figure(value):
+                image = Image.open('simFigures/simFigure_%s_%07d.png'%(simulation_params["seed"], int(value)))
+                img = ImageTk.PhotoImage(image.resize((int(self.window_width/2), int(self.window_height/1.5))))
+                self.lbl_sim.configure(image=img)
+                self.lbl_sim.image = img
+
+            # updates output window after simulation is done
+            def update_output_window():
+                self.txt_output.config(cursor='arrow')
+                self.txt_output.pack()
+                self.lbl_sim.config(cursor='arrow')
+                self.lbl_sim.pack()
+                self.update_output("Simulation finished!")
+                steps = int(simulation_params["max_steps"]) - 1
+                length = max(int((self.window_width/2)/steps), 10)
+                slider = Scale(self.frm_sim, from_=0, to=steps, length=int(self.window_width/2), sliderlength=length, orient=HORIZONTAL, command=update_figure)
+                slider.pack()
+                btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
+                btn_export.pack()
+                # More stuff TODO after simulation
 
             def run_sim():
                 # Update global params
@@ -309,8 +338,8 @@ class Gui:
                     dx=1.0)
                 sim.runSimulation()
                 self.simulating = False
-                self.update_output_window()
-                stream()
+                update_output_window()
+                # stream()
 
             # load the already simulated figures
             def load_figures():
@@ -331,13 +360,6 @@ class Gui:
             t.setDaemon(True)
             t.start()
 
-    # updates simulation frame
-    def update_figure(self, label, id, step):
-        image = Image.open('simFigures/simFigure_%d_%07d.png' % (id, step))
-        img = ImageTk.PhotoImage(image.resize((int(self.window_width / 2), int(self.window_height / 1.5))))
-        label.configure(image=img)
-        label.image = img
-
     # Output
     def draw_output_window(self):
         self.output_line_nr = 0
@@ -346,13 +368,12 @@ class Gui:
         window.state('zoomed')
 
         # Simulation frame
-        frm_sim = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="red")
+        self.frm_sim = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="red")
 
-        lbl_id_sim = tk.Label(frm_sim, text="Simulation Frame")
+        lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
-        btn_frame = tk.Button(frm_sim, text="Show simulation frame",
-                              command=lambda: self.update_figure(lbl_id_sim, 888892, 1))
-        btn_frame.pack()
+        self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
+        self.lbl_sim.pack()
 
         # Output frame
         frm_output = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
@@ -368,10 +389,10 @@ class Gui:
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack()
 
-        frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
-        return lbl_id_sim
+        return self.lbl_sim
 
     def update_output(self, line):
         if self.txt_output == 0:
