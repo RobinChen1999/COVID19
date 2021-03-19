@@ -369,7 +369,7 @@ class Simulation:
 			infected = 1
 		else:
 			infected = 0
-		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], infected=infected)
+		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], step=self.stepNow, infected=infected)
 		new.initShoppingList(self.store, self.MAXSHOPPINGLIST)
 		self.customers.append(new)
 		self.allCustomers.append(new)
