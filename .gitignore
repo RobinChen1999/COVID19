@@ -49,7 +49,8 @@ cmake-build-debug
 *.dat
 
 # All png and gif files
-*.png
+storeMap.png
+simFigures/*.png
 *.gif
 *.mp4
 *.mkv

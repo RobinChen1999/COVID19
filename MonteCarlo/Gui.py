@@ -2,6 +2,10 @@ import tkinter as tk
 import threading
 import imageio
 import shutil
+import Params
+import os
+
+from pathlib import Path
 
 from tkinter import *
 from PIL import Image, ImageTk
@@ -9,15 +13,22 @@ from Simulation import *
 from StoreLayout import *
 from GuiOutput import *
 from tkinter import messagebox
+from tkinter import ttk
+from tkinter.filedialog import asksaveasfile
 
 
 class Gui:
     def __init__(self):
+        self.frm_sim = 0
+        self.lbl_sim = 0
         self.txt_output = 0
+        self.txt_step_output = 0
         self.output_line_nr = 0
         self.simulating = True
         self.window_width = 1600
         self.window_height = 800
+
+        Params.set_params()
 
     # Input window
     def draw_input_window(self):
@@ -39,53 +50,122 @@ class Gui:
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
 
+        def create_tool_tip(widget, text):
+            tool_tip = ToolTip(widget)
+
+            def enter(event):
+                tool_tip.showtip(text)
+
+            def leave(event):
+                tool_tip.hidetip()
+
+            widget.bind('<Enter>', enter)
+            widget.bind('<Leave>', leave)
+
+        column_size_text = 200
+        column_size_input = 100
+        img = ImageTk.PhotoImage(Image.open("questionmark.png").resize((15, 15)))
+        params = eval(os.environ["PARAMS"])
+
+        input_tab_control = ttk.Notebook(frm_parameters)
+
+        def add_param_input(tab_root, index, label, value, description):
+            tab_root.grid_columnconfigure(0, minsize=column_size_text)
+            tab_root.grid_columnconfigure(2, minsize=column_size_input)
+
+            lbl = tk.Label(tab_root, text=label)
+            lbl.grid(row=index, column=0, sticky="w")
+
+            desc = tk.Label(tab_root, image=img)
+            create_tool_tip(desc, description)
+            desc.grid(row=index, column=1, sticky="e")
+
+            ent = tk.Entry(tab_root)
+            ent.insert(0, value)
+            ent.grid(row=index, column=2, sticky="we")
+
+            return ent
+
+        # Simulation Tab
+        tab_simulation = ttk.Frame(input_tab_control)
+
+        seed = add_param_input(tab_simulation, 0, "Seed:", 888892,
+                               "The seed is the id of the simulation.\n"
+                               "This is used when generating random variables.\n"
+                               "Rerunning a simulation with the same seed will use the same random variables.")
+
+        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 500,
+                                    "For how many steps the simulation will maximally run.")
+
+        # Customer Tab
+        tab_customer = ttk.Frame(input_tab_control)
+
+        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 1000,
+                                       "How many customers will enter the store.")
+
+        prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
+                                            "Probability on each time step a new customer will enter the store.")
+
+        prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
+                                            "Probability of a new customer being infected.")
+
+        prob_block_random_step = add_param_input(tab_customer, 3, "Prob. Random Step:", 0.8,
+                                                 "Probability of customer taking a random step when their path is blocked.")
+
+        prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
+                                     "Probability of a customer coughing per second.")
+
+        max_shopping_list = add_param_input(tab_customer, 5, "Max Items on Shopping List:", 20,
+                                            "Maximum number of items on a customer's shopping list.")
+
+        # Exits Tab
+        tab_exit = ttk.Frame(input_tab_control)
+        # TODO: Add
+
+        # Diffusion Tab
+        tab_diffusion = ttk.Frame(input_tab_control)
+
+        diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
+                                     "Diffusion coefficient.")
+        # TODO: Add
+
+        # Plume Tab
+        tab_plume = ttk.Frame(input_tab_control)
+        # TODO: Add
+
+        # Add all tabs
+        input_tab_control.add(tab_simulation, text="Simulation")
+        input_tab_control.add(tab_customer, text="Customer")
+        input_tab_control.add(tab_exit, text="Exits")
+        input_tab_control.add(tab_diffusion, text="Diffusion")
+        input_tab_control.add(tab_plume, text="Plume")
+
+        input_tab_control.pack(expand=0)
+
         frm_parameters_input = tk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
         frm_parameters_input.pack()
-
-        # Seed
-        lbl_seed = tk.Label(frm_parameters_input, text="Seed:")
-        ent_seed = tk.Entry(frm_parameters_input, width=20)
-        ent_seed.insert(0, 888892)
-        lbl_seed.grid(row=0, column=0, sticky="e")
-        ent_seed.grid(row=0, column=1)
-
-        # Nr. of Customers
-        lbl_nr_customers = tk.Label(frm_parameters_input, text="Nr. of Customers:")
-        ent_nr_customers = tk.Entry(frm_parameters_input, width=20)
-        ent_nr_customers.insert(0, 10000)
-        lbl_nr_customers.grid(row=1, column=0, sticky="e")
-        ent_nr_customers.grid(row=1, column=1)
-
-        # Max Steps
-        lbl_max_steps = tk.Label(frm_parameters_input, text="Max Steps:")
-        ent_max_steps = tk.Entry(frm_parameters_input, width=20)
-        ent_max_steps.insert(0, 500)
-        lbl_max_steps.grid(row=2, column=0, sticky="e")
-        ent_max_steps.grid(row=2, column=1)
-
-        # Prob. Infected Customer
-        lbl_prob_inf = tk.Label(frm_parameters_input, text="Prob. Infected Customer:")
-        ent_prob_inf = tk.Entry(frm_parameters_input, width=20)
-        ent_prob_inf.insert(0, 0.01)
-        lbl_prob_inf.grid(row=3, column=0, sticky="e")
-        ent_prob_inf.grid(row=3, column=1)
-
-        # Prob. New Customer
-        lbl_prob_new = tk.Label(frm_parameters_input, text="Prob. New Customer:")
-        ent_prob_new = tk.Entry(frm_parameters_input, width=20)
-        ent_prob_new.insert(0, 0.2)
-        lbl_prob_new.grid(row=4, column=0, sticky="e")
-        ent_prob_new.grid(row=4, column=1)
 
         # Run button
         btn_run = tk.Button(frm_parameters,
                             text="Run",
                             command=lambda: self.run_simulation(
-                                seed=ent_seed.get(),
-                                nr_customers=ent_nr_customers.get(),
-                                max_steps=ent_max_steps.get(),
-                                prob_inf=ent_prob_inf.get(),
-                                prob_new=ent_prob_new.get(),
+                                simulation_params={
+                                    "seed": seed.get(),
+                                    "max_steps": max_steps.get()
+                                },
+                                customer_params={
+                                    "nr_customers": nr_customers.get(),
+                                    "prob_new_customer": prob_new_customer.get(),
+                                    "prob_inf_customer": prob_inf_customer.get(),
+                                    "prob_block_random_step": prob_block_random_step.get(),
+                                    "prob_cough": prob_cough.get(),
+                                    "max_shopping_list": max_shopping_list.get()
+                                },
+                                exit_params={},
+                                diffusion_params={
+                                    "diff_coeff": diff_coeff.get(),
+                                },
+                                plume_params={},
                                 store_layout=store_layout_canvas
                             ))
         btn_run.pack()
@@ -95,19 +175,61 @@ class Gui:
 
         window.mainloop()
 
-    def validate_input(self, seed, nr_customers, max_steps, prob_inf, prob_new):
+    def validate_input(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params):
+        # Simulation
         try:
-            int_seed = int(seed)
-            int_nr_customers = int(nr_customers)
-            int_max_steps = int(max_steps)
-            int_prob_inf = float(prob_inf)
-            int_prob_new = float(prob_new)
+            int_seed = int(simulation_params["seed"])
+            int_max_steps = int(simulation_params["max_steps"])
 
-            if any(x <= 0 for x in (int_seed, int_nr_customers, int_max_steps, int_prob_inf, int_prob_new)) \
-                    or any(x >= 1 for x in (int_prob_inf, int_prob_new)):
+            if any(x <= 0 for x in (int_seed, int_max_steps)):
                 raise Exception()
         except:
-            tk.messagebox.showerror("Error!", "Invalid input!")
+            tk.messagebox.showerror("Error!", "Invalid input in Simulation tab!")
+            return False
+
+        # Customer
+        try:
+            int_nr_customers = int(customer_params["nr_customers"])
+            float_prob_new_customer = float(customer_params["prob_new_customer"])
+            float_prob_inf_customer = float(customer_params["prob_inf_customer"])
+            float_prob_block_random_step = float(customer_params["prob_block_random_step"])
+            float_prob_cough = float(customer_params["prob_cough"])
+            int_max_shopping_list = int(customer_params["max_shopping_list"])
+
+            if any(x <= 0 for x in (
+                    int_nr_customers, float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step,
+                    float_prob_cough, int_max_shopping_list)) \
+                    or any(x >= 1 for x in (
+                    float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step, float_prob_cough)):
+                raise Exception()
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Customer tab!")
+            return False
+
+        # Exit
+        try:
+            # TODO: Add
+            True
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Exit tab!")
+            return False
+
+        # Diffusion
+        try:
+            float_diff_coeff = float(diffusion_params["diff_coeff"])
+
+            if float_diff_coeff <= 0 or float_diff_coeff >= 1:
+                raise Exception()
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Diffusion tab!")
+            return False
+
+        # Plume
+        try:
+            # TODO: Add
+            True
+        except:
+            tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
         else:
             return True
@@ -118,37 +240,62 @@ class Gui:
         for f in os.listdir(dir):
             os.remove(os.path.join(dir, f))
 
-    def run_simulation(self, seed, nr_customers, max_steps, prob_inf, prob_new, store_layout):
+    # opens a 'save-as' window to save the video
+    # def save_file(self):
+    #     file = asksaveasfile(mode="wb", title="Save Figure", defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
+    #     if file is None:
+    #         return None
+    #     vid_to_save = open("video.mkv","rb").read()
+    #     file.write(vid_to_save)
+    #     file.close()
+
+    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
+                       store_layout):
+        self.simulating = True
         # clear the figures of previous simulations
         self.clear_folder()
 
         input_valid = self.validate_input(
-            seed=seed,
-            nr_customers=nr_customers,
-            max_steps=max_steps,
-            prob_inf=prob_inf,
-            prob_new=prob_new
+            simulation_params=simulation_params,
+            customer_params=customer_params,
+            exit_params=exit_params,
+            diffusion_params=diffusion_params,
+            plume_params=plume_params
         )
 
         if input_valid:
-            outputGui = GuiOutput(seed=seed, 
-                                    nr_customers=nr_customers, 
-                                    max_steps=max_steps, 
-                                    prob_inf=prob_inf, 
-                                    prob_new=prob_new)
+            outputGui = GuiOutput()
+                # seed=simulation_params["seed"], 
+                #                     nr_customers=nr_customers, 
+                #                     max_steps=max_steps, 
+                #                     prob_inf=prob_inf, 
+                #                     prob_new=prob_new)
 
             def run_sim():
+                # Update global params
+                params = eval(os.environ["Params"])
+
+                # Customer
+                params["BLOCKRANDOMSTEP"] = float(customer_params["prob_block_random_step"])
+                params["PROBSPREADPLUME"] = float(customer_params["prob_cough"])
+                params["MAXSHOPPINGLIST"] = int(customer_params["max_shopping_list"])
+
+                # Diffusion
+                params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
+
+                os.environ["PARAMS"] = str(params)
+
                 sim = Simulation(
                     outputGui,
-                    int(seed),
+                    int(simulation_params["seed"]),
                     101,
                     101,
                     25,
-                    int(nr_customers),
+                    int(customer_params["nr_customers"]),
                     outputLevel=1,
-                    maxSteps=int(max_steps),
-                    probInfCustomer=float(prob_inf),
-                    probNewCustomer=float(prob_new),
+                    maxSteps=int(simulation_params["max_steps"]),
+                    probInfCustomer=float(customer_params["prob_inf_customer"]),
+                    probNewCustomer=float(customer_params["prob_new_customer"]),
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
@@ -161,8 +308,8 @@ class Gui:
                 while self.simulating:
                     # when simFigures has at least 2 figures
                     if len(os.listdir('simFigures')) > 1:
-                        figureList = glob.glob('simFigures/simFigure_%s_*'%seed + '.png')
-                        latest_figure = figureList[-2] # get second last element  
+                        figureList = glob.glob('simFigures/simFigure_%s_*' % simulation_params["seed"] + '.png')
+                        latest_figure = figureList[-2]  # get second last element
                         img = Image.open(latest_figure)
                         frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
                         outputGui.label.config(image=frm_img)
@@ -173,4 +320,109 @@ class Gui:
             t = threading.Thread(target=load_figures)
             t.setDaemon(True)
             t.start()
-        
+
+    # # Output
+    # def draw_output_window(self):
+    #     self.output_line_nr = 0
+
+    #     window = tk.Toplevel()
+    #     window.state('zoomed')
+
+    #     # Simulation frame
+    #     self.frm_sim = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="red")
+
+    #     lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
+    #     lbl_id_sim.pack()
+    #     self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
+    #     self.lbl_sim.pack()
+
+    #     # Output frame
+    #     frm_output = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
+
+    #     lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
+    #     lbl_id_parameters.pack()
+
+    #     self.txt_output = tk.Text(frm_output, height=15, width=70, cursor='watch')
+    #     self.txt_output.config(wrap='none', state='disabled')
+    #     self.txt_output.pack()
+
+    #     self.txt_step_output = tk.Text(frm_output, height=5, width=70)
+    #     self.txt_step_output.config(wrap='none', state='disabled')
+    #     self.txt_step_output.pack()
+
+    #     self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+    #     frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+
+    #     return self.lbl_sim
+
+    # def update_output(self, line):
+    #     if self.txt_output == 0:
+    #         raise Exception("Output text is undefined")
+    #     else:
+    #         # Construct output line
+    #         output_line = ""
+    #         if self.txt_output.get("1.0", tk.END) != "\n":
+    #             output_line += "\n"
+
+    #         # output_line += str(self.output_line_nr) + ": " + line
+    #         output_line += " " + line
+
+    #         # Update output
+    #         self.txt_output.config(state='normal')
+    #         self.txt_output.insert(tk.END, output_line)
+    #         self.txt_output.see('end -1 lines')
+    #         self.txt_output.config(state='disabled')
+
+    #         self.output_line_nr += 1
+
+    # def update_displayed_step(self, step, customers_in_store=-1, customers_in_queue=-1, emitting_customers_in_store=-1,
+    #                           exposure=-1):
+    #     if self.txt_step_output == 0:
+    #         raise Exception("Step output text is undefined")
+    #     else:
+    #         if any(x == -1 for x in [customers_in_store, customers_in_queue, emitting_customers_in_store, exposure]):
+    #             print("todo")
+    #             # TODO: Get data from store_data.dat file
+
+    #         output = " Step: {}\n" \
+    #                  "  Customers in store:            {:.0f}\n" \
+    #                  "  Customers heading for exit:    {:.0f}\n" \
+    #                  "  Infected customers:            {:.0f}\n" \
+    #                  "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store, customers_in_queue,
+    #                                                                   emitting_customers_in_store, exposure)
+
+    #         self.txt_step_output.config(state='normal')
+    #         self.txt_step_output.delete('1.0', tk.END)
+    #         self.txt_step_output.insert(tk.END, output)
+    #         self.txt_step_output.config(state='disabled')
+
+
+class ToolTip(object):
+    def __init__(self, widget):
+        self.text = ""
+        self.widget = widget
+        self.tip_window = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        self.text = text
+        "Display text in tooltip window"
+        if self.tip_window or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() - 100
+        y = y + cy + self.widget.winfo_rooty() + 20
+        self.tip_window = tw = Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = Label(tw, text=self.text, justify=LEFT,
+                      background="#ffffe0", relief=SOLID, borderwidth=1,
+                      font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tip_window
+        self.tip_window = None
+        if tw:
+            tw.destroy()

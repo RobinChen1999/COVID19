@@ -1,10 +1,9 @@
-from Store import *
 from Customer import *
+from Store import *
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from Params import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 from numpy import linspace, meshgrid
@@ -26,25 +25,36 @@ rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size' : 24})
 rc('text', usetex=True)
 
 
-
 class Simulation:
+
 	def __init__(self, gui, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
 		# Set gui
 		self.gui = gui
 		self.gui.update_output("Initializing...")
 
+		# Set Params
+		params = eval(os.environ["PARAMS"])
+		self.NEXITS = params["NEXITS"]
+		self.MAXSHOPPINGLIST = params["MAXSHOPPINGLIST"]
+		self.PROBSREADPLUME = params["PROBSPREADPLUME"]
+		self.PLUMELIFETIME = params["PLUMELIFETIME"]
+		self.PLUMECONCINC = params["PLUMECONCINC"]
+		self.DIFFCOEFF = params["DIFFCOEFF"]
+		self.ACSINKCOEFF = params["ACSINKCOEFF"]
+		self.WEIRDQUEUELIMIT = params["WEIRDQUEUELIMIT"]
+
 		## seed for RNG and for saving the simulation
 		self.seed = seed
-		np.random.seed(self.seed) 
-	
+		np.random.seed(self.seed)
+
 		## some simulation relevant parameters
-		self.maxSteps=maxSteps 
+		self.maxSteps=maxSteps
 
 		## two running counters to keep measure of things
 		self.stepNow = 0
 		self.customerNow = 0
 
-		self.outputLevel = outputLevel # sets the output level: if 1, plots figures (slow). if 0, only customer data output written 
+		self.outputLevel = outputLevel # sets the output level: if 1, plots figures (slow). if 0, only customer data output written
 		self.imageName = imageName
 		self.useDiffusion = useDiffusion
 		## initialize the store, its shelves, graph and doors
@@ -54,24 +64,24 @@ class Simulation:
 			self.store.loadImageAsGeometry(self.imageName)
 		else:
 			self.store.initializeShelvesRegular(nShelves)
-			
+
 		self.store.createStaticGraph()
 		self.store.initializeDoors()
-	
+
 		## save the relevant customer parameters: prob of entering customer per timestep and number of customer during entire simulation
 		self.probNewCustomer = probNewCustomer
 		self.nCustomers = nCustomers
 		self.exposureHist = np.zeros(self.nCustomers)
 		self.exposureHistTime =np.zeros(self.nCustomers)
 		self.exposureHistTimeThres =np.zeros(self.nCustomers)
-		self.itemsBought =np.zeros(self.nCustomers) 
-		self.timeSpent =np.zeros(self.nCustomers) 
-		self.customerInfected =np.zeros(self.nCustomers) 
+		self.itemsBought =np.zeros(self.nCustomers)
+		self.timeSpent =np.zeros(self.nCustomers)
+		self.customerInfected =np.zeros(self.nCustomers)
 		self.customersNowInStore =np.zeros(self.maxSteps)
 		self.emittingCustomersNowInStore =np.zeros(self.maxSteps)
-		self.customersNowInQueue =np.zeros(self.maxSteps) 
+		self.customersNowInQueue =np.zeros(self.maxSteps)
 		self.exposureDuringTimeStep =np.zeros(self.maxSteps)
-		
+
 		cm_data = [[0.2422, 0.1504, 0.6603],
 		[0.2444, 0.1534, 0.6728],
 		[0.2464, 0.1569, 0.6847],
@@ -340,18 +350,18 @@ class Simulation:
 		else:
 			self.probInfCustomer = probInfCustomer
 			self.updatePlumes=1
-			
+
 		if self.useDiffusion:
 			self.store.useDiffusion = 1
 		elif not self.useDiffusion:
 			self.store.useDiffusion = 0
-	
+
 		##list of customers in the store
 		self.customers = []
 
 		self.gui.update_output("Done")
 
-		
+
 	## adds a new customer to the store
 	def newCustomer(self):
 		self.nCustomers -= 1
@@ -359,25 +369,25 @@ class Simulation:
 			infected = 1
 		else:
 			infected = 0
-		new = SmartCustomer(self.store.entrance[0],self.store.entrance[1], infected=infected)
-		new.initShoppingList(self.store, MAXSHOPPINGLIST)
+		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], infected=infected)
+		new.initShoppingList(self.store, self.MAXSHOPPINGLIST)
 		self.customers.append(new)
 		return len(self.customers)
-		
+
 
 	## when output level 1, the store is plotted to files with seed and simulation time step as keys
 	def printStore(self, step, title):
-		fig = plt.figure(figsize=(12,8)) 
+		fig = plt.figure(figsize=(12,8))
 
 		# first plot the static store structures
 		ax = fig.add_axes([0.07,0.07,0.85,.85])
 
-		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10) 
+		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
 		ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
 
 		for i,s in enumerate(self.store.exit):
-			ax.plot(s[0], s[1], 'bs', ms=10) 
-			ax.text(s[0], s[1]-4, "exit",color=(0.5, 0.5, 0.5))  
+			ax.plot(s[0], s[1], 'bs', ms=10)
+			ax.text(s[0], s[1]-4, "exit",color=(0.5, 0.5, 0.5))
 
 		# plot the plumes
 		if not self.useDiffusion:
@@ -398,10 +408,10 @@ class Simulation:
 			cmap_name='my_list'
 			cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower', cmap=cm) 	
-			ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10) 
-			ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))	
-		
+			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower', cmap=cm)
+			ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
+			ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
+
 		# add every cutomer to the plot,and the colour denotes infected and healthy customers
 		for i,c in enumerate(self.customers):
 			if c.infected:
@@ -410,14 +420,14 @@ class Simulation:
 			else:
 				col='y'
 				marker = 'o'
-			ax.plot(c.x, c.y, '{}{}'.format(col,marker), ms=17, clip_on=False)	
+			ax.plot(c.x, c.y, '{}{}'.format(col,marker), ms=17, clip_on=False)
 
 
 
-		plt.xlim([0.,self.store.Lx])  	
-		plt.ylim([0.,self.store.Ly])  	
+		plt.xlim([0.,self.store.Lx])
+		plt.ylim([0.,self.store.Ly])
 		cb = fig.colorbar(difPlumes, ticks=[0.1, 1.0, 10.0, 100.0])
-		
+
 		font_size = 36
 		cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
 		cb.ax.tick_params(labelsize=font_size)
@@ -429,22 +439,22 @@ class Simulation:
 
 	## save a .dat file of the customer output
 	def printEndStatistics(self):
-		
-		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore),NEXITS, PROBSPREADPLUME)
+
+		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore), self.NEXITS, self.PROBSREADPLUME)
 		if not self.useDiffusion:
-			header+=" PLUMELIFETIME {}".format(PLUMELIFETIME)
+			header+=" PLUMELIFETIME {}".format(self.PLUMELIFETIME)
 		else:
-			header+=" PLUMECONCINC {}, DIFFCOEFF {}, SINKCOEFF {}".format(PLUMECONCINC,DIFFCOEFF,ACSINKCOEFF)
-		## data per customer	
+			header+=" PLUMECONCINC {}, DIFFCOEFF {}, SINKCOEFF {}".format(self.PLUMECONCINC,self.DIFFCOEFF,self.ACSINKCOEFF)
+		## data per customer
 		dataArr = np.array([self.customerInfected[:self.customerNow], self.itemsBought[:self.customerNow], self.exposureHist[:self.customerNow], self.timeSpent[:self.customerNow], self.exposureHistTime[:self.customerNow], self.exposureHistTimeThres[:self.customerNow]]).T
 		np.savetxt("customer_data_{}.dat".format(self.seed), dataArr, header=header)
 		## store wide data of number of customer and customers in queue
 		dataArr = np.array([self.customersNowInStore[:self.stepNow],self.customersNowInQueue[:self.stepNow],self.emittingCustomersNowInStore[:self.stepNow],self.exposureDuringTimeStep[:self.stepNow]]).T
 		np.savetxt("store_data_{}.dat".format(self.seed), dataArr, header=header)
 		np.savetxt("integrated_plumes_store_data_{}.dat".format(self.seed), self.store.plumesIntegrated, header=header)
-		
+
 		return
-		
+
 	def generateVideo(self):
 		imageFolder = "simFigures"
 		images = [img for img in os.listdir(imageFolder) if img.endswith(".png")]
@@ -480,13 +490,13 @@ class Simulation:
 					append_images=frames[1:],
 					save_all=True,
 					duration=40, loop=0)
-		
+
 		print("GIF created")
 		return
 
 	def runSimulation(self):
 		# before starting simulation add first customer to the system
-		approxOutFlux = 1.0/(0.5*(MAXSHOPPINGLIST+1)+1)*NEXITS 
+		approxOutFlux = 1.0/(0.5*(self.MAXSHOPPINGLIST+1)+1)*self.NEXITS
 		print("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))
 		self.gui.update_output("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))
 		if approxOutFlux<self.probNewCustomer:
@@ -496,9 +506,9 @@ class Simulation:
 		stepStr = ""
 		customersHeadExit = 0
 		emittingCustomers = 0
-		maxQueue=WEIRDQUEUELIMIT ## variable for plotting images to check that no blocks at exits - we start to worry when >50
+		maxQueue=self.WEIRDQUEUELIMIT ## variable for plotting images to check that no blocks at exits - we start to worry when >50
 		for i in range(self.maxSteps):
-			
+
 			self.customersNowInStore[self.stepNow]=len(self.customers)
 			self.customersNowInQueue[self.stepNow]=customersHeadExit
 			self.emittingCustomersNowInStore[self.stepNow]=emittingCustomers
@@ -508,7 +518,12 @@ class Simulation:
 			emittingCustomers = 0
 			self.store.initializeExposureDuringTimeStep()
 
+			self.gui.update_displayed_step(self.stepNow, self.customersNowInStore[self.stepNow],
+										   self.customersNowInQueue[self.stepNow],
+										   self.emittingCustomersNowInStore[self.stepNow],
+										   self.exposureDuringTimeStep[self.stepNow])
 			self.stepNow+=1
+
 			if customersHeadExit>maxQueue:
 				maxQueue = customersHeadExit
 
@@ -517,13 +532,13 @@ class Simulation:
 			customersHeadExit = 0
 			for j,c in enumerate(self.customers):
 				if c.infected:
-					emittingCustomers +=1 
-				tx, ty = c.takeStep(self.store)		
+					emittingCustomers +=1
+				tx, ty = c.takeStep(self.store)
 				customersHeadExit += c.headingForExit
 				if tx==-1 and ty==-1:
 					customersExit.append(j)
-			
-			## here the customers at exit are erased from the system. 
+
+			## here the customers at exit are erased from the system.
 			for ind in customersExit[::-1]:
 				leavingCustomer = self.customers.pop(ind)
 				self.store.updateQueue([leavingCustomer.x, leavingCustomer.y])
@@ -541,20 +556,20 @@ class Simulation:
 
 			## if discrete plumes, shorten their duration by 1 and check if new customer enters
 			if self.updatePlumes and not self.useDiffusion:
-				self.store.plumes[self.store.plumes>0]-=1	
+				self.store.plumes[self.store.plumes>0]-=1
 				if self.nCustomers and np.random.rand()<self.probNewCustomer:
 					self.newCustomer()
 			## if using diffusion, compute the updated plume map
 			elif self.updatePlumes and self.useDiffusion:
 				self.store.updateDiffusion()
 				if self.nCustomers and np.random.rand()<self.probNewCustomer:
-					self.newCustomer()		
-			
-	
+					self.newCustomer()
+
+
 			if self.outputLevel or customersHeadExit>maxQueue:
 				self.printStore(i, title=stepStr)
 
-	
+
 			## end condition
 			if not self.nCustomers and not len(self.customers):
 				print("All customers have visited the store")
@@ -565,7 +580,7 @@ class Simulation:
 		self.generateVideo()
 		# self.createGif()
 		self.printEndStatistics()
-		return 
+		return
 
 
 
