@@ -190,15 +190,15 @@ class SmartCustomer(Customer):
     def spreadViralPlumes(self, store):
         sample = np.random.random()
         if (sample < self.probSpreadPlume) and not store.useDiffusion:
-            store.plumes[self.x, self.y] = PLUMELIFETIME
+            store.plumes[self.x, self.y] = self.PLUMELIFETIME
         elif store.useDiffusion:
             # check if cough or just constant emission
             if (sample < self.probSpreadPlume):
-                store.plumes[self.x, self.y] += PLUMECONCINC
+                store.plumes[self.x, self.y] += self.PLUMECONCINC
                 print("Customer coughed at ({},{})".format(self.x, self.y))
             else:
                 # according to 1 min of emission is same as 6 coughs
-                store.plumes[self.x, self.y] += PLUMECONCCONT
+                store.plumes[self.x, self.y] += self.PLUMECONCCONT
 
     # randomly add 1...N coordinates to the shoppping list
     def initShoppingList(self, store, maxN):
@@ -213,7 +213,7 @@ class SmartCustomer(Customer):
                 ty = np.random.randint(store.Ly)
             self.addTarget([tx, ty])
         self.initItemsList = len(self.shoppingList)
-        self.cashierWaitingTime = CASHIERTIMEPERITEM*targetsDrawn
+        self.cashierWaitingTime = self.CASHIERTIMEPERITEM*targetsDrawn
         return targetsDrawn
 
     # when customer leaves the store, return some statistics
@@ -341,7 +341,7 @@ class SmartCustomer(Customer):
                                                         self.y]*store.dt
             if store.plumes[self.x, self.y] > 0:
                 self.exposureTime += 1
-                if store.plumes[self.x, self.y] > EXPOSURELIMIT:
+                if store.plumes[self.x, self.y] > self.EXPOSURELIMIT:
                     self.exposureTimeThres += 1
         if (self.infected):
             self.spreadViralPlumes(store)
@@ -367,7 +367,7 @@ class SmartCustomer(Customer):
         if self.itemFound():
             itemPos = self.shoppingList.pop(0)
             self.waitingTime = np.random.randint(
-                MINWAITINGTIME, MAXWAITINGTIME)
+                self.MINWAITINGTIME, self.MAXWAITINGTIME)
             return itemPos
 
         # Get the path to the next target coordinate
@@ -405,7 +405,7 @@ class SmartCustomer(Customer):
             self.path = None
         # if step blocked by customer, maybe take one random step and compute new route to the next item (during next step)
         # no point in random step if queing for exit
-        elif (not self.headingForExit and np.random.rand() < BLOCKRANDOMSTEP) or np.random.rand() < BLOCKRANDOMSTEP*1e-2:
+        elif (not self.headingForExit and np.random.rand() < self.BLOCKRANDOMSTEP) or np.random.rand() < self.BLOCKRANDOMSTEP*1e-2:
             self.takeRandomStep(store)
             self.path = None
 
