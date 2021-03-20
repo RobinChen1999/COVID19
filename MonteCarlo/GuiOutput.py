@@ -1,3 +1,5 @@
+from StorePlot import *
+
 import tkinter as tk
 import threading
 import imageio
@@ -5,6 +7,10 @@ import imageio
 import glob
 import os
 from PIL import Image, ImageTk
+
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from tkinter.filedialog import asksaveasfile
 
@@ -27,18 +33,21 @@ class GuiOutput:
         
 
     # updates output window after simulation is done
-    def update_output_window(self):
+    def update_on_sim_finished(self, store_plot):
         self.txt_output.config(cursor='arrow')
         self.txt_output.pack()
-        self.lbl_sim.config(cursor='arrow')
-        self.lbl_sim.pack()
         self.update_output("Simulation finished!")
+        
+        self.store_plot = store_plot
+        self.store_plot.init_canvas(canvas=self.canvas_sim, store_fig=self.lbl_sim, height=self.canvas_height)
+
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width/2)/steps), 10)
-        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.window_width/2), sliderlength=length, orient=tk.HORIZONTAL, command=self.update_figure)
+        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length, orient=tk.HORIZONTAL, command=self.store_plot.update_figure)
         slider.pack()
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
+        
 
     # opens a 'save-as' window to save the video
     def save_file(self):
@@ -48,12 +57,6 @@ class GuiOutput:
         vid_to_save = open("video.mkv","rb").read()
         file.write(vid_to_save)
         file.close()
-
-    def update_figure(self, value):
-        image = Image.open('simFigures/simFigure_%s_%07d.png'%(self.seed, int(value)))
-        img = ImageTk.PhotoImage(image.resize((int(self.window_width/2), int(self.window_height/1.5))))
-        self.lbl_sim.configure(image=img)
-        self.lbl_sim.image = img
     
     # load the already simulated figures
     def load_figures(self):
@@ -63,9 +66,8 @@ class GuiOutput:
                 figureList = glob.glob('simFigures/simFigure_%s_*'%self.seed + '.png')
                 latest_figure = figureList[-2] # get second last element  
                 img = Image.open(latest_figure)
-                frm_img = ImageTk.PhotoImage(img.resize((int(self.window_width/2), int(self.window_height/1.5))))
-                self.lbl_sim.config(image=frm_img)
-                self.lbl_sim.image = frm_img
+                self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
+                self.canvas_sim.itemconfig(self.lbl_sim, image=self.frm_img)
 
     # Output
     def draw_output_window(self):
@@ -79,8 +81,11 @@ class GuiOutput:
 
         lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
-        self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
-        self.lbl_sim.pack()
+        
+        self.canvas_height = height=self.window_height / 3*2
+        self.canvas_sim = tk.Canvas(self.frm_sim, height=self.canvas_height, width=self.canvas_height)
+        self.canvas_sim.pack()
+        self.lbl_sim = self.canvas_sim.create_image(0, 0, anchor="nw")
 
         # Output frame
         frm_output = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
@@ -88,7 +93,8 @@ class GuiOutput:
         lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
 
-        self.txt_output = tk.Text(frm_output, height=15, width=70, cursor='watch')
+        self.txt_output = tk.Text(
+            frm_output, height=15, width=70, cursor='watch')
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 

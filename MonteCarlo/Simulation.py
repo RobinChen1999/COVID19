@@ -1,5 +1,19 @@
-from Customer import *
+from matplotlib import rc
+from PIL import Image
+import os
+import cv2
+import glob
+from matplotlib import ticker
+from matplotlib import colors as cls
+from matplotlib.colors import ListedColormap
+import copy
+import matplotlib as mpl
+from matplotlib.colors import LinearSegmentedColormap
 from Store import *
+from Customer import *
+from Params import *
+from StorePlot import *
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -8,21 +22,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 from numpy import linspace, meshgrid
 #from matplotlib.mlab import griddata
-from matplotlib.colors import LinearSegmentedColormap
-import matplotlib as mpl
-import copy
-from matplotlib.colors import ListedColormap
-from matplotlib import colors as cls
-from matplotlib import ticker
-import glob
-import cv2
-import os
-from PIL import Image
-
-## some plotting parameters
-from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size' : 24})
-rc('text', usetex=True)
 
 
 class Simulation:
@@ -358,6 +357,7 @@ class Simulation:
 
 		##list of customers in the store
 		self.customers = []
+		self.allCustomers = []
 
 		self.gui.update_output("Done")
 
@@ -369,18 +369,19 @@ class Simulation:
 			infected = 1
 		else:
 			infected = 0
-		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], infected=infected)
+		new = SmartCustomer(self.gui, self.store.entrance[0],self.store.entrance[1], step=self.stepNow, infected=infected)
 		new.initShoppingList(self.store, self.MAXSHOPPINGLIST)
 		self.customers.append(new)
+		self.allCustomers.append(new)
 		return len(self.customers)
 
 
 	## when output level 1, the store is plotted to files with seed and simulation time step as keys
 	def printStore(self, step, title):
-		fig = plt.figure(figsize=(12,8))
+		fig = plt.figure(figsize=(10,10))
 
 		# first plot the static store structures
-		ax = fig.add_axes([0.07,0.07,0.85,.85])
+		ax = fig.add_axes([0, 0.07, 1, 1])
 
 		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
 		ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
@@ -423,14 +424,14 @@ class Simulation:
 			ax.plot(c.x, c.y, '{}{}'.format(col,marker), ms=17, clip_on=False)
 
 
+		# aerosols colorbar meter
+		# plt.xlim([0.,self.store.Lx])
+		# plt.ylim([0.,self.store.Ly])
+		# cb = fig.colorbar(difPlumes, ticks=[0.1, 1.0, 10.0, 100.0])
 
-		plt.xlim([0.,self.store.Lx])
-		plt.ylim([0.,self.store.Ly])
-		cb = fig.colorbar(difPlumes, ticks=[0.1, 1.0, 10.0, 100.0])
-
-		font_size = 36
-		cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
-		cb.ax.tick_params(labelsize=font_size)
+		# font_size = 36
+		# cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
+		# cb.ax.tick_params(labelsize=font_size)
 		plt.axis('off')
 		plt.savefig("simFigures/simFigure_{}_{:07d}.png".format(self.seed, step))
 		plt.close()
@@ -580,7 +581,9 @@ class Simulation:
 		self.generateVideo()
 		# self.createGif()
 		self.printEndStatistics()
-		return
+		storePlot = StorePlot(store=self.store, customers=self.allCustomers,
+								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed)
+		return storePlot
 
 
 

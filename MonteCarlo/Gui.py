@@ -83,13 +83,13 @@ class Gui:
                                "This is used when generating random variables.\n"
                                "Rerunning a simulation with the same seed will use the same random variables.")
 
-        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 500,
+        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 10,
                                     "For how many steps the simulation will maximally run.")
 
         # Customer Tab
         tab_customer = ttk.Frame(input_tab_control)
 
-        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 1000,
+        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 10,
                                        "How many customers will enter the store.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
@@ -274,9 +274,9 @@ class Gui:
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
-                sim.runSimulation()
+                store_plot = sim.runSimulation()
                 outputGui.simulating = False
-                outputGui.update_output_window()
+                outputGui.update_on_sim_finished(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim).start()
