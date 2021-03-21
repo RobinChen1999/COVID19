@@ -37,9 +37,11 @@ class GuiOutput:
         self.txt_output.config(cursor='arrow')
         self.txt_output.pack()
         self.update_output("Simulation finished!")
+        self.lbl_sim.destroy()
         
         self.store_plot = store_plot
-        self.store_plot.init_canvas(canvas=self.canvas_sim, store_fig=self.lbl_sim, height=self.canvas_height)
+        # self.store_plot.init_canvas(canvas=self.canvas_sim, store_fig=self.lbl_sim, height=self.canvas_height)
+        self.store_plot.init_canvas(window=self.frm_sim, height=self.canvas_height)
 
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width/2)/steps), 10)
@@ -67,7 +69,10 @@ class GuiOutput:
                 latest_figure = figureList[-2] # get second last element  
                 img = Image.open(latest_figure)
                 self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
-                self.canvas_sim.itemconfig(self.lbl_sim, image=self.frm_img)
+                try:
+                    self.lbl_sim.config(image=self.frm_img)
+                    self.lbl_sim.image = self.frm_img
+                except: pass # when label is destroyed before while-loop ends
 
     # Output
     def draw_output_window(self):
@@ -81,11 +86,11 @@ class GuiOutput:
 
         lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
+
+        self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
+        self.lbl_sim.pack()
         
-        self.canvas_height = height=self.window_height / 3*2
-        self.canvas_sim = tk.Canvas(self.frm_sim, height=self.canvas_height, width=self.canvas_height)
-        self.canvas_sim.pack()
-        self.lbl_sim = self.canvas_sim.create_image(0, 0, anchor="nw")
+        self.canvas_height =self.window_height / 3*2
 
         # Output frame
         frm_output = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
