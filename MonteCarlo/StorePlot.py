@@ -25,12 +25,6 @@ class StorePlot:
         self.parula_map = parula_map
         self.useDiffusion = useDiffusion
         self.seed = seed
-
-    # def init_canvas(self, canvas, store_fig,height):
-    #     self.canvas = canvas
-    #     self.height = height
-    #     self.store_fig = store_fig
-    #     self.draw_customers(step=0)
         
     def init_canvas(self, window, height):
         self.height = height
@@ -60,8 +54,6 @@ class StorePlot:
                 else:
                     col = 'yellow'
                 x = startx + c.route[step-c.initStep+1][0] * scale
-                # fig_bounds = self.canvas.bbox(self.store_fig)  # returns a tuple like (x1, y1, x2, y2)
-                # img_height = fig_bounds[3] * 0.9
                 y = starty - (c.route[step-c.initStep+1][1] * scale)
                 oval = self.canvas.create_oval(x, y, x+radius, y+radius, fill=col, tags=("customer_point"))
                 

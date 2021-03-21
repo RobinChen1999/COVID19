@@ -40,7 +40,6 @@ class GuiOutput:
         self.lbl_sim.destroy()
         
         self.store_plot = store_plot
-        # self.store_plot.init_canvas(canvas=self.canvas_sim, store_fig=self.lbl_sim, height=self.canvas_height)
         self.store_plot.init_canvas(window=self.frm_sim, height=self.canvas_height)
 
         steps = int(self.max_steps) - 1
