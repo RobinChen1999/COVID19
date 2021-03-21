@@ -124,9 +124,12 @@ class GuiOutput:
         self.ax1.axis((0, 1, 0, 1))
         self.ax2.axis((0, 1, 0, 1))
 
-        self.line_customers_in_store, = self.ax1.plot([], [], color='blue')
-        self.line_customers_infected, = self.ax1.plot([], [], color='red')
-        self.line_exposure = self.ax2.plot([], [], 'g-')[0]
+        self.line_customers_in_store, = self.ax1.plot([], [], color='blue', label='Nr. of Customers')
+        self.line_customers_infected, = self.ax1.plot([], [], color='red', label='Nr. of Infected Customers')
+        self.line_exposure = self.ax2.plot([], [], color='green', label='Exposure')[0]
+
+        self.ax1.legend(loc="upper left")
+        self.ax2.legend(loc="upper right")
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
         self.canvas.draw()
@@ -192,7 +195,7 @@ class GuiOutput:
 
         # Update scale
         step = 1 if step == 0 else step
-        self.ax1.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) + 1))
-        self.ax2.axis((0, step, 0, max(y_exposure) + 1))
+        self.ax1.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.2))
+        self.ax2.axis((0, step, 0, max(max(y_exposure) * 1.2, 1)))
 
         self.canvas.draw_idle()
