@@ -21,11 +21,11 @@ class Gui:
 
     # Input window
     def draw_input_window(self):
-        window = tk.Tk()
-        window.geometry('{}x{}'.format(800, 400))
+        self.root = tk.Tk()
+        self.root.geometry('{}x{}'.format(800, 400))
 
         # Layout frame
-        frm_layout = tk.Frame(window, bg="red")
+        frm_layout = tk.Frame(self.root, bg="red")
 
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
@@ -34,7 +34,7 @@ class Gui:
         store_layout_canvas.draw_store_layout()
 
         # Parameters frame
-        frm_parameters = tk.Frame(window, bg="yellow")
+        frm_parameters = tk.Frame(self.root, bg="yellow")
 
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
@@ -161,8 +161,10 @@ class Gui:
 
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_parameters.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
 
-        window.mainloop()
+        self.root.mainloop()
 
     def validate_input(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params):
         # Simulation
@@ -221,19 +223,11 @@ class Gui:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
         else:
-            return True
-
-    # clear contents of simFigures folder
-    def clear_folder(self):
-        dir = 'simFigures'
-        for f in os.listdir(dir):
-            os.remove(os.path.join(dir, f))
+            return True        
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
                        store_layout):
         self.simulating = True
-        # clear the figures of previous simulations
-        self.clear_folder()
 
         input_valid = self.validate_input(
             simulation_params=simulation_params,
@@ -279,7 +273,26 @@ class Gui:
                 outputGui.update_on_sim_finished(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
-            threading.Thread(target=run_sim).start()
+            threading.Thread(target=run_sim, daemon = True).start()
+
+    # when window closes
+    def close_window(self):
+        # clear figures from simFigures folder
+        figureList = glob.glob('simFigures/simFigure*' + '.png')
+        for f in figureList:
+            os.remove(f)
+        
+        # remove all data files
+        dataFiles = glob.glob('*.dat')
+        for d in dataFiles:
+            os.remove(d)
+        
+        # remove all videos
+        videos = glob.glob('*.mkv')
+        for v in videos:
+            os.remove(v)
+        
+        self.root.destroy()
 
 
 class ToolTip(object):

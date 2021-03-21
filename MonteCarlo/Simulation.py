@@ -466,7 +466,7 @@ class Simulation:
 
 		# Define the codec and create VideoWriter object
 		fourcc = cv2.VideoWriter_fourcc(*'XVID') # Be sure to use lower case
-		out = cv2.VideoWriter("video.mkv", fourcc, 20.0, (width, height))
+		out = cv2.VideoWriter("video_%s.mkv"%self.seed, fourcc, 20.0, (width, height))
 
 		for image in images:
 

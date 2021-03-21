@@ -3,7 +3,6 @@ from StorePlot import *
 import tkinter as tk
 import threading
 import imageio
-# import shutil
 import glob
 import os
 from PIL import Image, ImageTk
@@ -19,18 +18,16 @@ class GuiOutput:
     window_height = 800
 
     def __init__(self, simulation_params):
-        self.draw_output_window()
         self.simulating = True
-        self.update_output("Running simulation with the following parameters:")
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
+        self.draw_output_window()
+        self.update_output("Running simulation with the following parameters:")
         
         # Start load_figures in new thread so GUI doesn't block
-        t = threading.Thread(target=self.load_figures)
-        t.setDaemon(True)
-        t.start()
-
-        
+        self.t = threading.Thread(target=self.load_figures)
+        self.t.setDaemon(True)
+        self.t.start()      
 
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
@@ -48,13 +45,12 @@ class GuiOutput:
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
         
-
     # opens a 'save-as' window to save the video
     def save_file(self):
-        file = asksaveasfile(mode="wb", title="Save Figure", defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
+        file = asksaveasfile(initialfile="simulation_%s.mkv"%self.seed, mode="wb", title="Save Figure", defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
         if file is None:
             return None
-        vid_to_save = open("video.mkv","rb").read()
+        vid_to_save = open("video_%s.mkv"%self.seed,"rb").read()
         file.write(vid_to_save)
         file.close()
     
@@ -69,15 +65,35 @@ class GuiOutput:
                 self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
                 self.canvas_sim.itemconfig(self.lbl_sim, image=self.frm_img)
 
+    # when output window closes
+    def close_window(self):
+        # clear images with current seed out of simFigures folder
+        figureList = glob.glob('simFigures/simFigure_%s_*'%self.seed + '.png')
+        for f in figureList:
+            os.remove(f)
+        
+        # remove data files of current seed
+        dataFiles = glob.glob('*%s.dat'%self.seed)
+        for d in dataFiles:
+            os.remove(d)
+        
+        # remove video of current seed
+        try:
+            os.remove('video_%s.mkv'%self.seed)
+        except Exception as e:
+            print('Failed to delete video')
+
+        self.window.destroy()
+
     # Output
     def draw_output_window(self):
         self.output_line_nr = 0
 
-        window = tk.Toplevel()
-        window.state('zoomed')
+        self.window = tk.Toplevel()
+        self.window.state('zoomed')
 
         # Simulation frame
-        self.frm_sim = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="red")
+        self.frm_sim = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="red")
 
         lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
@@ -88,7 +104,7 @@ class GuiOutput:
         self.lbl_sim = self.canvas_sim.create_image(0, 0, anchor="nw")
 
         # Output frame
-        frm_output = tk.Frame(window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
+        frm_output = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="yellow")
 
         lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
@@ -105,6 +121,7 @@ class GuiOutput:
         self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
+        self.window.protocol("WM_DELETE_WINDOW", self.close_window)
 
     def update_output(self, line):
         if self.txt_output == 0:
