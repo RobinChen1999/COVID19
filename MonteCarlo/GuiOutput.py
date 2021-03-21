@@ -115,15 +115,18 @@ class GuiOutput:
         fig_graphs = plt.Figure()
 
         self.ax1 = fig_graphs.add_subplot(111)
+        self.ax1.set_xlabel('Step')
+        self.ax1.set_ylabel('Customers')
+
         self.ax2 = self.ax1.twinx()
+        self.ax2.set_ylabel('Exposure')
 
         self.ax1.axis((0, 1, 0, 1))
         self.ax2.axis((0, 1, 0, 1))
 
-        self.line_customers_in_store, = self.ax1.plot([], [], 'r-')
-        self.line_customers_infected, = self.ax1.plot([], [], 'b-')
-
-        fig_graphs.tight_layout()
+        self.line_customers_in_store, = self.ax1.plot([], [], color='blue')
+        self.line_customers_infected, = self.ax1.plot([], [], color='red')
+        self.line_exposure = self.ax2.plot([], [], 'g-')[0]
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
         self.canvas.draw()
@@ -175,18 +178,21 @@ class GuiOutput:
             self.txt_step_output.insert(tk.END, output)
             self.txt_step_output.config(state='disabled')
 
-    def update_graph(self, step, customers_in_store, infected_customers):
+    def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
         y_customers_in_store = customers_in_store[:(step + 1)]
         y_infected_customers = infected_customers[:(step + 1)]
+        y_exposure = exposure[:(step + 1)]
         x = list(range(len(y_customers_in_store)))
 
         # Update lines
         self.line_customers_in_store.set_data(x, y_customers_in_store)
         self.line_customers_infected.set_data(x, y_infected_customers)
+        self.line_exposure.set_data(x, y_exposure)
 
         # Update scale
+        step = 1 if step == 0 else step
         self.ax1.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) + 1))
-        self.ax2.axis((0, step, 0, 1))
+        self.ax2.axis((0, step, 0, max(y_exposure) + 1))
 
         self.canvas.draw_idle()

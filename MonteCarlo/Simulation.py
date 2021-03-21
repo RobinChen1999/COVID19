@@ -524,7 +524,7 @@ class Simulation:
 										   self.emittingCustomersNowInStore[self.stepNow],
 										   self.exposureDuringTimeStep[self.stepNow])
 
-			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore)
+			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
 
 			self.stepNow+=1
 
