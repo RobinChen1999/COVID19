@@ -1,3 +1,5 @@
+import time
+
 from StorePlot import *
 
 import tkinter as tk
@@ -102,6 +104,32 @@ class GuiOutput:
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack()
 
+        self.frm_graphs = tk.Frame(frm_output, height=self.window_height/2, width=self.window_width/3, bg="green")
+        self.frm_graphs.pack()
+
+        x = list(range(10))
+        y = list(range(10))
+
+        plt.ion()
+
+        fig_graphs = plt.Figure()
+
+        self.ax1 = fig_graphs.add_subplot(111)
+        self.ax2 = self.ax1.twinx()
+
+        self.ax1.axis((0, 1, 0, 1))
+        self.ax2.axis((0, 1, 0, 1))
+
+        self.line_customers_in_store, = self.ax1.plot([], [], 'r-')
+        self.line_customers_infected, = self.ax1.plot([], [], 'b-')
+
+        fig_graphs.tight_layout()
+
+        self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
+        self.canvas.draw()
+
+        self.canvas.get_tk_widget().pack()
+
         self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
@@ -146,3 +174,19 @@ class GuiOutput:
             self.txt_step_output.delete('1.0', tk.END)
             self.txt_step_output.insert(tk.END, output)
             self.txt_step_output.config(state='disabled')
+
+    def update_graph(self, step, customers_in_store, infected_customers):
+        # Get only relevant data
+        y_customers_in_store = customers_in_store[:(step + 1)]
+        y_infected_customers = infected_customers[:(step + 1)]
+        x = list(range(len(y_customers_in_store)))
+
+        # Update lines
+        self.line_customers_in_store.set_data(x, y_customers_in_store)
+        self.line_customers_infected.set_data(x, y_infected_customers)
+
+        # Update scale
+        self.ax1.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) + 1))
+        self.ax2.axis((0, step, 0, 1))
+
+        self.canvas.draw_idle()

@@ -523,6 +523,9 @@ class Simulation:
 										   self.customersNowInQueue[self.stepNow],
 										   self.emittingCustomersNowInStore[self.stepNow],
 										   self.exposureDuringTimeStep[self.stepNow])
+
+			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore)
+
 			self.stepNow+=1
 
 			if customersHeadExit>maxQueue:
