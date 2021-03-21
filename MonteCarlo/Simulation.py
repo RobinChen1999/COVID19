@@ -535,6 +535,8 @@ class Simulation:
 				if c.infected:
 					emittingCustomers +=1
 				tx, ty = c.takeStep(self.store)
+				coords = [tx, ty]
+				c.route.append(coords)		# append to route for StorePlot
 				customersHeadExit += c.headingForExit
 				if tx==-1 and ty==-1:
 					customersExit.append(j)

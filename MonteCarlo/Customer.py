@@ -134,27 +134,6 @@ class Customer:
 
 	
 class SmartCustomer(Customer):
-
-    # def __init__(self, x, y, step, infected=0, probSpreadPlume=self.PROBSPREADPLUME):
-    #     self.x = x  # initial position
-    #     self.y = y
-    #     self.infected = infected  # int boolean
-    #     self.shoppingList = []  # list of points to visit
-    #     self.path = None
-    #     self.probSpreadPlume = probSpreadPlume
-    #     self.exposure = 0
-    #     self.exposureTime = 0
-    #     self.exposureTimeThres = 0
-    #     self.timeInStore = 0
-    #     self.initItemsList = None
-    #     self.cashierWaitingTime = None
-    #     self.waitingTime = 0
-    #     self.headingForExit = 0
-    #     self.initStep = step
-    #     self.route = []
-    #     coords = [x, y]
-    #     self.route.append(coords)
-
     # adds coordinate to the shopping list
     def addTarget(self, target):
         self.shoppingList.append(target)
@@ -409,6 +388,4 @@ class SmartCustomer(Customer):
             self.takeRandomStep(store)
             self.path = None
 
-        coords = [self.x, self.y]
-        self.route.append(coords)
         return self.x, self.y
