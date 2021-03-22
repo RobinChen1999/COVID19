@@ -26,6 +26,11 @@ class StoreLayout:
                                 command=self.hide_grid_lines)
         self.btn_grid.pack()
 
+        btn_clear_shelves = tk.Button(frame,
+                                    text="Remove all shelves",
+                                    command=self.clear_shelves)
+        btn_clear_shelves.pack()
+
         # init col row
         self.click_row = 0
         self.click_col = 0
@@ -50,6 +55,9 @@ class StoreLayout:
             self.canvas.itemconfigure("grid_lines", state="hidden")
         elif self.show_grid.get() == 1:
             self.canvas.itemconfigure("grid_lines", state="normal")
+    
+    def clear_shelves(self):
+        self.canvas.delete('shelf')
 
     # changes colour of rectangle object from grid
     def draw_shelf(self, row, col):
