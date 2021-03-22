@@ -107,17 +107,13 @@ class GuiOutput:
 
         self.txt_step_output = tk.Text(frm_output, height=4, width=70)
         self.txt_step_output.config(wrap='none', state='disabled')
-        self.txt_step_output.pack()
+        self.txt_step_output.pack(pady=20)
 
-        self.frm_graphs = tk.Frame(frm_output, height=self.window_height/2, width=self.window_width/3, bg="green")
-        self.frm_graphs.pack()
-
-        x = list(range(10))
-        y = list(range(10))
+        self.frm_graphs = tk.Frame(frm_output, bg="green")
+        self.frm_graphs.pack(fill=None, expand=False)
 
         plt.ion()
-
-        fig_graphs = plt.Figure()
+        fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
 
         self.ax_customer = fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
@@ -139,7 +135,7 @@ class GuiOutput:
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
         self.canvas.draw()
 
-        self.canvas.get_tk_widget().pack()
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH)
 
         self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
@@ -201,8 +197,8 @@ class GuiOutput:
 
         # Update scale
         step = 1 if step == 0 else step
-        self.ax_customer.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.2))
-        self.ax_exposure.axis((0, step, 0, max(max(y_exposure) * 1.2, 1)))
+        self.ax_customer.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.25))
+        self.ax_exposure.axis((0, step, 0, max(max(y_exposure) * 1.25, 1)))
 
         self.canvas.draw_idle()
 
