@@ -114,22 +114,22 @@ class GuiOutput:
 
         fig_graphs = plt.Figure()
 
-        self.ax1 = fig_graphs.add_subplot(111)
-        self.ax1.set_xlabel('Step')
-        self.ax1.set_ylabel('Customers')
+        self.ax_customer = fig_graphs.add_subplot(111)
+        self.ax_customer.set_xlabel('Step')
+        self.ax_customer.set_ylabel('Customers')
 
-        self.ax2 = self.ax1.twinx()
-        self.ax2.set_ylabel('Exposure')
+        self.ax_exposure = self.ax_customer.twinx()
+        self.ax_exposure.set_ylabel('Exposure')
 
-        self.ax1.axis((0, 1, 0, 1))
-        self.ax2.axis((0, 1, 0, 1))
+        self.ax_customer.axis((0, 1, 0, 1))
+        self.ax_exposure.axis((0, 1, 0, 1))
 
-        self.line_customers_in_store, = self.ax1.plot([], [], color='blue', label='Nr. of Customers')
-        self.line_customers_infected, = self.ax1.plot([], [], color='red', label='Nr. of Infected Customers')
-        self.line_exposure = self.ax2.plot([], [], color='green', label='Exposure')[0]
+        self.ax_customer.plot([], [], color='blue', label='Nr. of Customers')
+        self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
+        self.ax_exposure.plot([], [], color='green', label='Exposure')
 
-        self.ax1.legend(loc="upper left")
-        self.ax2.legend(loc="upper right")
+        self.ax_customer.legend(loc="upper left")
+        self.ax_exposure.legend(loc="upper right")
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
         self.canvas.draw()
@@ -189,13 +189,27 @@ class GuiOutput:
         x = list(range(len(y_customers_in_store)))
 
         # Update lines
-        self.line_customers_in_store.set_data(x, y_customers_in_store)
-        self.line_customers_infected.set_data(x, y_infected_customers)
-        self.line_exposure.set_data(x, y_exposure)
+        self.ax_customer.lines[0].set_data(x, y_customers_in_store)
+        self.ax_customer.lines[1].set_data(x, y_infected_customers)
+        self.ax_exposure.lines[0].set_data(x, y_exposure)
+
+        self.update_markers(step)
 
         # Update scale
         step = 1 if step == 0 else step
-        self.ax1.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.2))
-        self.ax2.axis((0, step, 0, max(max(y_exposure) * 1.2, 1)))
+        self.ax_customer.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.2))
+        self.ax_exposure.axis((0, step, 0, max(max(y_exposure) * 1.2, 1)))
 
         self.canvas.draw_idle()
+
+    def update_markers(self, step):
+        # Remove existing markers
+        if len(self.ax_customer.lines) > 3:
+            self.ax_customer.lines.pop(3)
+            self.ax_customer.lines.pop(2)
+            self.ax_exposure.lines.pop(1)
+
+        self.ax_customer.plot(step, self.ax_customer.lines[0].get_ydata()[step], 'bo')
+        self.ax_customer.plot(step, self.ax_customer.lines[1].get_ydata()[step], 'ro')
+        self.ax_exposure.plot(step, self.ax_exposure.lines[0].get_ydata()[step], 'go')
+
