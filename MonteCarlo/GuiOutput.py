@@ -199,8 +199,6 @@ class GuiOutput:
         self.ax_customer.lines[1].set_data(x, y_infected_customers)
         self.ax_exposure.lines[0].set_data(x, y_exposure)
 
-        self.update_markers(step)
-
         # Update scale
         step = 1 if step == 0 else step
         self.ax_customer.axis((0, step, 0, max(max(y_customers_in_store), max(y_infected_customers)) * 1.2))
@@ -211,10 +209,15 @@ class GuiOutput:
     def update_markers(self, step):
         # Remove existing markers
         if len(self.ax_customer.lines) > 3:
+            self.ax_customer.lines.pop(4)
             self.ax_customer.lines.pop(3)
             self.ax_customer.lines.pop(2)
             self.ax_exposure.lines.pop(1)
 
+        # Draw line
+        self.ax_customer.axvline(step, color="lightgrey", linestyle="dashed")
+
+        # Draw markers
         self.ax_customer.plot(step, self.ax_customer.lines[0].get_ydata()[step], 'bo')
         self.ax_customer.plot(step, self.ax_customer.lines[1].get_ydata()[step], 'ro')
         self.ax_exposure.plot(step, self.ax_exposure.lines[0].get_ydata()[step], 'go')
