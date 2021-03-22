@@ -14,10 +14,11 @@ class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, simulation_params, nr_customers):
+    def __init__(self, simulation_params, sim_id, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
+        self.id = sim_id
         self.draw_output_window()
         self.update_output(
             "Running simulation until all {} customers are finished\n or step limit of {} has been reached".format(
@@ -49,11 +50,11 @@ class GuiOutput:
 
     # opens a 'save-as' window to save the video
     def save_file(self):
-        file = asksaveasfile(initialfile="simulation_%s.mkv" % self.seed, mode="wb", title="Save Figure",
-                             defaultextension=".mkv", filetypes=(("mkv files", ".mkv"), ("all files", ".*")))
+        file = asksaveasfile(initialfile="simulation_%d_%s.mkv"%(self.id,self.seed), mode="wb", title="Save Simulation", 
+                            defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
         if file is None:
             return None
-        vid_to_save = open("video_%s.mkv" % self.seed, "rb").read()
+        vid_to_save = open("video_%d_%s.mkv"%(self.id,self.seed),"rb").read()
         file.write(vid_to_save)
         file.close()
 
@@ -66,9 +67,9 @@ class GuiOutput:
     # load the already simulated figures
     def load_figures(self):
         while self.simulating:
-            # when simFigures has at least 2 figures
-            if len(os.listdir('simFigures')) > 2:
-                figureList = glob.glob('simFigures/simFigure_%s_*' % self.seed + '.png')
+            # when simulation has at least 2 figures
+            figureList = glob.glob('simFigures/simFigure_%d_%s_*' %(self.id,self.seed) + '.png')
+            if len(figureList) > 1:
                 latest_figure = figureList[-2]  # get second last element
                 img = Image.open(latest_figure)
                 self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
@@ -81,18 +82,18 @@ class GuiOutput:
     # when output window closes
     def close_window(self):
         # clear images with current seed out of simFigures folder
-        figureList = glob.glob('simFigures/simFigure_%s_*' % self.seed + '.png')
+        figureList = glob.glob('simFigures/simFigure_%d_%s_*' %(self.id,self.seed) + '.png')
         for f in figureList:
             os.remove(f)
 
         # remove data files of current seed
-        dataFiles = glob.glob('*%s.dat' % self.seed)
+        dataFiles = glob.glob('*%d_%s.dat'%(self.id,self.seed))
         for d in dataFiles:
             os.remove(d)
 
         # remove video of current seed
         try:
-            os.remove('video_%s.mkv' % self.seed)
+            os.remove('video_%d_%s.mkv'%(self.id,self.seed))
         except Exception as e:
             print('Failed to delete video')
 
@@ -103,7 +104,7 @@ class GuiOutput:
         self.output_line_nr = 0
 
         self.window = tk.Toplevel()
-        self.window.title('Simulation ' + self.seed)
+        self.window.title('Simulation %d with seed: %s'%(self.id,self.seed))
         self.window.state('zoomed')
 
         # Simulation frame

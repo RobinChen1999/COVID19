@@ -19,12 +19,13 @@ matplotlib.use('Agg')
 
 
 class StorePlot:
-    def __init__(self, store, customers, parula_map, useDiffusion, seed):
+    def __init__(self, store, customers, parula_map, useDiffusion, seed, sim_id):
         self.store = store
         self.customers = customers
         self.parula_map = parula_map
         self.useDiffusion = useDiffusion
         self.seed = seed
+        self.id = sim_id
         
     def init_canvas(self, window, height):
         self.height = height
@@ -35,7 +36,7 @@ class StorePlot:
         self.draw_customers(step=0)
 
     def update_figure(self, value):
-        image = Image.open('simFigures/simFigure_%s_%07d.png'%(self.seed, int(value)))
+        image = Image.open('simFigures/simFigure_%d_%s_%07d.png'%(self.id, self.seed, int(value)))
         self.step_img = ImageTk.PhotoImage(image.resize((int(self.height),int(self.height))))
         self.canvas.itemconfig(self.store_fig, image=self.step_img)
         self.draw_customers(step=int(value))
@@ -56,4 +57,9 @@ class StorePlot:
                 x = startx + c.route[step-c.initStep+1][0] * scale
                 y = starty - (c.route[step-c.initStep+1][1] * scale)
                 oval = self.canvas.create_oval(x, y, x+radius, y+radius, fill=col, tags=("customer_point"))
+                self.canvas.tag_bind(oval, '<Button-1>', self.on_customer_click)
+        
+    def on_customer_click(self, customer):
+        print("customer clicked!")
+
                 
