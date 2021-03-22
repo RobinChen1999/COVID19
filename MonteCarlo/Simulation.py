@@ -520,9 +520,11 @@ class Simulation:
 			self.store.initializeExposureDuringTimeStep()
 
 			self.gui.update_displayed_step(self.stepNow, self.customersNowInStore[self.stepNow],
-										   self.customersNowInQueue[self.stepNow],
 										   self.emittingCustomersNowInStore[self.stepNow],
 										   self.exposureDuringTimeStep[self.stepNow])
+
+			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
+
 			self.stepNow+=1
 
 			if customersHeadExit>maxQueue:
