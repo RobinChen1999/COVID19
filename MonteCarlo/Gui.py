@@ -22,6 +22,7 @@ class Gui:
     # Input window
     def draw_input_window(self):
         self.root = tk.Tk()
+        self.root.title("Input window")
         self.root.geometry('{}x{}'.format(800, 400))
 
         # Layout frame

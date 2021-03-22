@@ -90,6 +90,7 @@ class GuiOutput:
         self.output_line_nr = 0
 
         self.window = tk.Toplevel()
+        self.window.title('Simulation ' + self.seed)
         self.window.state('zoomed')
 
         # Simulation frame
