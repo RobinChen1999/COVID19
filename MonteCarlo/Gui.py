@@ -84,13 +84,13 @@ class Gui:
                                "This is used when generating random variables.\n"
                                "Rerunning a simulation with the same seed will use the same random variables.")
 
-        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 10,
+        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 100,
                                     "For how many steps the simulation will maximally run.")
 
         # Customer Tab
         tab_customer = ttk.Frame(input_tab_control)
 
-        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 10,
+        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 100,
                                        "How many customers will enter the store.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,

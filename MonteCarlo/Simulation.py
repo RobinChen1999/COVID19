@@ -520,9 +520,11 @@ class Simulation:
 			self.store.initializeExposureDuringTimeStep()
 
 			self.gui.update_displayed_step(self.stepNow, self.customersNowInStore[self.stepNow],
-										   self.customersNowInQueue[self.stepNow],
 										   self.emittingCustomersNowInStore[self.stepNow],
 										   self.exposureDuringTimeStep[self.stepNow])
+
+			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
+
 			self.stepNow+=1
 
 			if customersHeadExit>maxQueue:
@@ -535,6 +537,8 @@ class Simulation:
 				if c.infected:
 					emittingCustomers +=1
 				tx, ty = c.takeStep(self.store)
+				coords = [tx, ty]
+				c.route.append(coords)		# append to route for StorePlot
 				customersHeadExit += c.headingForExit
 				if tx==-1 and ty==-1:
 					customersExit.append(j)

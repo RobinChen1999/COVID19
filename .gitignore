@@ -48,9 +48,6 @@ cmake-build-debug
 # All generated .dat files
 *.dat
 
-# simFigures folder
-simFigures/
-
 # All png and gif files
 storeMap.png
 *.gif
