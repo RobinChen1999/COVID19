@@ -14,19 +14,22 @@ class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, simulation_params):
+    def __init__(self, simulation_params, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.draw_output_window()
-        self.update_output("Running simulation with the following parameters:")
-        
+        self.update_output(
+            "Running simulation until all {} customers are finished\n or step limit of {} has been reached".format(
+                nr_customers, self.max_steps))
+
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
         self.t.setDaemon(True)
-        self.t.start()      
+        self.t.start()
 
-    # updates output window after simulation is done
+        # updates output window after simulation is done
+
     def update_on_sim_finished(self, store_plot):
         self.txt_output.config(cursor='arrow')
         self.txt_output.pack()
@@ -43,14 +46,14 @@ class GuiOutput:
         slider.pack()
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
-        
+
     # opens a 'save-as' window to save the video
     def save_file(self):
-        file = asksaveasfile(initialfile="simulation_%s.mkv"%self.seed, mode="wb", title="Save Figure", 
-                            defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
+        file = asksaveasfile(initialfile="simulation_%s.mkv" % self.seed, mode="wb", title="Save Figure",
+                             defaultextension=".mkv", filetypes=(("mkv files", ".mkv"), ("all files", ".*")))
         if file is None:
             return None
-        vid_to_save = open("video_%s.mkv"%self.seed,"rb").read()
+        vid_to_save = open("video_%s.mkv" % self.seed, "rb").read()
         file.write(vid_to_save)
         file.close()
 
@@ -78,18 +81,18 @@ class GuiOutput:
     # when output window closes
     def close_window(self):
         # clear images with current seed out of simFigures folder
-        figureList = glob.glob('simFigures/simFigure_%s_*'%self.seed + '.png')
+        figureList = glob.glob('simFigures/simFigure_%s_*' % self.seed + '.png')
         for f in figureList:
             os.remove(f)
-        
+
         # remove data files of current seed
-        dataFiles = glob.glob('*%s.dat'%self.seed)
+        dataFiles = glob.glob('*%s.dat' % self.seed)
         for d in dataFiles:
             os.remove(d)
-        
+
         # remove video of current seed
         try:
-            os.remove('video_%s.mkv'%self.seed)
+            os.remove('video_%s.mkv' % self.seed)
         except Exception as e:
             print('Failed to delete video')
 
@@ -168,11 +171,16 @@ class GuiOutput:
         else:
             # Construct output line
             output_line = ""
-            if self.txt_output.get("1.0", tk.END) != "\n":
-                output_line += "\n"
 
-            # output_line += str(self.output_line_nr) + ": " + line
-            output_line += " " + line
+            if line == "-":
+                if self.txt_output.get("end-1c linestart") != "-":
+                    output_line += "\n" + "-" * 20
+            else:
+                if self.txt_output.get("1.0", tk.END) != "\n":
+                    output_line += "\n"
+
+                # output_line += str(self.output_line_nr) + ": " + line
+                output_line += line
 
             # Update output
             self.txt_output.config(state='normal')

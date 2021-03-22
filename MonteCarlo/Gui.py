@@ -239,7 +239,7 @@ class Gui:
         )
 
         if input_valid:
-            outputGui = GuiOutput(simulation_params)
+            outputGui = GuiOutput(simulation_params, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params
