@@ -13,22 +13,9 @@ class StoreLayout:
         self.canvas = tk.Canvas (frame, bg=self.color_floor, 
                                     width=self.canvas_width, 
                                     height=self.canvas_width)
+        self.canvas.bind('<B1-Motion>', self.onCanvasDrag)
         self.canvas.bind('<Button-1>', self.onCanvasClick)
         self.canvas.pack()
-
-        # radio buttons to select tool
-        # self.tool_selec = tk.IntVar()
-        # tool_remove = tk.Radiobutton(frame, 
-        #                             text="Remove shelf", 
-        #                             variable=self.tool_selec, 
-        #                             value=0)
-        # tool_remove.pack()
-        # tool_draw = tk.Radiobutton(frame, 
-        #                             text="Draw shelf", 
-        #                             variable=self.tool_selec, 
-        #                             value=1)
-        # tool_draw.pack()
-        # tool_draw.select()
 
         # button to show/hide the grid
         self.show_grid = tk.IntVar()
@@ -38,6 +25,10 @@ class StoreLayout:
                                 onvalue=1, offvalue=0, 
                                 command=self.hide_grid_lines)
         self.btn_grid.pack()
+
+        # init col row
+        self.click_row = 0
+        self.click_col = 0
 
         
         
@@ -67,6 +58,15 @@ class StoreLayout:
         y0 = col * self.step
         y1 = y0 + self.step
         shelf = self.canvas.create_rectangle(x0, y0, x1, y1, fill=self.color_shelf, width=0, tags=("shelf"))
+
+    # draws shelf when clicked on the canvas and when drawing tool selected
+    def onCanvasDrag(self, event):
+        new_row = int(event.x / self.step)
+        new_col = int(event.y / self.step)
+        if new_row != self.click_row or new_col != self.click_col:
+            self.click_row = new_row
+            self.click_col = new_col
+            self.onCanvasClick(event=event)
 
     # draws shelf when clicked on the canvas and when drawing tool selected
     def onCanvasClick(self, event):
