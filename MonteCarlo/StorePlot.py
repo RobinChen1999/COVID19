@@ -57,4 +57,9 @@ class StorePlot:
                 x = startx + c.route[step-c.initStep+1][0] * scale
                 y = starty - (c.route[step-c.initStep+1][1] * scale)
                 oval = self.canvas.create_oval(x, y, x+radius, y+radius, fill=col, tags=("customer_point"))
+                self.canvas.tag_bind(oval, '<Button-1>', self.on_customer_click)
+        
+    def on_customer_click(self, customer):
+        print("customer clicked!")
+
                 
