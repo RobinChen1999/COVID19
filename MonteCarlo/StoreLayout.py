@@ -6,7 +6,7 @@ class StoreLayout:
     color_floor = "white"
     color_shelf = "black"
     canvas_width = 200
-    step = int(canvas_width / 10)
+    step = int(canvas_width / 20)
 
     def __init__(self, frame):
         # create canvas
