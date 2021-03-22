@@ -433,7 +433,7 @@ class Simulation:
 		# cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
 		# cb.ax.tick_params(labelsize=font_size)
 		plt.axis('off')
-		plt.savefig("simFigures/simFigure_{}_{:07d}.png".format(self.seed, step))
+		plt.savefig("simFigures/simFigure_{:d}_{}_{:07d}.png".format(self.gui.id, self.seed, step))
 		plt.close()
 		return
 
@@ -448,11 +448,11 @@ class Simulation:
 			header+=" PLUMECONCINC {}, DIFFCOEFF {}, SINKCOEFF {}".format(self.PLUMECONCINC,self.DIFFCOEFF,self.ACSINKCOEFF)
 		## data per customer
 		dataArr = np.array([self.customerInfected[:self.customerNow], self.itemsBought[:self.customerNow], self.exposureHist[:self.customerNow], self.timeSpent[:self.customerNow], self.exposureHistTime[:self.customerNow], self.exposureHistTimeThres[:self.customerNow]]).T
-		np.savetxt("customer_data_{}.dat".format(self.seed), dataArr, header=header)
+		np.savetxt("customer_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
 		## store wide data of number of customer and customers in queue
 		dataArr = np.array([self.customersNowInStore[:self.stepNow],self.customersNowInQueue[:self.stepNow],self.emittingCustomersNowInStore[:self.stepNow],self.exposureDuringTimeStep[:self.stepNow]]).T
-		np.savetxt("store_data_{}.dat".format(self.seed), dataArr, header=header)
-		np.savetxt("integrated_plumes_store_data_{}.dat".format(self.seed), self.store.plumesIntegrated, header=header)
+		np.savetxt("store_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
+		np.savetxt("integrated_plumes_store_data_{:d}_{}.dat".format(self.gui.id,self.seed), self.store.plumesIntegrated, header=header)
 
 		return
 
@@ -466,7 +466,7 @@ class Simulation:
 
 		# Define the codec and create VideoWriter object
 		fourcc = cv2.VideoWriter_fourcc(*'XVID') # Be sure to use lower case
-		out = cv2.VideoWriter("video_%s.mkv"%self.seed, fourcc, 20.0, (width, height))
+		out = cv2.VideoWriter("video_%d_%s.mkv"%(self.gui.id,self.seed), fourcc, 20.0, (width, height))
 
 		for image in images:
 
@@ -586,7 +586,7 @@ class Simulation:
 		# self.createGif()
 		self.printEndStatistics()
 		storePlot = StorePlot(store=self.store, customers=self.allCustomers,
-								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed)
+								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
 		return storePlot
 
 
