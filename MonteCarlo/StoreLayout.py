@@ -57,7 +57,10 @@ class StoreLayout:
             self.canvas.itemconfigure("grid_lines", state="normal")
     
     def clear_shelves(self):
-        self.canvas.delete('shelf')
+        result = tk.messagebox.askquestion("Warning!","Are you sure you want to remove all shelves?")
+        if result == "yes":
+            self.canvas.delete('shelf')
+        else: pass
 
     # changes colour of rectangle object from grid
     def draw_shelf(self, row, col):
