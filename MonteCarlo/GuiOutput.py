@@ -45,11 +45,16 @@ class GuiOutput:
 
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width/2)/steps), 10)
-        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length, orient=tk.HORIZONTAL, command=self.store_plot.update_figure)
+        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length, orient=tk.HORIZONTAL, command=self.slider_handler)
         slider.pack()
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
-        
+
+    # Handle slider response
+    def slider_handler(self, value):
+        self.store_plot.update_figure(value)
+        self.update_displayed_step(int(value))
+        self.update_markers(int(value))
 
     # opens a 'save-as' window to save the video
     def save_file(self):
@@ -100,7 +105,7 @@ class GuiOutput:
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        self.txt_step_output = tk.Text(frm_output, height=5, width=70)
+        self.txt_step_output = tk.Text(frm_output, height=4, width=70)
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack()
 
@@ -160,20 +165,21 @@ class GuiOutput:
 
             self.output_line_nr += 1
 
-    def update_displayed_step(self, step, customers_in_store=-1, customers_in_queue=-1, emitting_customers_in_store=-1,
+    def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
         if self.txt_step_output == 0:
             raise Exception("Step output text is undefined")
         else:
-            if any(x == -1 for x in [customers_in_store, customers_in_queue, emitting_customers_in_store, exposure]):
-                print("todo")
-                # TODO: Get data from store_data.dat file
+            # Get data from axis when simulation has finished
+            if any(x == -1 for x in [customers_in_store, emitting_customers_in_store, exposure]):
+                customers_in_store = self.ax_customer.lines[0].get_ydata()[step]
+                emitting_customers_in_store = self.ax_customer.lines[1].get_ydata()[step]
+                exposure = self.ax_exposure.lines[0].get_ydata()[step]
 
             output = " Step: {}\n" \
                      "  Customers in store:            {:.0f}\n" \
-                     "  Customers heading for exit:    {:.0f}\n" \
                      "  Infected customers:            {:.0f}\n" \
-                     "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store, customers_in_queue,
+                     "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store,
                                                                       emitting_customers_in_store, exposure)
 
             self.txt_step_output.config(state='normal')
@@ -212,4 +218,6 @@ class GuiOutput:
         self.ax_customer.plot(step, self.ax_customer.lines[0].get_ydata()[step], 'bo')
         self.ax_customer.plot(step, self.ax_customer.lines[1].get_ydata()[step], 'ro')
         self.ax_exposure.plot(step, self.ax_exposure.lines[0].get_ydata()[step], 'go')
+
+        self.canvas.draw_idle()
 
