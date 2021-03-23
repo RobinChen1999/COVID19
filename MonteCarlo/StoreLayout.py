@@ -108,4 +108,5 @@ class StoreLayout:
 
         return str(fileName)
 
-
+    def draw_entrance_exits(self, nexits, cashierd):
+        print(nexits, cashierd)

@@ -32,8 +32,8 @@ class Gui:
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
 
-        store_layout_canvas = StoreLayout(frm_layout)
-        store_layout_canvas.draw_store_layout()
+        self.store_layout_canvas = StoreLayout(frm_layout)
+        self.store_layout_canvas.draw_store_layout()
 
         # Parameters frame
         frm_parameters = tk.Frame(self.root, bg="paleturquoise")
@@ -60,7 +60,7 @@ class Gui:
 
         input_tab_control = ttk.Notebook(frm_parameters)
 
-        def add_param_input(tab_root, index, label, value, description):
+        def add_param_input(tab_root, index, label, value, description, callback=None):
             tab_root.grid_columnconfigure(0, minsize=column_size_text)
             tab_root.grid_columnconfigure(2, minsize=column_size_input)
 
@@ -71,8 +71,14 @@ class Gui:
             create_tool_tip(desc, description)
             desc.grid(row=index, column=1, sticky="e")
 
-            ent = tk.Entry(tab_root)
-            ent.insert(0, value)
+            if callback is None:
+                ent = tk.Entry(tab_root)
+                ent.insert(0, value)
+            else:
+                sv = tk.StringVar()
+                sv.set(value)
+                ent = tk.Entry(tab_root, textvariable=sv, validate="focusout", validatecommand=callback)
+
             ent.grid(row=index, column=2, sticky="we")
 
             return ent
@@ -111,7 +117,20 @@ class Gui:
 
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
-        # TODO: Add
+
+        nexits = None
+        cashierd = None
+
+        def update_exits():
+            if all(x is not None for x in [nexits, cashierd]):
+                self.update_layout_entrance_exits(nexits.get(), cashierd.get())
+            else:
+                self.update_layout_entrance_exits(params["NEXITS"], params["CASHIERD"])
+            return True
+
+        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.", update_exits)
+
+        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"], "The distance between the exits.", update_exits)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
@@ -157,7 +176,7 @@ class Gui:
                                     "diff_coeff": diff_coeff.get(),
                                 },
                                 plume_params={},
-                                store_layout=store_layout_canvas
+                                store_layout=self.store_layout_canvas
                             ))
         btn_run.pack()
 
@@ -297,6 +316,9 @@ class Gui:
             os.remove(v)
         
         self.root.destroy()
+
+    def update_layout_entrance_exits(self, nexits, cashierd):
+        self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
 
 
 class ToolTip(object):
