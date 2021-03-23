@@ -288,6 +288,10 @@ class Gui:
                 params["PROBSPREADPLUME"] = float(customer_params["prob_cough"])
                 params["MAXSHOPPINGLIST"] = int(customer_params["max_shopping_list"])
 
+                # Exits
+                params["NEXITS"] = int(exit_params["nexits"])
+                params["CASHIERD"] = int(exit_params["cashierd"])
+
                 # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
 
@@ -359,6 +363,7 @@ class Gui:
                     error_message = "Exits are placed outside of the store!"
                     raise Exception()
 
+                self.lbl_exit_error.config(text="")
                 self.lbl_exit_error.grid_remove()
                 self.update_layout_entrance_exits(int_nexits, int_cashierd)
             except:
