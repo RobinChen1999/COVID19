@@ -77,7 +77,7 @@ class Gui:
             else:
                 sv = tk.StringVar()
                 sv.set(value)
-                ent = tk.Entry(tab_root, textvariable=sv, validate="focusout", validatecommand=callback)
+                ent = tk.Entry(tab_root, textvariable=sv, validate="key", validatecommand=(self.root.register(callback), '%P'))
 
             ent.grid(row=index, column=2, sticky="we")
 
@@ -118,19 +118,62 @@ class Gui:
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
 
+        lbl_exit_error = tk.Label(tab_exit)
+        lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
+        lbl_exit_error.grid_remove()
+
         nexits = None
         cashierd = None
 
-        def update_exits():
-            if all(x is not None for x in [nexits, cashierd]):
-                self.update_layout_entrance_exits(nexits.get(), cashierd.get())
+        def update_nexits(value):
+            ent = tk.Entry(None)
+            ent.insert(0, value)
+            update_exits(ent, cashierd)
+            return True
+
+        def update_cashierd(value):
+            ent = tk.Entry(None)
+            ent.insert(0, value)
+            update_exits(nexits, ent)
+            return True
+
+        def update_exits(_nexits, _cashierd):
+            if all(x is not None for x in [_nexits, _cashierd]):
+                # Validate input
+                error_message = "Invalid Input!"
+
+                try:
+                    str_nexits = _nexits.get()
+                    str_cashierd = _cashierd.get()
+
+                    int_nexits = int(str_nexits) if str_nexits != "" else 0
+                    int_cashierd = int(str_cashierd) if str_cashierd != "" else 0
+
+                    if int_nexits <= 0:
+                        error_message = "Nr. of Exits should be higher than 0!"
+                        raise Exception()
+
+                    if int_cashierd <= 5:
+                        error_message = "Distance between exits should be higher than 5!"
+                        raise Exception()
+
+                    if (int_nexits - 1) * int_cashierd >= 95:
+                        error_message = "Exits are not placed in store!"
+                        raise Exception()
+
+                    lbl_exit_error.grid_remove()
+                    self.update_layout_entrance_exits(int_nexits, int_cashierd)
+                except:
+                    lbl_exit_error.config(text=error_message)
+                    lbl_exit_error.grid()
+                    return False
             else:
                 self.update_layout_entrance_exits(params["NEXITS"], params["CASHIERD"])
             return True
 
-        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.", update_exits)
+        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.", update_nexits)
 
-        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"], "The distance between the exits.", update_exits)
+        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"], "The distance between the exits.", update_cashierd)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)

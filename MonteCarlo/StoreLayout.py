@@ -10,7 +10,7 @@ class StoreLayout:
 
     def __init__(self, frame):
         # create canvas
-        self.canvas = tk.Canvas (frame, bg=self.color_floor, 
+        self.canvas = tk.Canvas (frame, bg=self.color_floor,
                                     width=self.canvas_width, 
                                     height=self.canvas_width)
         self.canvas.bind('<B1-Motion>', self.onCanvasDrag)
@@ -34,6 +34,10 @@ class StoreLayout:
         # init col row
         self.click_row = 0
         self.click_col = 0
+
+        # init entrance/exit
+        self.nexits = 0
+        self.cashierd = 0
 
         
         
@@ -98,6 +102,10 @@ class StoreLayout:
         # remove grid before saving
         self.btn_grid.deselect()
         self.hide_grid_lines()
+
+        # Remove entrance and exits
+        self.canvas.delete("entrance")
+        self.canvas.delete("exit")
         
         # create postscript image from canvas
         ps = self.canvas.postscript(colormode="mono", pageheight='101', pagewidth='101')
@@ -106,7 +114,23 @@ class StoreLayout:
         img = img.transpose(Image.FLIP_TOP_BOTTOM)              # flip image
         img.save(fileName)                                      # save as .png
 
+        # Restore entrance and exits
+        self.draw_entrance_exits(self.nexits, self.cashierd)
+
         return str(fileName)
 
     def draw_entrance_exits(self, nexits, cashierd):
-        print(nexits, cashierd)
+        self.nexits = nexits
+        self.cashierd = cashierd
+
+        img_width = 101
+        width_factor = self.canvas_width / img_width
+
+        self.canvas.create_rectangle(0, self.canvas_width - 5, 10, self.canvas_width, fill="red", width=0, tags="entrance")
+
+        self.canvas.delete("exit")
+
+        for i in range(nexits):
+            x = (img_width - cashierd * i) * width_factor
+            y = img_width * width_factor
+            self.canvas.create_rectangle(x - 10, y - 5, x, y, fill="blue", width=0, tags="exit")
