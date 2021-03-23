@@ -126,11 +126,11 @@ class StoreLayout:
         img_width = 101
         width_factor = self.canvas_width / img_width
 
-        self.canvas.create_rectangle(0, self.canvas_width - 5, 10, self.canvas_width, fill="red", width=0, tags="entrance")
+        self.canvas.create_rectangle(0, self.canvas_width - 5, 7, self.canvas_width, fill="red", width=0, tags="entrance")
 
         self.canvas.delete("exit")
 
         for i in range(nexits):
             x = (img_width - cashierd * i) * width_factor
             y = img_width * width_factor
-            self.canvas.create_rectangle(x - 10, y - 5, x, y, fill="blue", width=0, tags="exit")
+            self.canvas.create_rectangle(x - 5, y - 5, x, y, fill="blue", width=0, tags="exit")

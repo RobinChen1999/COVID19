@@ -355,8 +355,8 @@ class Gui:
                     error_message = "Nr. of Exits should be higher than 0!"
                     raise Exception()
 
-                if int_cashierd <= 5:
-                    error_message = "Distance between exits should be higher than 5!"
+                if int_cashierd <= 2:
+                    error_message = "Distance between exits should be higher than 2!"
                     raise Exception()
 
                 if (int_nexits - 1) * int_cashierd >= 95:
