@@ -150,7 +150,9 @@ class Gui:
 
         diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
                                      "Diffusion coefficient.")
-        # TODO: Add
+
+        acsinkcoeff = add_param_input(tab_diffusion, 1, "Sink Coefficient:", params["ACSINKCOEFF"],
+                                      "Coefficient for the sink term of the form: -k*c.")
 
         # Plume Tab
         tab_plume = ttk.Frame(input_tab_control)
@@ -190,6 +192,7 @@ class Gui:
                                 },
                                 diffusion_params={
                                     "diff_coeff": diff_coeff.get(),
+                                    "acsinkcoeff": acsinkcoeff.get()
                                 },
                                 plume_params={},
                                 store_layout=self.store_layout_canvas
@@ -246,8 +249,10 @@ class Gui:
         # Diffusion
         try:
             float_diff_coeff = float(diffusion_params["diff_coeff"])
+            float_acsinkcoeff = float(diffusion_params["acsinkcoeff"])
 
-            if float_diff_coeff <= 0 or float_diff_coeff >= 1:
+            if any(x <= 0 for x in (float_diff_coeff, float_acsinkcoeff)) or \
+                    any(x >= 1 for x in (float_diff_coeff, float_acsinkcoeff)):
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Diffusion tab!")
@@ -294,6 +299,7 @@ class Gui:
 
                 # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
+                params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
 
                 os.environ["PARAMS"] = str(params)
 
