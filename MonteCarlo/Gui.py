@@ -112,7 +112,7 @@ class Gui:
                                                  "Probability of customer taking a random step when their path is blocked.")
 
         prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
-                                     "Probability of a customer coughing per second.")
+                                     "Probability of a customer coughing per step.")
 
         max_shopping_list = add_param_input(tab_customer, 5, "Max Items on Shopping List:", 20,
                                             "Maximum number of items on a customer's shopping list.")
@@ -156,7 +156,15 @@ class Gui:
 
         # Plume Tab
         tab_plume = ttk.Frame(input_tab_control)
-        # TODO: Add
+
+        plume_lifetime = add_param_input(tab_plume, 0, "Plume Lifetime:", params["PLUMELIFETIME"],
+                                         "Lifetime of plume for discrete plumes without diffusion.")
+
+        plume_conc_cough = add_param_input(tab_plume, 1, "Aerosol conc. when coughing:", params["PLUMECONCINC"],
+                                           "Aerosol concentration when a customer coughs.")
+
+        plume_conc_cont = add_param_input(tab_plume, 2, "Continuous Aerosol Emission:", params["PLUMECONCCONT"],
+                                          "Continuous aerosol emission.")
 
         # Add all tabs
         input_tab_control.add(tab_simulation, text="Simulation")
@@ -194,7 +202,11 @@ class Gui:
                                     "diff_coeff": diff_coeff.get(),
                                     "acsinkcoeff": acsinkcoeff.get()
                                 },
-                                plume_params={},
+                                plume_params={
+                                    "plume_lifetime": plume_lifetime.get(),
+                                    "plume_conc_cough": plume_conc_cough.get(),
+                                    "plume_conc_cont": plume_conc_cont.get()
+                                },
                                 store_layout=self.store_layout_canvas
                             ))
         btn_run.pack()
@@ -260,8 +272,12 @@ class Gui:
 
         # Plume
         try:
-            # TODO: Add
-            True
+            int_plume_lifetime = int(plume_params["plume_lifetime"])
+            float_plume_conc_cough = float(plume_params["plume_conc_cough"])
+            float_plume_conc_cont = float(plume_params["plume_conc_cont"])
+
+            if any(x <= 0 for x in (int_plume_lifetime, float_plume_conc_cough, float_plume_conc_cont)):
+                raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
@@ -300,6 +316,11 @@ class Gui:
                 # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
                 params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
+
+                # Plume
+                params["PLUMELIFETIME"] = int(plume_params["plume_lifetime"])
+                params["PLUMECONCINC"] = float(plume_params["plume_conc_cough"])
+                params["PLUMECONCCONT"] = float(plume_params["plume_conc_cont"])
 
                 os.environ["PARAMS"] = str(params)
 
