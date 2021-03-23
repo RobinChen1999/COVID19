@@ -27,7 +27,7 @@ class Gui:
         self.root.geometry('{}x{}'.format(800, 400))
 
         # Layout frame
-        frm_layout = tk.Frame(self.root, bg="red")
+        frm_layout = tk.Frame(self.root, bg="paleturquoise")
 
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
@@ -36,7 +36,7 @@ class Gui:
         store_layout_canvas.draw_store_layout()
 
         # Parameters frame
-        frm_parameters = tk.Frame(self.root, bg="yellow")
+        frm_parameters = tk.Frame(self.root, bg="paleturquoise")
 
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
