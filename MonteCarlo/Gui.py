@@ -6,6 +6,7 @@ from Simulation import *
 from StoreLayout import *
 from GuiOutput import *
 
+
 class Gui:
     def __init__(self):
         self.frm_sim = 0
@@ -77,7 +78,8 @@ class Gui:
             else:
                 sv = tk.StringVar()
                 sv.set(value)
-                ent = tk.Entry(tab_root, textvariable=sv, validate="key", validatecommand=(self.root.register(callback), '%P'))
+                ent = tk.Entry(tab_root, textvariable=sv, validate="key",
+                               validatecommand=(self.root.register(callback), '%P'))
 
             ent.grid(row=index, column=2, sticky="we")
 
@@ -118,9 +120,9 @@ class Gui:
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
 
-        lbl_exit_error = tk.Label(tab_exit)
-        lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
-        lbl_exit_error.grid_remove()
+        self.lbl_exit_error = tk.Label(tab_exit)
+        self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
+        self.lbl_exit_error.grid_remove()
 
         nexits = None
         cashierd = None
@@ -128,52 +130,20 @@ class Gui:
         def update_nexits(value):
             ent = tk.Entry(None)
             ent.insert(0, value)
-            update_exits(ent, cashierd)
+            self.update_exits(ent, cashierd)
             return True
 
         def update_cashierd(value):
             ent = tk.Entry(None)
             ent.insert(0, value)
-            update_exits(nexits, ent)
+            self.update_exits(nexits, ent)
             return True
 
-        def update_exits(_nexits, _cashierd):
-            if all(x is not None for x in [_nexits, _cashierd]):
-                # Validate input
-                error_message = "Invalid Input!"
+        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.",
+                                 update_nexits)
 
-                try:
-                    str_nexits = _nexits.get()
-                    str_cashierd = _cashierd.get()
-
-                    int_nexits = int(str_nexits) if str_nexits != "" else 0
-                    int_cashierd = int(str_cashierd) if str_cashierd != "" else 0
-
-                    if int_nexits <= 0:
-                        error_message = "Nr. of Exits should be higher than 0!"
-                        raise Exception()
-
-                    if int_cashierd <= 5:
-                        error_message = "Distance between exits should be higher than 5!"
-                        raise Exception()
-
-                    if (int_nexits - 1) * int_cashierd >= 95:
-                        error_message = "Exits are not placed in store!"
-                        raise Exception()
-
-                    lbl_exit_error.grid_remove()
-                    self.update_layout_entrance_exits(int_nexits, int_cashierd)
-                except:
-                    lbl_exit_error.config(text=error_message)
-                    lbl_exit_error.grid()
-                    return False
-            else:
-                self.update_layout_entrance_exits(params["NEXITS"], params["CASHIERD"])
-            return True
-
-        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.", update_nexits)
-
-        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"], "The distance between the exits.", update_cashierd)
+        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"],
+                                   "The distance between the exits.", update_cashierd)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
@@ -214,7 +184,10 @@ class Gui:
                                     "prob_cough": prob_cough.get(),
                                     "max_shopping_list": max_shopping_list.get()
                                 },
-                                exit_params={},
+                                exit_params={
+                                    "nexits": nexits.get(),
+                                    "cashierd": cashierd.get()
+                                },
                                 diffusion_params={
                                     "diff_coeff": diff_coeff.get(),
                                 },
@@ -225,12 +198,12 @@ class Gui:
 
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_parameters.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        
+
         self.root.protocol("WM_DELETE_WINDOW", self.close_window)
 
         self.root.mainloop()
 
-    def validate_input(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params):
+    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params):
         # Simulation
         try:
             int_seed = int(simulation_params["seed"])
@@ -263,10 +236,11 @@ class Gui:
 
         # Exit
         try:
-            # TODO: Add
-            True
+            if self.lbl_exit_error.cget("text") != "":
+                raise Exception()
+            # Other validation is done in update_exits
         except:
-            tk.messagebox.showerror("Error!", "Invalid input in Exit tab!")
+            tk.messagebox.showerror("Error!", "Invalid input in Exits tab!")
             return False
 
         # Diffusion
@@ -287,7 +261,7 @@ class Gui:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
         else:
-            return True        
+            return True
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
                        store_layout):
@@ -296,7 +270,6 @@ class Gui:
         input_valid = self.validate_input(
             simulation_params=simulation_params,
             customer_params=customer_params,
-            exit_params=exit_params,
             diffusion_params=diffusion_params,
             plume_params=plume_params
         )
@@ -339,7 +312,7 @@ class Gui:
                 outputGui.update_on_sim_finished(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
-            threading.Thread(target=run_sim, daemon = True).start()
+            threading.Thread(target=run_sim, daemon=True).start()
 
     # when window closes
     def close_window(self):
@@ -347,18 +320,54 @@ class Gui:
         figureList = glob.glob('simFigures/simFigure*' + '.png')
         for f in figureList:
             os.remove(f)
-        
+
         # remove all data files
         dataFiles = glob.glob('*.dat')
         for d in dataFiles:
             os.remove(d)
-        
+
         # remove all videos
         videos = glob.glob('*.mkv')
         for v in videos:
             os.remove(v)
-        
+
         self.root.destroy()
+
+    def update_exits(self, _nexits, _cashierd):
+        params = eval(os.environ["PARAMS"])
+
+        if all(x is not None for x in [_nexits, _cashierd]):
+            # Validate input
+            error_message = "Invalid Input!"
+
+            try:
+                str_nexits = _nexits.get()
+                str_cashierd = _cashierd.get()
+
+                int_nexits = int(str_nexits) if str_nexits != "" else 0
+                int_cashierd = int(str_cashierd) if str_cashierd != "" else 0
+
+                if int_nexits <= 0:
+                    error_message = "Nr. of Exits should be higher than 0!"
+                    raise Exception()
+
+                if int_cashierd <= 5:
+                    error_message = "Distance between exits should be higher than 5!"
+                    raise Exception()
+
+                if (int_nexits - 1) * int_cashierd >= 95:
+                    error_message = "Exits are placed outside of the store!"
+                    raise Exception()
+
+                self.lbl_exit_error.grid_remove()
+                self.update_layout_entrance_exits(int_nexits, int_cashierd)
+            except:
+                self.lbl_exit_error.config(text=error_message)
+                self.lbl_exit_error.grid()
+                return False
+        else:
+            self.update_layout_entrance_exits(params["NEXITS"], params["CASHIERD"])
+        return True
 
     def update_layout_entrance_exits(self, nexits, cashierd):
         self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
