@@ -379,7 +379,7 @@ class Simulation:
 
 	## when output level 1, the store is plotted to files with seed and simulation time step as keys
 	def printStore(self, step, title):
-		fig = plt.figure(figsize=(10,10))
+		fig = plt.figure(figsize=(11,12))
 
 		# first plot the static store structures
 		ax = fig.add_axes([0, 0.07, 1, 1])

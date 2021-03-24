@@ -109,15 +109,21 @@ class GuiOutput:
 
         # Simulation frame
         self.frm_sim = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="paleturquoise")
+        self.canvas_height = self.window_height / 3 * 2
 
         lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
 
+        img = Image.open("aerosols_meter.png")
+        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height/5),int(self.canvas_height/5*3))))
+        aerosol_meter = tk.Label(self.frm_sim, image=img_meter)
+        aerosol_meter.image = img_meter
+        aerosol_meter.pack(side=tk.RIGHT)
+
         self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
 
-        self.canvas_height = self.window_height / 3 * 2
-
+        
         # Output frame
         frm_output = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="paleturquoise")
 
