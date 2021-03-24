@@ -118,7 +118,7 @@ class GuiOutput:
         img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height/5),int(self.canvas_height/5*3))))
         aerosol_meter = tk.Label(self.frm_sim, image=img_meter)
         aerosol_meter.image = img_meter
-        aerosol_meter.pack(side=tk.RIGHT)
+        aerosol_meter.pack(side=tk.RIGHT, anchor="ne")
 
         self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
