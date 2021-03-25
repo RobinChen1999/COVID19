@@ -114,7 +114,10 @@ class Gui:
         prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
                                      "Probability of a customer coughing per step.")
 
-        max_shopping_list = add_param_input(tab_customer, 5, "Max Items on Shopping List:", 20,
+        plume_conc_cough = add_param_input(tab_customer, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
+                                           "Aerosol concentration when a customer coughs.")
+
+        max_shopping_list = add_param_input(tab_customer, 6, "Max Items on Shopping List:", 20,
                                             "Maximum number of items on a customer's shopping list.")
 
         # Exits Tab
@@ -160,9 +163,6 @@ class Gui:
         plume_lifetime = add_param_input(tab_plume, 0, "Plume Lifetime:", params["PLUMELIFETIME"],
                                          "Lifetime of plume for discrete plumes without diffusion.")
 
-        plume_conc_cough = add_param_input(tab_plume, 1, "Aerosol conc. when coughing:", params["PLUMECONCINC"],
-                                           "Aerosol concentration when a customer coughs.")
-
         plume_conc_cont = add_param_input(tab_plume, 2, "Continuous Aerosol Emission:", params["PLUMECONCCONT"],
                                           "Continuous aerosol emission.")
 
@@ -171,7 +171,7 @@ class Gui:
         input_tab_control.add(tab_customer, text="Customer")
         input_tab_control.add(tab_exit, text="Exits")
         input_tab_control.add(tab_diffusion, text="Diffusion")
-        input_tab_control.add(tab_plume, text="Plume")
+        # input_tab_control.add(tab_plume, text="Plume")
 
         input_tab_control.pack(expand=0)
 
