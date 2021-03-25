@@ -21,7 +21,7 @@ class GuiOutput:
         self.id = sim_id
         self.draw_output_window()
         self.update_output(
-            "Running simulation until all {} customers are finished\n or step limit of {} has been reached".format(
+            "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
                 nr_customers, self.max_steps))
 
         # Start load_figures in new thread so GUI doesn't block
