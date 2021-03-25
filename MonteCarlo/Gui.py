@@ -21,8 +21,15 @@ class Gui:
 
         Params.set_params()
 
-        style = ttk.Style()
-        style.theme_use('default')
+        style = ttk.Style(self.root)
+        self.root.tk.eval("""
+            set base_theme_dir theme/awthemes-10.3.0/
+        
+            package ifneeded awdark 7.11 \
+                [list source [file join $base_theme_dir awdark.tcl]]
+            """)
+        self.root.tk.call('package', 'require', 'awdark')
+        style.theme_use('awdark')
 
     # Input window
     def draw_input_window(self):
