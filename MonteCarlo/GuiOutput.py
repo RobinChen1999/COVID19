@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from tkinter.filedialog import asksaveasfile
-
+from pathlib import Path
 
 class GuiOutput:
     window_width = 1600
@@ -50,7 +50,8 @@ class GuiOutput:
 
     # opens a 'save-as' window to save the video
     def save_file(self):
-        file = asksaveasfile(initialfile="simulation_%d_%s.mkv"%(self.id,self.seed), mode="wb", title="Save Simulation", 
+        download_folder = str(os.path.join(Path.home(), "Downloads"))
+        file = asksaveasfile(initialdir=download_folder, initialfile="simulation_%d_%s.mkv"%(self.id,self.seed), mode="wb", title="Save Simulation", 
                             defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
         if file is None:
             return None
