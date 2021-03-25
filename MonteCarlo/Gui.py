@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import messagebox
-from tkinter import ttk
 import Params
 from Simulation import *
 from StoreLayout import *
@@ -18,19 +17,22 @@ class Gui:
         self.window_width = 1600
         self.window_height = 800
         self.count = 0
+        self.root = tk.Tk()
 
         Params.set_params()
 
+        style = ttk.Style()
+        style.theme_use('default')
+
     # Input window
     def draw_input_window(self):
-        self.root = tk.Tk()
         self.root.title("Input window")
         self.root.geometry('{}x{}'.format(800, 400))
 
         # Layout frame
         frm_layout = tk.Frame(self.root, bg="paleturquoise")
 
-        lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
+        lbl_id_layout = ttk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
 
         self.store_layout_canvas = StoreLayout(frm_layout)
@@ -39,7 +41,7 @@ class Gui:
         # Parameters frame
         frm_parameters = tk.Frame(self.root, bg="paleturquoise")
 
-        lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
+        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
 
         def create_tool_tip(widget, text):
@@ -65,21 +67,19 @@ class Gui:
             tab_root.grid_columnconfigure(0, minsize=column_size_text)
             tab_root.grid_columnconfigure(2, minsize=column_size_input)
 
-            lbl = tk.Label(tab_root, text=label)
+            lbl = ttk.Label(tab_root, text=label)
             lbl.grid(row=index, column=0, sticky="w")
 
-            desc = tk.Label(tab_root, image=img)
+            desc = ttk.Label(tab_root, image=img)
             create_tool_tip(desc, description)
             desc.grid(row=index, column=1, sticky="e")
 
             if callback is None:
-                ent = tk.Entry(tab_root)
+                ent = ttk.Entry(tab_root)
                 ent.insert(0, value)
             else:
-                sv = tk.StringVar()
-                sv.set(value)
-                ent = tk.Entry(tab_root, textvariable=sv, validate="key",
-                               validatecommand=(self.root.register(callback), '%P'))
+                ent = ttk.Entry(tab_root, validate="key", validatecommand=(self.root.register(callback), '%P'))
+                ent.insert(0, value)
 
             ent.grid(row=index, column=2, sticky="we")
 
@@ -123,7 +123,7 @@ class Gui:
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
 
-        self.lbl_exit_error = tk.Label(tab_exit)
+        self.lbl_exit_error = ttk.Label(tab_exit)
         self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
         self.lbl_exit_error.grid_remove()
 
@@ -179,36 +179,36 @@ class Gui:
         frm_parameters_input.pack()
 
         # Run button
-        btn_run = tk.Button(frm_parameters,
-                            text="Run",
-                            command=lambda: self.run_simulation(
-                                simulation_params={
-                                    "seed": seed.get(),
-                                    "max_steps": max_steps.get()
-                                },
-                                customer_params={
-                                    "nr_customers": nr_customers.get(),
-                                    "prob_new_customer": prob_new_customer.get(),
-                                    "prob_inf_customer": prob_inf_customer.get(),
-                                    "prob_block_random_step": prob_block_random_step.get(),
-                                    "prob_cough": prob_cough.get(),
-                                    "max_shopping_list": max_shopping_list.get()
-                                },
-                                exit_params={
-                                    "nexits": nexits.get(),
-                                    "cashierd": cashierd.get()
-                                },
-                                diffusion_params={
-                                    "diff_coeff": diff_coeff.get(),
-                                    "acsinkcoeff": acsinkcoeff.get()
-                                },
-                                plume_params={
-                                    "plume_lifetime": plume_lifetime.get(),
-                                    "plume_conc_cough": plume_conc_cough.get(),
-                                    "plume_conc_cont": plume_conc_cont.get()
-                                },
-                                store_layout=self.store_layout_canvas
-                            ))
+        btn_run = ttk.Button(frm_parameters,
+                             text="Run",
+                             command=lambda: self.run_simulation(
+                                 simulation_params={
+                                     "seed": seed.get(),
+                                     "max_steps": max_steps.get()
+                                 },
+                                 customer_params={
+                                     "nr_customers": nr_customers.get(),
+                                     "prob_new_customer": prob_new_customer.get(),
+                                     "prob_inf_customer": prob_inf_customer.get(),
+                                     "prob_block_random_step": prob_block_random_step.get(),
+                                     "prob_cough": prob_cough.get(),
+                                     "max_shopping_list": max_shopping_list.get()
+                                 },
+                                 exit_params={
+                                     "nexits": nexits.get(),
+                                     "cashierd": cashierd.get()
+                                 },
+                                 diffusion_params={
+                                     "diff_coeff": diff_coeff.get(),
+                                     "acsinkcoeff": acsinkcoeff.get()
+                                 },
+                                 plume_params={
+                                     "plume_lifetime": plume_lifetime.get(),
+                                     "plume_conc_cough": plume_conc_cough.get(),
+                                     "plume_conc_cont": plume_conc_cont.get()
+                                 },
+                                 store_layout=self.store_layout_canvas
+                             ))
         btn_run.pack()
 
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)

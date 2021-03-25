@@ -1,6 +1,8 @@
 import tkinter as tk
+from tkinter import ttk
 import io
 from PIL import Image, ImageGrab
+
 
 class StoreLayout:
     color_floor = "white"
@@ -10,25 +12,25 @@ class StoreLayout:
 
     def __init__(self, frame):
         # create canvas
-        self.canvas = tk.Canvas (frame, bg=self.color_floor,
-                                    width=self.canvas_width, 
-                                    height=self.canvas_width)
+        self.canvas = tk.Canvas(frame, bg=self.color_floor,
+                                width=self.canvas_width,
+                                height=self.canvas_width)
         self.canvas.bind('<B1-Motion>', self.onCanvasDrag)
         self.canvas.bind('<Button-1>', self.onCanvasClick)
         self.canvas.pack()
 
         # button to show/hide the grid
         self.show_grid = tk.IntVar()
-        self.btn_grid = tk.Checkbutton(frame,
-                                text="Show Grid", 
-                                variable=self.show_grid, 
-                                onvalue=1, offvalue=0, 
-                                command=self.hide_grid_lines)
+        self.btn_grid = ttk.Checkbutton(frame,
+                                        text="Show Grid",
+                                        variable=self.show_grid,
+                                        onvalue=1, offvalue=0,
+                                        command=self.hide_grid_lines)
         self.btn_grid.pack()
 
-        btn_clear_shelves = tk.Button(frame,
-                                    text="Remove all shelves",
-                                    command=self.clear_shelves)
+        btn_clear_shelves = ttk.Button(frame,
+                                       text="Remove all shelves",
+                                       command=self.clear_shelves)
         btn_clear_shelves.pack()
 
         # init col row
@@ -39,8 +41,6 @@ class StoreLayout:
         self.nexits = 0
         self.cashierd = 0
 
-        
-        
     # draws all elements in the canvas
     def draw_store_layout(self):
         self.draw_grid_lines()
@@ -53,18 +53,19 @@ class StoreLayout:
             self.canvas.create_line(0, i, self.canvas_width, i, tags=("grid_lines"))
             # vertical line
             self.canvas.create_line(i, 0, i, self.canvas_width, tags=("grid_lines"))
-    
+
     def hide_grid_lines(self):
         if self.show_grid.get() == 0:
             self.canvas.itemconfigure("grid_lines", state="hidden")
         elif self.show_grid.get() == 1:
             self.canvas.itemconfigure("grid_lines", state="normal")
-    
+
     def clear_shelves(self):
-        result = tk.messagebox.askquestion("Warning!","Are you sure you want to remove all shelves?")
+        result = tk.messagebox.askquestion("Warning!", "Are you sure you want to remove all shelves?")
         if result == "yes":
             self.canvas.delete('shelf')
-        else: pass
+        else:
+            pass
 
     # changes colour of rectangle object from grid
     def draw_shelf(self, row, col):
@@ -98,21 +99,21 @@ class StoreLayout:
     def saveCanvas(self):
         fileName = "storeMap.png"
         preMadeLayout = "ExampleSuperMarket.pbm"
-        
+
         # remove grid before saving
-        self.btn_grid.deselect()
+        self.show_grid.set(0)
         self.hide_grid_lines()
 
         # Remove entrance and exits
         self.canvas.delete("entrance")
         self.canvas.delete("exit")
-        
+
         # create postscript image from canvas
         ps = self.canvas.postscript(colormode="mono", pageheight='101', pagewidth='101')
         # grab postscript from IO and 
         img = Image.open(io.BytesIO(ps.encode('utf-8')))
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)              # flip image
-        img.save(fileName)                                      # save as .png
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)  # flip image
+        img.save(fileName)  # save as .png
 
         # Restore entrance and exits
         self.draw_entrance_exits(self.nexits, self.cashierd)
@@ -126,7 +127,8 @@ class StoreLayout:
         img_width = 101
         width_factor = self.canvas_width / img_width
 
-        self.canvas.create_rectangle(0, self.canvas_width - 5, 7, self.canvas_width, fill="red", width=0, tags="entrance")
+        self.canvas.create_rectangle(0, self.canvas_width - 5, 7, self.canvas_width, fill="red", width=0,
+                                     tags="entrance")
 
         self.canvas.delete("exit")
 
