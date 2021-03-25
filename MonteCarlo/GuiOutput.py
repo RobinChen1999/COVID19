@@ -119,8 +119,7 @@ class GuiOutput:
         self.window.state('zoomed')
 
         # Simulation frame
-        self.frm_sim = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2,
-                                bg="paleturquoise")
+        self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
         self.canvas_height = self.window_height / 3 * 2
 
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
@@ -136,8 +135,7 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Output frame
-        frm_output = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2,
-                              bg="paleturquoise")
+        frm_output = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
 
         lbl_id_parameters = ttk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
@@ -151,7 +149,7 @@ class GuiOutput:
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack(pady=20)
 
-        self.frm_graphs = tk.Frame(frm_output, bg="white")
+        self.frm_graphs = ttk.Frame(frm_output)
         self.frm_graphs.pack(fill=None, expand=False)
 
         plt.ion()

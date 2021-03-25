@@ -30,7 +30,7 @@ class Gui:
         self.root.geometry('{}x{}'.format(800, 400))
 
         # Layout frame
-        frm_layout = tk.Frame(self.root, bg="paleturquoise")
+        frm_layout = ttk.Frame(self.root)
 
         lbl_id_layout = ttk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
@@ -39,7 +39,7 @@ class Gui:
         self.store_layout_canvas.draw_store_layout()
 
         # Parameters frame
-        frm_parameters = tk.Frame(self.root, bg="paleturquoise")
+        frm_parameters = ttk.Frame(self.root)
 
         lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
         lbl_id_parameters.pack()
@@ -175,7 +175,7 @@ class Gui:
 
         input_tab_control.pack(expand=0)
 
-        frm_parameters_input = tk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
+        frm_parameters_input = ttk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
         frm_parameters_input.pack()
 
         # Run button
