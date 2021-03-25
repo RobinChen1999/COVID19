@@ -42,9 +42,9 @@ class GuiOutput:
 
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width / 2) / steps), 10)
-        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length,
+        self.slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length,
                           orient=tk.HORIZONTAL, command=self.slider_handler)
-        slider.pack()
+        self.slider.pack()
         btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
 
@@ -61,6 +61,7 @@ class GuiOutput:
 
     # Handle slider response
     def slider_handler(self, value):
+        self.slider.set(value)
         self.store_plot.update_figure(value)
         self.update_displayed_step(int(value))
         self.update_markers(int(value))
@@ -164,6 +165,7 @@ class GuiOutput:
         self.ax_exposure.legend(loc="upper right")
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
+        self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
         self.canvas.get_tk_widget().pack(fill=tk.BOTH)
@@ -256,3 +258,8 @@ class GuiOutput:
         self.ax_exposure.plot(step, self.ax_exposure.lines[0].get_ydata()[step], 'go')
 
         self.canvas.draw_idle()
+
+    def graph_on_click(self, event):
+        # Check if click is inside plot
+        if event.inaxes is not None:
+            self.slider_handler(str(round(event.xdata)))
