@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import threading
 import glob
 import os
@@ -9,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from tkinter.filedialog import asksaveasfile
 from pathlib import Path
+
 
 class GuiOutput:
     window_width = 1600
@@ -43,34 +45,42 @@ class GuiOutput:
 
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width / 2) / steps), 10)
-        slider = tk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height), sliderlength=length,
-                          orient=tk.HORIZONTAL, command=self.slider_handler)
-        slider.pack()
-        btn_export = tk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
+        ttk.Style().configure('my.Horizontal.TScale', sliderlength=length, tickinterval=1)
+        self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
+                                style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
+        self.slider.pack()
+        btn_export = ttk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
 
     # opens a 'save-as' window to save the video
     def save_file(self):
         download_folder = str(os.path.join(Path.home(), "Downloads"))
-        file = asksaveasfile(initialdir=download_folder, initialfile="simulation_%d_%s.mkv"%(self.id,self.seed), mode="wb", title="Save Simulation", 
-                            defaultextension=".mkv", filetypes = (("mkv files",".mkv"),("all files",".*")))
+        file = asksaveasfile(initialdir=download_folder, initialfile="simulation_%d_%s.mkv" % (self.id, self.seed),
+                             mode="wb", title="Save Simulation",
+                             defaultextension=".mkv", filetypes=(("mkv files", ".mkv"), ("all files", ".*")))
         if file is None:
             return None
-        vid_to_save = open("video_%d_%s.mkv"%(self.id,self.seed),"rb").read()
+        vid_to_save = open("video_%d_%s.mkv" % (self.id, self.seed), "rb").read()
         file.write(vid_to_save)
         file.close()
 
     # Handle slider response
     def slider_handler(self, value):
-        self.store_plot.update_figure(value)
-        self.update_displayed_step(int(value))
-        self.update_markers(int(value))
+        value = float(value)
+        if int(value) != value:
+            self.slider.set(round(value))
+            self.update_step(round(value))
+
+    def update_step(self, value):
+        self.store_plot.update_figure(str(value))
+        self.update_displayed_step(value)
+        self.update_markers(value)
 
     # load the already simulated figures
     def load_figures(self):
         while self.simulating:
             # when simulation has at least 2 figures
-            figureList = glob.glob('simFigures/simFigure_%d_%s_*' %(self.id,self.seed) + '.png')
+            figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
             if len(figureList) > 1:
                 latest_figure = figureList[-2]  # get second last element
                 img = Image.open(latest_figure)
@@ -84,18 +94,18 @@ class GuiOutput:
     # when output window closes
     def close_window(self):
         # clear images with current seed out of simFigures folder
-        figureList = glob.glob('simFigures/simFigure_%d_%s_*' %(self.id,self.seed) + '.png')
+        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
         for f in figureList:
             os.remove(f)
 
         # remove data files of current seed
-        dataFiles = glob.glob('*%d_%s.dat'%(self.id,self.seed))
+        dataFiles = glob.glob('*%d_%s.dat' % (self.id, self.seed))
         for d in dataFiles:
             os.remove(d)
 
         # remove video of current seed
         try:
-            os.remove('video_%d_%s.mkv'%(self.id,self.seed))
+            os.remove('video_%d_%s.mkv' % (self.id, self.seed))
         except Exception as e:
             print('Failed to delete video')
 
@@ -110,26 +120,25 @@ class GuiOutput:
         # self.window.state('zoomed')
 
         # Simulation frame
-        self.frm_sim = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="paleturquoise")
+        self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
         self.canvas_height = self.window_height / 3 * 2
 
-        lbl_id_sim = tk.Label(self.frm_sim, text="Simulation Frame")
+        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
 
         img = Image.open("aerosols_meter.png")
-        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height/5),int(self.canvas_height/5*3))))
-        aerosol_meter = tk.Label(self.frm_sim, image=img_meter)
+        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height / 5), int(self.canvas_height / 5 * 3))))
+        aerosol_meter = ttk.Label(self.frm_sim, image=img_meter)
         aerosol_meter.image = img_meter
         aerosol_meter.pack(side=tk.RIGHT, anchor="ne")
 
-        self.lbl_sim = tk.Label(self.frm_sim, cursor='watch')
+        self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
 
-        
         # Output frame
-        frm_output = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="paleturquoise")
+        frm_output = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
 
-        lbl_id_parameters = tk.Label(frm_output, text="Output Frame")
+        lbl_id_parameters = ttk.Label(frm_output, text="Output Frame")
         lbl_id_parameters.pack()
 
         self.txt_output = tk.Text(
@@ -141,7 +150,7 @@ class GuiOutput:
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack(pady=20)
 
-        self.frm_graphs = tk.Frame(frm_output, bg="white")
+        self.frm_graphs = ttk.Frame(frm_output)
         self.frm_graphs.pack(fill=None, expand=False)
 
         plt.ion()
@@ -165,6 +174,7 @@ class GuiOutput:
         self.ax_exposure.legend(loc="upper right")
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
+        self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
         self.canvas.get_tk_widget().pack(fill=tk.BOTH)
@@ -257,3 +267,10 @@ class GuiOutput:
         self.ax_exposure.plot(step, self.ax_exposure.lines[0].get_ydata()[step], 'go')
 
         self.canvas.draw_idle()
+
+    def graph_on_click(self, event):
+        # Check if click is inside plot
+        if event.inaxes is not None:
+            value = round(event.xdata)
+            self.slider.set(str(value))
+            self.update_step(value)
