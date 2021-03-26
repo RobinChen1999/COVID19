@@ -25,22 +25,28 @@ class Gui:
     def draw_input_window(self):
         self.root = tk.Tk()
         self.root.title("Input window")
-        self.root.geometry('{}x{}'.format(800, 400))
+        self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
+
+        self.frm_input_window = tk.Frame(self.root)
+        self.frm_input_window.pack(side=tk.LEFT)
+
+        self.frm_output_window = tk.Frame(self.root)
+        self.frm_output_window.pack(side=tk.RIGHT, expand=True)
 
         # Layout frame
-        frm_layout = tk.Frame(self.root, bg="paleturquoise")
+        frm_layout = tk.Frame(self.frm_input_window, bg="paleturquoise")
 
         lbl_id_layout = tk.Label(frm_layout, text="Layout Frame")
-        lbl_id_layout.pack()
+        lbl_id_layout.pack(side=tk.TOP)
 
         self.store_layout_canvas = StoreLayout(frm_layout)
         self.store_layout_canvas.draw_store_layout()
 
         # Parameters frame
-        frm_parameters = tk.Frame(self.root, bg="paleturquoise")
+        frm_parameters = tk.Frame(self.frm_input_window, bg="paleturquoise")
 
         lbl_id_parameters = tk.Label(frm_parameters, text="Parameters Frame")
-        lbl_id_parameters.pack()
+        lbl_id_parameters.pack(side=tk.BOTTOM)
 
         def create_tool_tip(widget, text):
             tool_tip = ToolTip(widget)
@@ -305,7 +311,7 @@ class Gui:
         if input_valid:
             # increment simulation counter
             self.count += 1
-            outputGui = GuiOutput(simulation_params, self.count, customer_params["nr_customers"])
+            outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params

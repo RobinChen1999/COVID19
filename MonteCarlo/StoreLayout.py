@@ -5,7 +5,7 @@ from PIL import Image, ImageGrab
 class StoreLayout:
     color_floor = "white"
     color_shelf = "black"
-    canvas_width = 200
+    canvas_width = 400
     step = int(canvas_width / 20)
 
     def __init__(self, frame):

@@ -14,11 +14,12 @@ class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, simulation_params, sim_id, nr_customers):
+    def __init__(self, output_window, simulation_params, sim_id, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
+        self.window = output_window
         self.draw_output_window()
         self.update_output(
             "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
@@ -104,9 +105,9 @@ class GuiOutput:
     def draw_output_window(self):
         self.output_line_nr = 0
 
-        self.window = tk.Toplevel()
-        self.window.title('Simulation %d with seed: %s'%(self.id,self.seed))
-        self.window.state('zoomed')
+        # self.window = tk.Toplevel()
+        # self.window.title('Simulation %d with seed: %s'%(self.id,self.seed))
+        # self.window.state('zoomed')
 
         # Simulation frame
         self.frm_sim = tk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2, bg="paleturquoise")
