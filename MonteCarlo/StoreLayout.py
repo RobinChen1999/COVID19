@@ -31,11 +31,6 @@ class StoreLayout:
                                     command=self.clear_shelves)
         btn_clear_shelves.pack()
 
-        btn_check_empty = tk.Button(frame,
-                                    text="check empty",
-                                    command=self.check_store_empty)
-        btn_check_empty.pack()
-
         # init col row
         self.click_row = 0
         self.click_col = 0
