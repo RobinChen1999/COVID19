@@ -120,6 +120,12 @@ class StoreLayout:
 
         return str(fileName)
 
+    def check_store_empty(self):
+        if self.canvas.find_withtag("shelf"):
+            return False    # store not empty
+        else:
+            return True     # store is empty
+
     def draw_entrance_exits(self, nexits, cashierd):
         self.nexits = nexits
         self.cashierd = cashierd
