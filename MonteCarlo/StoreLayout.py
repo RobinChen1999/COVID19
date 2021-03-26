@@ -31,6 +31,11 @@ class StoreLayout:
                                     command=self.clear_shelves)
         btn_clear_shelves.pack()
 
+        btn_check_empty = tk.Button(frame,
+                                    text="check empty",
+                                    command=self.check_store_empty)
+        btn_check_empty.pack()
+
         # init col row
         self.click_row = 0
         self.click_col = 0
@@ -118,6 +123,12 @@ class StoreLayout:
         self.draw_entrance_exits(self.nexits, self.cashierd)
 
         return str(fileName)
+
+    def check_store_empty(self):
+        if self.canvas.find_withtag("shelf"):
+            return False    # store not empty
+        else:
+            return True     # store is empty
 
     def draw_entrance_exits(self, nexits, cashierd):
         self.nexits = nexits

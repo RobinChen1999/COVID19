@@ -218,7 +218,7 @@ class Gui:
 
         self.root.mainloop()
 
-    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params):
+    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Simulation
         try:
             int_seed = int(simulation_params["seed"])
@@ -281,6 +281,12 @@ class Gui:
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
+        
+        # Empty store
+        if store_empty:
+            tk.messagebox.showerror("Error!", "The store is empty! Please add at least one shelf.")
+            return False
+
         else:
             return True
 
@@ -292,7 +298,8 @@ class Gui:
             simulation_params=simulation_params,
             customer_params=customer_params,
             diffusion_params=diffusion_params,
-            plume_params=plume_params
+            plume_params=plume_params,
+            store_empty=store_layout.check_store_empty()
         )
 
         if input_valid:
