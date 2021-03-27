@@ -7,7 +7,7 @@ from GuiOutput import *
 
 
 class Gui:
-    def __init__(self, tab_frame):
+    def __init__(self, tab_frame, count):
         self.frm_sim = 0
         self.lbl_sim = 0
         self.txt_output = 0
@@ -16,7 +16,7 @@ class Gui:
         self.simulating = True
         self.window_width = 1600
         self.window_height = 800
-        self.count = 0
+        self.count = count
         self.root = tab_frame #tk.Tk()
 
         Params.set_params()
@@ -318,7 +318,7 @@ class Gui:
 
         if input_valid:
             # increment simulation counter
-            self.count += 1
+            # self.count += 1
             outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
