@@ -33,6 +33,7 @@ class GuiTabs:
 
         self.create_simulation(pos=0)    # create first sim tab
         
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
         self.root.mainloop()
 
     def create_simulation(self, pos):
@@ -73,25 +74,24 @@ class GuiTabs:
             except: self.tab_control.select(0)
             self.rename_tabs_after_close()
 
-    # TODO: moet nog werkend worden,
-    # 1: way to get id from tab
-    # 2: seed may change after rerunning the sim?
-    def remove_media(self, id, seed):
-        # clear images with current seed out of simFigures folder
-        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (id, seed) + '.png')
+    # when window closes
+    def close_window(self):
+        # clear figures from simFigures folder
+        figureList = glob.glob('simFigures/simFigure*' + '.png')
         for f in figureList:
             os.remove(f)
 
-        # remove data files of current seed
-        dataFiles = glob.glob('*%d_%s.dat' % (id, seed))
+        # remove all data files
+        dataFiles = glob.glob('*.dat')
         for d in dataFiles:
             os.remove(d)
 
-        # remove video of current seed
-        try:
-            os.remove('video_%d_%s.mkv' % (id, seed))
-        except Exception as e:
-            print('Failed to delete video')
+        # remove all videos
+        videos = glob.glob('*.mkv')
+        for v in videos:
+            os.remove(v)
+
+        self.root.destroy()
 
         
 

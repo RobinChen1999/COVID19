@@ -17,25 +17,12 @@ class Gui:
         self.window_width = 1600
         self.window_height = 800
         self.count = count
-        self.root = tab_frame #tk.Tk()
+        self.root = tab_frame
 
         Params.set_params()
 
-        # style = ttk.Style(self.root)
-        # self.root.tk.eval("""
-        #     set base_theme_dir theme/awthemes-10.3.0/
-        
-        #     package ifneeded awdark 7.11 \
-        #         [list source [file join $base_theme_dir awdark.tcl]]
-        #     """)
-        # self.root.tk.call('package', 'require', 'awdark')
-        # style.theme_use('awdark')
-
     # Input window
     def draw_input_window(self):
-        # self.root.title("Input window")
-        # self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
-
         self.frm_input_window = ttk.Frame(self.root)
         self.frm_input_window.pack(side=tk.LEFT, fill=tk.Y)
 
@@ -228,9 +215,6 @@ class Gui:
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
         frm_parameters.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
         
-        # TODO: self.close_window on closing tab
-        # self.root.protocol("WM_DELETE_WINDOW", self.close_window)
-        # self.root.mainloop()
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Simulation
@@ -317,8 +301,6 @@ class Gui:
         )
 
         if input_valid:
-            # increment simulation counter
-            # self.count += 1
             outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
@@ -366,24 +348,6 @@ class Gui:
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim, daemon=True).start()
 
-    # when window closes
-    def close_window(self):
-        # clear figures from simFigures folder
-        figureList = glob.glob('simFigures/simFigure*' + '.png')
-        for f in figureList:
-            os.remove(f)
-
-        # remove all data files
-        dataFiles = glob.glob('*.dat')
-        for d in dataFiles:
-            os.remove(d)
-
-        # remove all videos
-        videos = glob.glob('*.mkv')
-        for v in videos:
-            os.remove(v)
-
-        self.root.destroy()
 
     def update_exits(self, _nexits, _cashierd):
         params = eval(os.environ["PARAMS"])

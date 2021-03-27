@@ -32,8 +32,8 @@ class GuiOutput:
         self.t.setDaemon(True)
         self.t.start()
 
-        # updates output window after simulation is done
-
+        
+    # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.txt_output.config(cursor='arrow')
         self.txt_output.pack()
@@ -114,10 +114,6 @@ class GuiOutput:
     # Output
     def draw_output_window(self):
         self.output_line_nr = 0
-
-        # self.window = tk.Toplevel()
-        # self.window.title('Simulation %d with seed: %s'%(self.id,self.seed))
-        # self.window.state('zoomed')
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
