@@ -182,7 +182,7 @@ class GuiOutput:
         self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
-        self.window.protocol("WM_DELETE_WINDOW", self.close_window)
+        # self.window.protocol("WM_DELETE_WINDOW", self.close_window) #now hanlded in Gui, quz only one window
 
     def update_output(self, line):
         if self.txt_output == 0:

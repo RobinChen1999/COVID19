@@ -20,7 +20,7 @@ class StoreLayout:
         self.canvas.pack()
 
         # button to show/hide the grid
-        self.show_grid = tk.IntVar()
+        self.show_grid = tk.IntVar(value=1)
         self.btn_grid = ttk.Checkbutton(frame,
                                         text="Show Grid",
                                         variable=self.show_grid,
@@ -64,8 +64,6 @@ class StoreLayout:
         result = tk.messagebox.askquestion("Warning!", "Are you sure you want to remove all shelves?")
         if result == "yes":
             self.canvas.delete('shelf')
-        else:
-            pass
 
     # changes colour of rectangle object from grid
     def draw_shelf(self, row, col):

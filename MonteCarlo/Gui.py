@@ -7,7 +7,7 @@ from GuiOutput import *
 
 
 class Gui:
-    def __init__(self):
+    def __init__(self, tab_frame):
         self.frm_sim = 0
         self.lbl_sim = 0
         self.txt_output = 0
@@ -17,33 +17,39 @@ class Gui:
         self.window_width = 1600
         self.window_height = 800
         self.count = 0
-        self.root = tk.Tk()
+        self.root = tab_frame #tk.Tk()
 
         Params.set_params()
 
-        style = ttk.Style(self.root)
-        self.root.tk.eval("""
-            set base_theme_dir theme/awthemes-10.3.0/
+        # style = ttk.Style(self.root)
+        # self.root.tk.eval("""
+        #     set base_theme_dir theme/awthemes-10.3.0/
         
-            package ifneeded awdark 7.11 \
-                [list source [file join $base_theme_dir awdark.tcl]]
-            """)
-        self.root.tk.call('package', 'require', 'awdark')
-        style.theme_use('awdark')
+        #     package ifneeded awdark 7.11 \
+        #         [list source [file join $base_theme_dir awdark.tcl]]
+        #     """)
+        # self.root.tk.call('package', 'require', 'awdark')
+        # style.theme_use('awdark')
 
     # Input window
     def draw_input_window(self):
-        self.root.title("Input window")
-        self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
+        # self.root.title("Input window")
+        # self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
 
-        self.frm_input_window = tk.Frame(self.root)
-        self.frm_input_window.pack(side=tk.LEFT)
+        self.frm_input_window = ttk.Frame(self.root)
+        self.frm_input_window.pack(side=tk.LEFT, fill=tk.Y)
 
-        self.frm_output_window = tk.Frame(self.root)
-        self.frm_output_window.pack(side=tk.RIGHT, expand=True)
+        self.frm_output_window = ttk.Frame(self.root)
+        self.frm_output_window.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Parameters frame
+        frm_parameters = ttk.Frame(self.frm_input_window)
+
+        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
+        lbl_id_parameters.pack()
 
         # Layout frame
-        frm_layout = ttk.Frame(self.frm_input_window, bg="paleturquoise")
+        frm_layout = ttk.Frame(self.frm_input_window)
 
         lbl_id_layout = ttk.Label(frm_layout, text="Layout Frame")
         lbl_id_layout.pack()
@@ -51,12 +57,7 @@ class Gui:
         self.store_layout_canvas = StoreLayout(frm_layout)
         self.store_layout_canvas.draw_store_layout()
 
-        # Parameters frame
-        frm_parameters = ttk.Frame(self.frm_input_window, bg="paleturquoise")
-
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
-        lbl_id_parameters.pack()
-
+        # Parameters tab
         def create_tool_tip(widget, text):
             tool_tip = ToolTip(widget)
 
@@ -224,12 +225,12 @@ class Gui:
                              ))
         btn_run.pack()
 
-        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        frm_parameters.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-
-        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
-
-        self.root.mainloop()
+        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
+        frm_parameters.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+        
+        # TODO: self.close_window on closing tab
+        # self.root.protocol("WM_DELETE_WINDOW", self.close_window)
+        # self.root.mainloop()
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Simulation
