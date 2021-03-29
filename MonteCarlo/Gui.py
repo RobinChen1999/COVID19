@@ -23,26 +23,35 @@ class Gui:
 
     # Input window
     def draw_input_window(self):
-        self.frm_input_window = ttk.Frame(self.root)
-        self.frm_input_window.pack(side=tk.LEFT, fill=tk.Y)
-
-        self.frm_output_window = ttk.Frame(self.root)
-        self.frm_output_window.pack(side=tk.RIGHT, fill=tk.Y)
-
         # Parameters frame
-        frm_parameters = ttk.Frame(self.frm_input_window)
+        frm_parameters = ttk.Frame(self.root)
 
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
+        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters")
         lbl_id_parameters.pack()
 
         # Layout frame
-        frm_layout = ttk.Frame(self.frm_input_window)
+        self.frm_layout = ttk.Frame(self.root)
 
-        lbl_id_layout = ttk.Label(frm_layout, text="Layout Frame")
+        lbl_id_layout = ttk.Label(self.frm_layout, text="Layout")
         lbl_id_layout.pack()
 
-        self.store_layout_canvas = StoreLayout(frm_layout)
+        self.store_layout_canvas = StoreLayout(self.frm_layout)
         self.store_layout_canvas.draw_store_layout()
+
+        # button to show/hide the grid
+        self.buttons_store_grid = ttk.Frame(self.root)
+        self.buttons_store_grid.grid(row=0, column=1)
+        self.btn_grid = ttk.Checkbutton(self.buttons_store_grid,
+                                        text="Show Grid",
+                                        variable=self.store_layout_canvas.show_grid,
+                                        onvalue=1, offvalue=0,
+                                        command=self.store_layout_canvas.hide_grid_lines)
+        self.btn_grid.pack(side=tk.LEFT, padx=20)
+
+        btn_clear_shelves = ttk.Button(self.buttons_store_grid,
+                                       text="Remove all shelves",
+                                       command=self.store_layout_canvas.clear_shelves)
+        btn_clear_shelves.pack(side=tk.RIGHT)
 
         # Parameters tab
         def create_tool_tip(widget, text):
@@ -208,12 +217,14 @@ class Gui:
                                      "plume_conc_cough": plume_conc_cough.get(),
                                      "plume_conc_cont": plume_conc_cont.get()
                                  },
-                                 store_layout=self.store_layout_canvas
+                                 store_layout=self.store_layout_canvas,
+                                 btn_run=btn_run,
+                                 frm_parameters=frm_parameters
                              ))
         btn_run.pack()
 
-        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
-        frm_parameters.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+        self.frm_layout.grid(row=1, column=1, padx=50, sticky="ne") #pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
+        frm_parameters.grid(row=1, column=0, sticky="nw") #pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
@@ -289,7 +300,7 @@ class Gui:
             return True
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
-                       store_layout):
+                       store_layout, btn_run, frm_parameters):
         self.simulating = True
 
         input_valid = self.validate_input(
@@ -301,7 +312,10 @@ class Gui:
         )
 
         if input_valid:
-            outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
+            self.frm_layout.grid_forget()
+            self.buttons_store_grid.grid_forget()
+            btn_run.forget()
+            outputGui = GuiOutput(self.root, frm_parameters, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params
@@ -341,6 +355,7 @@ class Gui:
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
+                
                 store_plot = sim.runSimulation()
                 outputGui.simulating = False
                 outputGui.update_on_sim_finished(store_plot)

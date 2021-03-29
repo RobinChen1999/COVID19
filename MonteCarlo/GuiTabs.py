@@ -41,7 +41,7 @@ class GuiTabs:
         frame = ttk.Frame(self.tab_control)
         name = "    Simulation " + str(pos+1) + "  "
         btn_close_tab = ttk.Button(frame, text="Close tab", command=self.close_tab)
-        btn_close_tab.pack(anchor="nw")
+        btn_close_tab.grid(row=0, column=0, sticky="w")
         
         self.tab_control.insert(pos=pos, child=frame, text=name, padding=10)
         if not pos == "end": 

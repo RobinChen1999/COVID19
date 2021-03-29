@@ -16,12 +16,13 @@ class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, output_window, simulation_params, sim_id, nr_customers):
+    def __init__(self, output_window, frm_parameters, simulation_params, sim_id, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
         self.window = output_window
+        self.frm_parameters = frm_parameters
         self.draw_output_window()
         self.update_output(
             "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
@@ -36,7 +37,7 @@ class GuiOutput:
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.txt_output.config(cursor='arrow')
-        self.txt_output.pack()
+        # self.txt_output.pack()
         self.update_output("Simulation finished!")
         self.lbl_sim.destroy()
 
@@ -122,7 +123,7 @@ class GuiOutput:
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
 
-        img = Image.open("aerosols_meter.png")
+        img = Image.open("aerosols_meter_trans.png")
         img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height / 5), int(self.canvas_height / 5 * 3))))
         aerosol_meter = ttk.Label(self.frm_sim, image=img_meter)
         aerosol_meter.image = img_meter
@@ -132,22 +133,22 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Output frame
-        frm_output = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
+        frm_output = ttk.Frame(self.frm_parameters, height=self.window_height / 2, width=self.window_width / 2)
 
-        lbl_id_parameters = ttk.Label(frm_output, text="Output Frame")
+        lbl_id_parameters = ttk.Label(frm_output, text="Output")
         lbl_id_parameters.pack()
 
         self.txt_output = tk.Text(
-            frm_output, height=15, width=70, cursor='watch')
+            frm_output, height=15, width=40, cursor='watch')
         self.txt_output.config(wrap='none', state='disabled')
         self.txt_output.pack()
 
-        self.txt_step_output = tk.Text(frm_output, height=4, width=70)
+        self.txt_step_output = tk.Text(frm_output, height=4, width=40)
         self.txt_step_output.config(wrap='none', state='disabled')
         self.txt_step_output.pack(pady=20)
 
-        self.frm_graphs = ttk.Frame(frm_output)
-        self.frm_graphs.pack(fill=None, expand=False)
+        self.frm_graphs = ttk.Frame(self.window)
+        self.frm_graphs.grid(row=1, column=2) #pack(fill=None, expand=False)
 
         plt.ion()
         fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
@@ -175,8 +176,8 @@ class GuiOutput:
 
         self.canvas.get_tk_widget().pack(fill=tk.BOTH)
 
-        self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+        self.frm_sim.grid(row=1, column=1, sticky="nw") #pack(fill=tk.BOTH, side=tk.BOTTOM, anchor="w", expand=True)
+        frm_output.pack() #grid(row=2, column=0) #pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
 
         # self.window.protocol("WM_DELETE_WINDOW", self.close_window) #now hanlded in Gui, quz only one window
 
