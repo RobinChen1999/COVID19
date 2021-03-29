@@ -59,7 +59,6 @@ class Gui:
 
         column_size_text = 200
         column_size_input = 100
-        img = ImageTk.PhotoImage(Image.open("questionmark.png").resize((15, 15)))
         params = eval(os.environ["PARAMS"])
 
         input_tab_control = ttk.Notebook(frm_parameters)
@@ -71,9 +70,9 @@ class Gui:
             lbl = ttk.Label(tab_root, text=label)
             lbl.grid(row=index, column=0, sticky="w")
 
-            desc = ttk.Label(tab_root, image=img)
+            desc = ttk.Label(tab_root, text="?")
             create_tool_tip(desc, description)
-            desc.grid(row=index, column=1, sticky="e")
+            desc.grid(row=index, column=1, sticky="e", padx=10)
 
             if callback is None:
                 ent = ttk.Entry(tab_root)
