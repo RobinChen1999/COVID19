@@ -22,7 +22,7 @@ class GuiTabs:
         self.root.tk.call('package', 'require', 'awlight')
         self.root.tk.call('source', 'theme/tkBreeze-master/breeze/breeze.tcl')
         self.root.tk.call('source', 'theme/tkBreeze-master/breeze-dark/breeze-dark.tcl')
-        self.style.theme_use('breeze')
+        self.style.theme_use('breeze-dark')
 
     def draw_window(self):
         self.root.title("Input window")
