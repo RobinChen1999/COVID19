@@ -21,7 +21,7 @@ class GuiTabs:
 
     def draw_window(self):
         self.root.title("Input window")
-        self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
+        self.root.state('zoomed')
 
         self.tab_control = ttk.Notebook(self.root)
         self.tab_control.pack(expand=1, fill=tk.BOTH)
