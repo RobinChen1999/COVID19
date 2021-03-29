@@ -27,6 +27,11 @@ class GuiOutput:
             "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
                 nr_customers, self.max_steps))
 
+        self.fig = 0
+        self.ax_time = 0
+        self.ax_customer_exposure = 0
+        self.customer_canvas = 0
+
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
         self.t.setDaemon(True)
@@ -40,8 +45,10 @@ class GuiOutput:
         self.update_output("Simulation finished!")
         self.lbl_sim.destroy()
 
+        self.init_customer_graph()
+
         self.store_plot = store_plot
-        self.store_plot.init_canvas(window=self.frm_sim, height=self.canvas_height)
+        self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
 
         steps = int(self.max_steps) - 1
         length = max(int((self.window_width / 2) / steps), 10)
@@ -51,6 +58,37 @@ class GuiOutput:
         self.slider.pack()
         btn_export = ttk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
+
+        self.customer_canvas.draw_idle()
+        self.customer_canvas.get_tk_widget().pack(fill=tk.BOTH)
+        self.frm_customer_graph.pack(fill=None, expand=False, pady=10)
+
+    # initialize the graph for customer details
+    def init_customer_graph(self):
+        self.frm_customer_graph = ttk.Frame(self.frm_sim)
+        
+        plt.ion()
+        self.fig = plt.Figure(figsize=(5.5, 4), dpi=100)
+
+        self.ax_time = self.fig.add_subplot(111)
+        self.ax_time.set_xlabel('Step')
+        self.ax_time.set_ylabel('Time')
+
+        self.ax_customer_exposure = self.ax_time.twinx()
+        self.ax_customer_exposure.set_ylabel('Exposure')
+
+        self.ax_time.axis((0, 1, 0, 1))
+        self.ax_customer_exposure.axis((0, 1, 0, 1))
+
+        self.ax_time.plot([], [], color='black', label='Time spent in store')
+        # ax.plot([], [], color='green', label='Exposure')
+        self.ax_customer_exposure.plot([], [], color='green', label='Exposure')
+
+        self.ax_time.legend(loc="upper left")
+        self.ax_customer_exposure.legend(loc="upper right")
+
+        self.customer_canvas = FigureCanvasTkAgg(self.fig, self.frm_customer_graph)
+        self.customer_canvas.callbacks.connect('button_press_event', self.graph_on_click)
 
     # opens a 'save-as' window to save the video
     def save_file(self):
@@ -91,33 +129,13 @@ class GuiOutput:
                 except:
                     pass  # when label is destroyed before while-loop ends
 
-    # when output window closes
-    def close_window(self):
-        # clear images with current seed out of simFigures folder
-        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
-        for f in figureList:
-            os.remove(f)
-
-        # remove data files of current seed
-        dataFiles = glob.glob('*%d_%s.dat' % (self.id, self.seed))
-        for d in dataFiles:
-            os.remove(d)
-
-        # remove video of current seed
-        try:
-            os.remove('video_%d_%s.mkv' % (self.id, self.seed))
-        except Exception as e:
-            print('Failed to delete video')
-
-        self.window.destroy()
-
     # Output
     def draw_output_window(self):
         self.output_line_nr = 0
 
         # Simulation frame
-        self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
-        self.canvas_height = self.window_height / 3 * 2
+        self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
+        self.canvas_height = self.window_height / 2
 
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
         lbl_id_sim.pack()
@@ -164,7 +182,7 @@ class GuiOutput:
 
         self.ax_customer.plot([], [], color='blue', label='Nr. of Customers')
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
-        self.ax_exposure.plot([], [], color='green', label='Exposure')
+        self.ax_exposure.plot([], [], color='green', label='Total Exposure')
 
         self.ax_customer.legend(loc="upper left")
         self.ax_exposure.legend(loc="upper right")
@@ -177,8 +195,6 @@ class GuiOutput:
 
         self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
-
-        # self.window.protocol("WM_DELETE_WINDOW", self.close_window) #now hanlded in Gui, quz only one window
 
     def update_output(self, line):
         if self.txt_output == 0:

@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
+
 from numpy import linspace, meshgrid
 #from matplotlib.mlab import griddata
 
@@ -360,6 +361,9 @@ class Simulation:
 		self.customers = []
 		self.allCustomers = []
 
+		self.np_time = np.zeros([self.maxSteps, self.nCustomers])
+		self.np_exposure = np.zeros([self.maxSteps, self.nCustomers])
+
 		self.gui.update_output("Done")
 
 
@@ -529,8 +533,6 @@ class Simulation:
 
 			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
 
-			self.stepNow+=1
-
 			if customersHeadExit>maxQueue:
 				maxQueue = customersHeadExit
 
@@ -538,6 +540,8 @@ class Simulation:
 			customersExit = []
 			customersHeadExit = 0
 			for j,c in enumerate(self.customers):
+				self.np_time[self.stepNow, j] = c.timeInStore
+				self.np_exposure[self.stepNow, j] = c.exposure
 				if c.infected:
 					emittingCustomers +=1
 				tx, ty = c.takeStep(self.store)
@@ -546,6 +550,8 @@ class Simulation:
 				customersHeadExit += c.headingForExit
 				if tx==-1 and ty==-1:
 					customersExit.append(j)
+
+			self.stepNow+=1
 
 			## here the customers at exit are erased from the system.
 			for ind in customersExit[::-1]:
@@ -593,7 +599,7 @@ class Simulation:
 		self.generateVideo()
 		# self.createGif()
 		self.printEndStatistics()
-		storePlot = StorePlot(store=self.store, customers=self.allCustomers,
+		storePlot = StorePlot(store=self.store, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
 		return storePlot
 
