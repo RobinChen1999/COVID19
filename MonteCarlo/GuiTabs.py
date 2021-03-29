@@ -12,15 +12,17 @@ class GuiTabs:
         self.style = ttk.Style(self.root)
         self.root.tk.eval("""
             set base_theme_dir theme/awthemes-10.3.0/
-        
+
             package ifneeded awdark 7.11 \
                 [list source [file join $base_theme_dir awdark.tcl]]
             package ifneeded awlight 7.9 \
                 [list source [file join $base_theme_dir awlight.tcl]]
             """)
-        self.root.tk.call('package', 'require', 'awlight')
         self.root.tk.call('package', 'require', 'awdark')
-        self.style.theme_use('awdark')
+        self.root.tk.call('package', 'require', 'awlight')
+        self.root.tk.call('source', 'theme/tkBreeze-master/breeze/breeze.tcl')
+        self.root.tk.call('source', 'theme/tkBreeze-master/breeze-dark/breeze-dark.tcl')
+        self.style.theme_use('breeze')
 
     def draw_window(self):
         self.root.title("Input window")
@@ -105,9 +107,9 @@ class GuiTabs:
         self.root.destroy()
 
     def switch_theme(self):
-        if self.style.theme_use() == "awdark":
-            theme = "awlight"
+        if self.style.theme_use() == "breeze":
+            theme = "breeze-dark"
         else:
-            theme = "awdark"
+            theme = "breeze"
 
         self.style.theme_use(theme)
