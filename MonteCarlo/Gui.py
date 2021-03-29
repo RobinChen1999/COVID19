@@ -91,34 +91,43 @@ class Gui:
         seed = add_param_input(tab_simulation, 0, "Seed:", 888892,
                                "The seed is the id of the simulation.\n"
                                "This is used when generating random variables.\n"
-                               "Rerunning a simulation with the same seed will use the same random variables.")
+                               "Rerunning a simulation with the same seed will use the same random variables.\n"
+                               "Should be an integer larger than 0.")
 
         max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 100,
-                                    "For how many steps the simulation will maximally run.")
+                                    "For how many steps the simulation will maximally run.\n"
+                                    "Should be an integer larger than 0.")
 
         # Customer Tab
         tab_customer = ttk.Frame(input_tab_control)
 
         nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 100,
-                                       "How many customers will enter the store.")
+                                       "How many customers will enter the store.\n"
+                                       "Should be an integer larger than 0.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
-                                            "Probability on each time step a new customer will enter the store.")
+                                            "Probability on each time step a new customer will enter the store.\n"
+                                            "Should be a number between 0 and 1.")
 
         prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
-                                            "Probability of a new customer being infected.")
+                                            "Probability of a new customer being infected.\n"
+                                            "Should be a number between 0 and 1.")
 
         prob_block_random_step = add_param_input(tab_customer, 3, "Prob. Random Step:", 0.8,
-                                                 "Probability of customer taking a random step when their path is blocked.")
+                                                 "Probability of customer taking a random step when their path is blocked.\n"
+                                                 "Should be a number between 0 and 1.")
 
         prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
-                                     "Probability of a customer coughing per step.")
+                                     "Probability of a customer coughing per step.\n"
+                                     "Should be a number between 0 and 1.")
 
         plume_conc_cough = add_param_input(tab_customer, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
-                                           "Aerosol concentration when a customer coughs.")
+                                           "Aerosol concentration when a customer coughs.\n"
+                                           "Should be a number larger than 0.")
 
         max_shopping_list = add_param_input(tab_customer, 6, "Max Items on Shopping List:", 20,
-                                            "Maximum number of items on a customer's shopping list.")
+                                            "Maximum number of items on a customer's shopping list.\n"
+                                            "Should be an integer larger than 0.")
 
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
@@ -142,20 +151,26 @@ class Gui:
             self.update_exits(nexits, ent)
             return True
 
-        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.",
+        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"],
+                                 "Number of exits in the store.\n"
+                                 "Should be an integer larger than 0.",
                                  update_nexits)
 
         cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"],
-                                   "The distance between the exits.", update_cashierd)
+                                   "The distance between the exits.\n"
+                                   "Should be an integer larger than 2.",
+                                   update_cashierd)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
 
         diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
-                                     "Diffusion coefficient.")
+                                     "The magnitude of the molar flux through a surface per unit concentration gradient out-of-plane.\n"
+                                     "Should be a number between 0 and 1.")
 
         acsinkcoeff = add_param_input(tab_diffusion, 1, "Sink Coefficient:", params["ACSINKCOEFF"],
-                                      "Coefficient for the sink term of the form: -k*c.")
+                                      "Coefficient for the sink term of the form: -k*c.\n"
+                                      "Should be a number between 0 and 1.")
 
         # Plume Tab
         tab_plume = ttk.Frame(input_tab_control)
@@ -213,7 +228,6 @@ class Gui:
 
         frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
         frm_parameters.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
-        
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Simulation
@@ -278,7 +292,7 @@ class Gui:
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
-        
+
         # Empty store
         if store_empty:
             tk.messagebox.showerror("Error!", "The store is empty! Please add at least one shelf.")
@@ -300,7 +314,8 @@ class Gui:
         )
 
         if input_valid:
-            outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
+            outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count,
+                                  customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params
@@ -346,7 +361,6 @@ class Gui:
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim, daemon=True).start()
-
 
     def update_exits(self, _nexits, _cashierd):
         params = eval(os.environ["PARAMS"])
