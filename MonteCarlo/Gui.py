@@ -41,12 +41,12 @@ class Gui:
         # button to show/hide the grid
         self.buttons_store_grid = ttk.Frame(self.root)
         self.buttons_store_grid.grid(row=0, column=1)
-        self.btn_grid = ttk.Checkbutton(self.buttons_store_grid,
+        btn_grid = ttk.Checkbutton(self.buttons_store_grid,
                                         text="Show Grid",
                                         variable=self.store_layout_canvas.show_grid,
                                         onvalue=1, offvalue=0,
                                         command=self.store_layout_canvas.hide_grid_lines)
-        self.btn_grid.pack(side=tk.LEFT, padx=20)
+        btn_grid.pack(side=tk.LEFT, padx=20)
 
         btn_clear_shelves = ttk.Button(self.buttons_store_grid,
                                        text="Remove all shelves",

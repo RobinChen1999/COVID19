@@ -120,14 +120,21 @@ class GuiOutput:
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
         self.canvas_height = self.window_height / 3 * 2
 
-        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
+        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
         lbl_id_sim.pack()
 
-        img = Image.open("aerosols_meter_trans.png")
-        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height / 5), int(self.canvas_height / 5 * 3))))
-        aerosol_meter = ttk.Label(self.frm_sim, image=img_meter)
+        # Aerosol meter
+        frm_aerosol = ttk.Frame(self.window)
+        for i in range(4):
+            aerosol_label = ttk.Label(frm_aerosol, text=("10^"+str(2-i)))
+            aerosol_label.grid(row=0, column=i*5, sticky='c')
+        img = Image.open("aerosols_meter_horizontal.png")
+        # img_meter = ImageTk.PhotoImage(img)
+        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height),int(img.size[1]/2))))
+        aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
-        aerosol_meter.pack(side=tk.RIGHT, anchor="ne")
+        aerosol_meter.grid(row=1, column=0, columnspan=4*4) #pack(side=tk.TOP, anchor="ne")
+        frm_aerosol.grid(row=0, column=1)
 
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
@@ -148,7 +155,10 @@ class GuiOutput:
         self.txt_step_output.pack(pady=20)
 
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=1, column=2) #pack(fill=None, expand=False)
+        self.frm_graphs.grid(row=1, column=2, sticky='n') #pack(fill=None, expand=False)
+
+        lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph [i]")
+        lbl_graph.pack()
 
         plt.ion()
         fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
