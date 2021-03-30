@@ -16,13 +16,14 @@ class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, output_window, frm_parameters, simulation_params, sim_id, nr_customers):
+    def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
         self.window = output_window
         self.frm_parameters = frm_parameters
+        self.frm_buttons = frm_buttons
         self.draw_output_window()
         self.update_output(
             "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
@@ -50,7 +51,7 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
-        btn_export = ttk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
+        btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
 
     # opens a 'save-as' window to save the video

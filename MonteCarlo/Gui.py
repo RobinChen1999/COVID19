@@ -7,7 +7,7 @@ from GuiOutput import *
 
 
 class Gui:
-    def __init__(self, tab_frame, count):
+    def __init__(self, tab_frame, frm_buttons, count):
         self.frm_sim = 0
         self.lbl_sim = 0
         self.txt_output = 0
@@ -18,6 +18,7 @@ class Gui:
         self.window_height = 800
         self.count = count
         self.root = tab_frame
+        self.frm_buttons = frm_buttons
 
         Params.set_params()
 
@@ -329,7 +330,7 @@ class Gui:
             self.frm_layout.grid_forget()
             self.buttons_store_grid.grid_forget()
             btn_run.forget()
-            outputGui = GuiOutput(self.root, frm_parameters, simulation_params, self.count, customer_params["nr_customers"])
+            outputGui = GuiOutput(self.root, frm_parameters, self.frm_buttons, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params

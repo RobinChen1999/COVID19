@@ -60,7 +60,7 @@ class GuiTabs:
         if not pos == "end": 
             self.tab_control.select(pos)
         
-        simulation = Gui(frame, self.numOfSims)
+        simulation = Gui(frame, frm_buttons, self.numOfSims)
         simulation.draw_input_window()
 
         
