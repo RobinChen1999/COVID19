@@ -156,7 +156,7 @@ class GuiOutput:
         self.txt_step_output.pack(pady=20)
 
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=1, column=2, sticky='n') #pack(fill=None, expand=False)
+        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n') #pack(fill=None, expand=False)
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph [i]")
         lbl_graph.pack()
