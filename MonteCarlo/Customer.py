@@ -82,7 +82,8 @@ class Customer:
             if (sample < self.probSpreadPlume):
                 store.plumes[self.x,self.y] += self.PLUMECONCINC
                 print("Customer coughed at ({},{})".format(self.x,self.y))
-                self.gui.update_output("Step {}: Customer coughed at ({},{})".format(self.initStep + self.timeInStore, self.x,self.y))
+                # self.gui.update_output("Step {}: Customer coughed at ({},{})".format(self.initStep + self.timeInStore, self.x,self.y))
+                self.gui.output_cough_event(step=self.initStep + self.timeInStore, x=self.x, y=self.y)
             else:
                 store.plumes[self.x,self.y] += self.PLUMECONCCONT # according to 1 min of emission is same as 6 coughs
 
@@ -175,7 +176,8 @@ class SmartCustomer(Customer):
             if (sample < self.probSpreadPlume):
                 store.plumes[self.x, self.y] += self.PLUMECONCINC
                 print("Customer coughed at ({},{})".format(self.x, self.y))
-                self.gui.update_output("Step {}: Customer coughed at ({},{})".format(self.initStep + self.timeInStore, self.x,self.y))
+                # self.gui.update_output("Step {}: Customer coughed at ({},{})".format(self.initStep + self.timeInStore, self.x,self.y))
+                self.gui.output_cough_event(step=self.initStep + self.timeInStore, x=self.x, y=self.y)
             else:
                 # according to 1 min of emission is same as 6 coughs
                 store.plumes[self.x, self.y] += self.PLUMECONCCONT

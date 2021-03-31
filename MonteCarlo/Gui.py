@@ -24,6 +24,17 @@ class Gui:
 
     # Input window
     def draw_input_window(self):
+        def create_tool_tip(widget, text):
+            tool_tip = ToolTip(widget)
+
+            def enter(event):
+                tool_tip.showtip(text)
+
+            def leave(event):
+                tool_tip.hidetip()
+
+            widget.bind('<Enter>', enter)
+            widget.bind('<Leave>', leave)
         # Parameters frame
         frm_parameters = ttk.Frame(self.root)
 
@@ -33,8 +44,11 @@ class Gui:
         # Layout frame
         self.frm_layout = ttk.Frame(self.root)
 
-        lbl_id_layout = ttk.Label(self.frm_layout, text="Layout")
-        lbl_id_layout.pack()
+        lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
+        lbl_id_layout.grid(row=0, column=0)
+        desc = ttk.Label(self.frm_layout, text="?")
+        create_tool_tip(desc, "Click and drag to draw shelves on the grid \nClicking on a shelf will remove it from the store")
+        desc.grid(row=0, column=1, sticky="e")
 
         self.store_layout_canvas = StoreLayout(self.frm_layout)
         self.store_layout_canvas.draw_store_layout()
@@ -55,17 +69,7 @@ class Gui:
         btn_clear_shelves.pack(side=tk.RIGHT)
 
         # Parameters tab
-        def create_tool_tip(widget, text):
-            tool_tip = ToolTip(widget)
-
-            def enter(event):
-                tool_tip.showtip(text)
-
-            def leave(event):
-                tool_tip.hidetip()
-
-            widget.bind('<Enter>', enter)
-            widget.bind('<Leave>', leave)
+        
 
         column_size_text = 200
         column_size_input = 100
@@ -418,35 +422,3 @@ class Gui:
     def update_layout_entrance_exits(self, nexits, cashierd):
         self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
 
-
-class ToolTip(object):
-    def __init__(self, widget):
-        self.text = ""
-        self.widget = widget
-        self.tip_window = None
-        self.id = None
-        self.x = self.y = 0
-
-    def showtip(self, text):
-        self.text = text
-        "Display text in tooltip window"
-        if self.tip_window or not self.text:
-            return
-        x, y, cx, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() - 100
-        y = y + cy + self.widget.winfo_rooty() + 20
-        self.tip_window = tw = Toplevel(self.widget)
-        tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        frm = ttk.Frame(tw, relief=SOLID)
-
-        lbl = ttk.Label(frm, text=self.text, justify=LEFT)
-        lbl.pack(padx=5, pady=5)
-
-        frm.pack()
-
-    def hidetip(self):
-        tw = self.tip_window
-        self.tip_window = None
-        if tw:
-            tw.destroy()

@@ -17,7 +17,7 @@ class StoreLayout:
                                 height=self.canvas_width)
         self.canvas.bind('<B1-Motion>', self.onCanvasDrag)
         self.canvas.bind('<Button-1>', self.onCanvasClick)
-        self.canvas.pack()
+        self.canvas.grid(row=1, column=0, columnspan=2)
 
         # # button to show/hide the grid
         self.show_grid = tk.IntVar(value=1)

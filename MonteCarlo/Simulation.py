@@ -30,7 +30,7 @@ class Simulation:
 		# Set gui
 		self.gui = gui
 		self.gui.update_output("-")
-		self.gui.update_output("Initializing...")
+		# self.gui.update_output("Initializing...")
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -360,7 +360,7 @@ class Simulation:
 		self.customers = []
 		self.allCustomers = []
 
-		self.gui.update_output("Done")
+		# self.gui.update_output("Done")
 
 
 	## adds a new customer to the store
@@ -505,7 +505,7 @@ class Simulation:
 		if approxOutFlux<self.probNewCustomer:
 			print('Influx too large, the store will most likely fill with customers')
 			self.gui.update_output("! Influx too large, the store will most likely fill with customers")
-		self.gui.update_output("-")
+		# self.gui.update_output("-")
 
 		self.newCustomer()
 		stepStr = ""
@@ -583,13 +583,13 @@ class Simulation:
 				print("All customers have visited the store")
 				self.gui.update_output("-")
 				self.gui.update_output("All customers have visited the store")
-				self.gui.update_output("Finishing up the simulation...")
+				# self.gui.update_output("Finishing up the simulation...")
 				self.printEndStatistics()
 				return
 		print("Reached the step limit")
 		self.gui.update_output("-")
 		self.gui.update_output("Reached the step limit")
-		self.gui.update_output("Finishing up the simulation...")
+		# self.gui.update_output("Finishing up the simulation...")
 		self.generateVideo()
 		# self.createGif()
 		self.printEndStatistics()
