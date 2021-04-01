@@ -47,7 +47,7 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
-        btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
+        btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
         btn_export.pack()
 
     # opens a 'save-as' window to save the video
@@ -128,6 +128,8 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
+        # self.btn_terminate = ttk.Button(self.frm_buttons, command=self.terminate_sim)
+
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
         self.canvas_height = self.window_height / 3 * 2
@@ -190,7 +192,7 @@ class GuiOutput:
         self.cough_line_nr = 0
 
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
+        self.frm_graphs.grid(row=1, column=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
         lbl_graph.grid(row=0,column=0)
