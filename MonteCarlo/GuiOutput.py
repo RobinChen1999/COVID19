@@ -26,6 +26,7 @@ class GuiOutput:
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
         self.draw_output_window()
+        self.slider_value_old = 0
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -65,9 +66,18 @@ class GuiOutput:
     # Handle slider response
     def slider_handler(self, value):
         value = float(value)
-        if int(value) != value:
-            self.slider.set(round(value))
-            self.update_step(round(value))
+        if value != self.slider_value_old:
+            value = round(value)
+            x = False
+            if value != self.slider_value_old:
+                x = True
+            self.slider_value_old = value
+            self.slider.set(value)
+            if x:
+                var = tk.IntVar()
+                self.window.after(10, var.set, 1)
+                self.window.wait_variable(var)
+                self.update_step(round(value))
 
     def update_step(self, value):
         self.store_plot.update_figure(str(value))
