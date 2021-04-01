@@ -60,8 +60,8 @@ class GuiTabs:
         if not pos == "end": 
             self.tab_control.select(pos)
         
-        simulation = Gui(frame, frm_buttons, self.numOfSims)
-        simulation.draw_input_window()
+        self.simulation = Gui(frame, frm_buttons, self.numOfSims)
+        self.simulation.draw_input_window()
 
         
 
@@ -111,6 +111,9 @@ class GuiTabs:
             theme = "breeze-dark"
         else:
             theme = "breeze"
-        
+
+        if self.simulation.outputGui is not None:
+            self.simulation.outputGui.update_plot_theme(theme)
+
         self.style.theme_use(theme)
         self.root.focus()

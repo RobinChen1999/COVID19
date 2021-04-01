@@ -207,9 +207,9 @@ class GuiOutput:
         create_tool_tip(self.frm_graphs, "Click in the graph to jump to its corresponding step in the simulation")
 
         plt.ion()
-        fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
+        self.fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
 
-        self.ax_customer = fig_graphs.add_subplot(111)
+        self.ax_customer = self.fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
         self.ax_customer.set_ylabel('Customers')
 
@@ -226,9 +226,11 @@ class GuiOutput:
         self.ax_customer.legend(loc="upper left")
         self.ax_exposure.legend(loc="upper right")
 
-        self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
+        self.canvas = FigureCanvasTkAgg(self.fig_graphs, self.frm_graphs)
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
+
+        self.update_plot_theme("breeze-dark")
 
         self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2)
 
@@ -326,6 +328,33 @@ class GuiOutput:
             value = round(event.xdata)
             self.slider.set(str(value))
             self.update_step(value)
+
+    def update_plot_theme(self, theme):
+        c_light = (239/255, 240/255, 241/255)
+        c_dark = (55/255, 60/255, 65/255)
+
+        if theme == "breeze-dark":
+            color_background = c_dark
+            color_axes = c_light
+        else:
+            color_background = c_light
+            color_axes = c_dark
+
+        # Background
+        self.fig_graphs.set_facecolor(color_background)
+        self.ax_customer.set_facecolor(color_background)
+
+        # Axes
+        for side in ['top', 'right', 'bottom', 'left']:
+            self.ax_exposure.spines[side].set_color(color_axes)
+        self.ax_exposure.yaxis.label.set_color(color_axes)
+        self.ax_exposure.tick_params(axis='y', colors=color_axes)
+        self.ax_customer.xaxis.label.set_color(color_axes)
+        self.ax_customer.yaxis.label.set_color(color_axes)
+        self.ax_customer.tick_params(axis='x', colors=color_axes)
+        self.ax_customer.tick_params(axis='y', colors=color_axes)
+
+        self.canvas.draw_idle()
 
 class ToolTip(object):
     def __init__(self, widget):

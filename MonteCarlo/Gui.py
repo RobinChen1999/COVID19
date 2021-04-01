@@ -19,6 +19,7 @@ class Gui:
         self.count = count
         self.root = tab_frame
         self.frm_buttons = frm_buttons
+        self.outputGui = None
 
         Params.set_params()
 
@@ -335,7 +336,7 @@ class Gui:
             self.frm_layout.grid_forget()
             self.buttons_store_grid.grid_forget()
             btn_run.forget()
-            outputGui = GuiOutput(self.root, frm_parameters, self.frm_buttons, simulation_params, self.count, customer_params["nr_customers"])
+            self.outputGui = GuiOutput(self.root, frm_parameters, self.frm_buttons, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params
@@ -362,7 +363,7 @@ class Gui:
                 os.environ["PARAMS"] = str(params)
 
                 sim = Simulation(
-                    outputGui,
+                    self.outputGui,
                     int(simulation_params["seed"]),
                     101,
                     101,
@@ -377,8 +378,8 @@ class Gui:
                     dx=1.0)
                 
                 store_plot = sim.runSimulation()
-                outputGui.simulating = False
-                outputGui.update_on_sim_finished(store_plot)
+                self.outputGui.simulating = False
+                self.outputGui.update_on_sim_finished(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim, daemon=True).start()
