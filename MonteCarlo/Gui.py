@@ -83,11 +83,11 @@ class Gui:
             tab_root.grid_columnconfigure(2, minsize=column_size_input)
 
             lbl = ttk.Label(tab_root, text=label)
-            lbl.grid(row=index, column=0, sticky="w")
+            lbl.grid(row=index, column=0, sticky="w", padx=10, pady=10)
 
             desc = ttk.Label(tab_root, text="?")
             create_tool_tip(desc, description)
-            desc.grid(row=index, column=1, sticky="e", padx=10)
+            desc.grid(row=index, column=1, sticky="e", padx=5)
 
             if callback is None:
                 ent = ttk.Entry(tab_root)
@@ -96,7 +96,7 @@ class Gui:
                 ent = ttk.Entry(tab_root, validate="key", validatecommand=(self.root.register(callback), '%P'))
                 ent.insert(0, value)
 
-            ent.grid(row=index, column=2, sticky="we")
+            ent.grid(row=index, column=2, sticky="we", padx=10)
 
             return ent
 
