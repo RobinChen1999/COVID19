@@ -9,19 +9,24 @@ class GuiTabs:
         
         Params.set_params()
 
-        style = ttk.Style(self.root)
+        self.style = ttk.Style(self.root)
         self.root.tk.eval("""
             set base_theme_dir theme/awthemes-10.3.0/
-        
+
             package ifneeded awdark 7.11 \
                 [list source [file join $base_theme_dir awdark.tcl]]
+            package ifneeded awlight 7.9 \
+                [list source [file join $base_theme_dir awlight.tcl]]
             """)
         self.root.tk.call('package', 'require', 'awdark')
-        style.theme_use('awdark')
+        self.root.tk.call('package', 'require', 'awlight')
+        self.root.tk.call('source', 'theme/tkBreeze-master/breeze/breeze.tcl')
+        self.root.tk.call('source', 'theme/tkBreeze-master/breeze-dark/breeze-dark.tcl')
+        self.style.theme_use('breeze-dark')
 
     def draw_window(self):
         self.root.title("Input window")
-        self.root.geometry('{}x{}'.format(self.window_width, self.window_height))
+        self.root.state('zoomed')
 
         self.tab_control = ttk.Notebook(self.root)
         self.tab_control.pack(expand=1, fill=tk.BOTH)
@@ -40,14 +45,22 @@ class GuiTabs:
         self.numOfSims+=1
         frame = ttk.Frame(self.tab_control)
         name = "    Simulation " + str(pos+1) + "  "
-        btn_close_tab = ttk.Button(frame, text="Close tab", command=self.close_tab)
-        btn_close_tab.pack(anchor="nw")
+
+        frm_buttons = ttk.Frame(frame)
+
+        btn_close_tab = ttk.Button(frm_buttons, text="Close tab", command=self.close_tab)
+        btn_close_tab.pack(side=tk.LEFT)
+
+        self.btn_switch_theme = ttk.Button(frm_buttons, text="Switch Theme", command=self.switch_theme)
+        self.btn_switch_theme.pack(side=tk.LEFT, padx=10)
+
+        frm_buttons.grid(row=0, column=0, sticky="w")
         
         self.tab_control.insert(pos=pos, child=frame, text=name, padding=10)
         if not pos == "end": 
             self.tab_control.select(pos)
         
-        simulation = Gui(frame, self.numOfSims)
+        simulation = Gui(frame, frm_buttons, self.numOfSims)
         simulation.draw_input_window()
 
         
@@ -93,5 +106,11 @@ class GuiTabs:
 
         self.root.destroy()
 
+    def switch_theme(self):
+        if self.style.theme_use() == "breeze":
+            theme = "breeze-dark"
+        else:
+            theme = "breeze"
         
-
+        self.style.theme_use(theme)
+        self.root.focus()

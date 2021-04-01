@@ -11,26 +11,29 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter.filedialog import asksaveasfile
 from pathlib import Path
 
+import numpy as np
 
 class GuiOutput:
     window_width = 1600
     window_height = 800
 
-    def __init__(self, output_window, simulation_params, sim_id, nr_customers):
+    def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
         self.window = output_window
+        self.frm_parameters = frm_parameters
+        self.frm_buttons = frm_buttons
         self.draw_output_window()
-        self.update_output(
-            "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
-                nr_customers, self.max_steps))
 
         self.fig = 0
         self.ax_time = 0
         self.ax_customer_exposure = 0
         self.customer_canvas = 0
+        self.time = 0
+        self.exposure = 0
+        self.customer_graph_visible = False
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -40,9 +43,7 @@ class GuiOutput:
         
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
-        self.txt_output.config(cursor='arrow')
-        self.txt_output.pack()
-        self.update_output("Simulation finished!")
+        self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
 
         self.init_customer_graph()
@@ -56,7 +57,7 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
-        btn_export = ttk.Button(self.frm_sim, text="Export video", command=lambda: self.save_file())
+        btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
 
         self.customer_canvas.draw_idle()
@@ -77,8 +78,8 @@ class GuiOutput:
         self.ax_customer_exposure = self.ax_time.twinx()
         self.ax_customer_exposure.set_ylabel('Exposure')
 
-        self.ax_time.axis((0, 1, 0, 1))
-        self.ax_customer_exposure.axis((0, 1, 0, 1))
+        self.ax_time.axis((0, int(self.max_steps) - 1, 0, 1))
+        self.ax_customer_exposure.axis((0, int(self.max_steps) - 1, 0, 1))
 
         self.ax_time.plot([], [], color='grey', label='Time spent in store')
         # ax.plot([], [], color='green', label='Exposure')
@@ -113,6 +114,8 @@ class GuiOutput:
         self.store_plot.update_figure(str(value))
         self.update_displayed_step(value)
         self.update_markers(value)
+        if self.customer_graph_visible:
+            self.update_customer_markers(value, self.time, self.exposure)
 
     # load the already simulated figures
     def load_figures(self):
@@ -131,41 +134,90 @@ class GuiOutput:
 
     # Output
     def draw_output_window(self):
+
+        def create_tool_tip(widget, text):
+            desc = ttk.Label(widget, text="?")
+            desc.grid(row=0,column=1, sticky="e")
+            tool_tip = ToolTip(desc)
+
+            def enter(event):
+                tool_tip.showtip(text)
+
+            def leave(event):
+                tool_tip.hidetip()
+
+            desc.bind('<Enter>', enter)
+            desc.bind('<Leave>', leave)
+
         self.output_line_nr = 0
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
         self.canvas_height = self.window_height / 2
 
-        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation Frame")
+        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
         lbl_id_sim.pack()
 
-        img = Image.open("aerosols_meter.png")
-        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height / 5), int(self.canvas_height / 5 * 3))))
-        aerosol_meter = ttk.Label(self.frm_sim, image=img_meter)
+        # Aerosol meter
+        frm_aerosol = ttk.Frame(self.window)
+        for i in range(4):
+            aerosol_label = ttk.Label(frm_aerosol, text=("10^"+str(2-i)))
+            aerosol_label.grid(row=0, column=i*5)
+        img = Image.open("aerosols_meter_horizontal.png")
+        img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height),int(img.size[1]/2))))
+        aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
-        aerosol_meter.pack(side=tk.RIGHT, anchor="ne")
+        aerosol_meter.grid(row=1, column=0, columnspan=4*4)
+        frm_aerosol.grid(row=0, column=1)
 
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
 
         # Output frame
-        frm_output = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
+        self.frm_output = ttk.LabelFrame(self.frm_parameters, text="Output")
+        self.frm_output.pack(fill=tk.BOTH)
+        i = 0
+        lbl_stick = 'w'
+        value_stick = 'e'
+        self.lbl_status = ttk.Label(self.frm_output, text="Initializing simulation...")
+        self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='e', pady=10)
+        i+=1
+        self.output_line_nr = i
+        self.update_output("-")
 
-        lbl_id_parameters = ttk.Label(frm_output, text="Output Frame")
-        lbl_id_parameters.pack()
+        lbl_step = ttk.Label(self.frm_output, text="Step:")
+        lbl_step.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_step_value = ttk.Label(self.frm_output)
+        self.lbl_step_value.grid(row=i, column=1, sticky=value_stick)
+        i+=1
+        lbl_customers = ttk.Label(self.frm_output, text="Customers in store:")
+        lbl_customers.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_customers_value = ttk.Label(self.frm_output)
+        self.lbl_customers_value.grid(row=i, column=1, sticky=value_stick)
+        i+=1
+        lbl_infected = ttk.Label(self.frm_output, text="Infected customers in store:")
+        lbl_infected.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_infected_value = ttk.Label(self.frm_output)
+        self.lbl_infected_value.grid(row=i, column=1, sticky=value_stick)
+        i+=1
+        lbl_exposure = ttk.Label(self.frm_output, text="Exposure on healthy customers:")
+        lbl_exposure.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_exposure_value = ttk.Label(self.frm_output)
+        self.lbl_exposure_value.grid(row=i, column=1, sticky=value_stick)
 
-        self.txt_output = tk.Text(
-            frm_output, height=15, width=70, cursor='watch')
-        self.txt_output.config(wrap='none', state='disabled')
-        self.txt_output.pack()
+        self.output_line_nr = i+1
 
-        self.txt_step_output = tk.Text(frm_output, height=4, width=70)
-        self.txt_step_output.config(wrap='none', state='disabled')
-        self.txt_step_output.pack(pady=20)
+        ### cough event ###
+        self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
+        self.frm_event.pack(fill=tk.BOTH)
+        self.cough_line_nr = 0
 
-        self.frm_graphs = ttk.Frame(frm_output)
-        self.frm_graphs.pack(fill=None, expand=False)
+        self.frm_graphs = ttk.Frame(self.window)
+        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
+
+        lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
+        lbl_graph.grid(row=0,column=0)
+        create_tool_tip(self.frm_graphs, "Click in the graph to jump to its corresponding step in the simulation")
 
         plt.ion()
         fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
@@ -191,39 +243,46 @@ class GuiOutput:
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH)
+        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2)
 
-        self.frm_sim.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        frm_output.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+        self.frm_sim.grid(row=1, column=1, sticky="nw")
 
     def update_output(self, line):
-        if self.txt_output == 0:
+        if self.frm_output == 0:
             raise Exception("Output text is undefined")
         else:
-            # Construct output line
-            output_line = ""
-
-            if line == "-":
-                if self.txt_output.get("end-1c linestart") != "-":
-                    output_line += "\n" + "-" * 20
-            else:
-                if self.txt_output.get("1.0", tk.END) != "\n":
-                    output_line += "\n"
-
-                # output_line += str(self.output_line_nr) + ": " + line
-                output_line += line
-
-            # Update output
-            self.txt_output.config(state='normal')
-            self.txt_output.insert(tk.END, output_line)
-            self.txt_output.see('end -1 lines')
-            self.txt_output.config(state='disabled')
-
+            lbl = ttk.Label(self.frm_output, text=line)
+            lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
             self.output_line_nr += 1
+
+    def output_cough_event(self, step, x, y):
+        lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
+        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w')
+        lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
+        lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=10)
+
+        # mouse event
+        def enter(event):
+            lbl_step.config(relief=tk.RAISED)
+
+        def click(event):
+            if not self.simulating:
+                self.slider.set(str(step))
+                self.update_step(step)
+            
+
+        def leave(event):
+            lbl_step.config(relief=tk.FLAT)
+
+        lbl_step.bind('<Enter>', enter)
+        lbl_step.bind('<Leave>', leave)
+        lbl_step.bind('<Button-1>', click)
+
+        self.cough_line_nr+=1
 
     def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
-        if self.txt_step_output == 0:
+        if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
         else:
             # Get data from axis when simulation has finished
@@ -232,16 +291,10 @@ class GuiOutput:
                 emitting_customers_in_store = self.ax_customer.lines[1].get_ydata()[step]
                 exposure = self.ax_exposure.lines[0].get_ydata()[step]
 
-            output = " Step: {}\n" \
-                     "  Customers in store:            {:.0f}\n" \
-                     "  Infected customers:            {:.0f}\n" \
-                     "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store,
-                                                                      emitting_customers_in_store, exposure)
-
-            self.txt_step_output.config(state='normal')
-            self.txt_step_output.delete('1.0', tk.END)
-            self.txt_step_output.insert(tk.END, output)
-            self.txt_step_output.config(state='disabled')
+            self.lbl_step_value.configure(text=step)
+            self.lbl_customers_value.configure(text=customers_in_store)
+            self.lbl_infected_value.configure(text=emitting_customers_in_store)
+            self.lbl_exposure_value.configure(text=exposure)
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
@@ -280,9 +333,65 @@ class GuiOutput:
 
         self.canvas.draw_idle()
 
+    def update_customer_markers(self, step, time, exposure):
+        self.customer_graph_visible = True
+        self.time = time
+        self.exposure = exposure
+
+        # Update scale
+        self.ax_time.axis((0, int(self.max_steps) - 1, 0, max(np.amax(time) * 1.25, 1)))
+        self.ax_customer_exposure.axis((0, int(self.max_steps) - 1, 0, max(np.amax(exposure) * 1.25, 1)))
+
+        # Remove existing markers
+        if len(self.ax_time.lines) > 2:
+            self.ax_time.lines.pop(2)
+            self.ax_time.lines.pop(1)
+            self.ax_customer_exposure.lines.pop(1)
+
+        # Draw line
+        self.ax_time.axvline(step, color="lightgrey", linestyle="dashed")
+
+        # Draw markers
+        self.ax_time.plot(step, self.ax_time.lines[0].get_ydata()[step], color="grey", marker="o")
+        self.ax_customer_exposure.plot(step, self.ax_customer_exposure.lines[0].get_ydata()[step], 'go')
+
+        self.customer_canvas.draw_idle()
+
     def graph_on_click(self, event):
         # Check if click is inside plot
         if event.inaxes is not None:
             value = round(event.xdata)
             self.slider.set(str(value))
             self.update_step(value)
+
+class ToolTip(object):
+    def __init__(self, widget):
+        self.text = ""
+        self.widget = widget
+        self.tip_window = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        self.text = text
+        "Display text in tooltip window"
+        if self.tip_window or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() - 100
+        y = y + cy + self.widget.winfo_rooty() + 20
+        self.tip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        frm = ttk.Frame(tw, relief=tk.SOLID)
+
+        lbl = ttk.Label(frm, text=self.text, justify=tk.LEFT)
+        lbl.pack(padx=5, pady=5)
+
+        frm.pack()
+
+    def hidetip(self):
+        tw = self.tip_window
+        self.tip_window = None
+        if tw:
+            tw.destroy()

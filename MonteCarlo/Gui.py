@@ -7,7 +7,7 @@ from GuiOutput import *
 
 
 class Gui:
-    def __init__(self, tab_frame, count):
+    def __init__(self, tab_frame, frm_buttons, count):
         self.frm_sim = 0
         self.lbl_sim = 0
         self.txt_output = 0
@@ -18,33 +18,14 @@ class Gui:
         self.window_height = 800
         self.count = count
         self.root = tab_frame
+        self.frm_buttons = frm_buttons
 
         Params.set_params()
 
     # Input window
     def draw_input_window(self):
-        self.frm_input_window = ttk.Frame(self.root)
-        self.frm_input_window.pack(side=tk.LEFT, fill=tk.Y)
 
-        self.frm_output_window = ttk.Frame(self.root)
-        self.frm_output_window.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # Parameters frame
-        frm_parameters = ttk.Frame(self.frm_input_window)
-
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters Frame")
-        lbl_id_parameters.pack()
-
-        # Layout frame
-        frm_layout = ttk.Frame(self.frm_input_window)
-
-        lbl_id_layout = ttk.Label(frm_layout, text="Layout Frame")
-        lbl_id_layout.pack()
-
-        self.store_layout_canvas = StoreLayout(frm_layout)
-        self.store_layout_canvas.draw_store_layout()
-
-        # Parameters tab
+        # tooltip
         def create_tool_tip(widget, text):
             tool_tip = ToolTip(widget)
 
@@ -57,9 +38,42 @@ class Gui:
             widget.bind('<Enter>', enter)
             widget.bind('<Leave>', leave)
 
+        # Parameters frame
+        frm_parameters = ttk.Frame(self.root)
+
+        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters")
+        lbl_id_parameters.pack()
+
+        # Layout frame
+        self.frm_layout = ttk.Frame(self.root)
+
+        lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
+        lbl_id_layout.grid(row=0, column=0)
+        desc = ttk.Label(self.frm_layout, text="?")
+        create_tool_tip(desc, "Click and drag to draw shelves on the grid \nClicking on a shelf will remove it from the store")
+        desc.grid(row=0, column=1, sticky="e")
+
+        self.store_layout_canvas = StoreLayout(self.frm_layout)
+        self.store_layout_canvas.draw_store_layout()
+
+        # button to show/hide the grid
+        self.buttons_store_grid = ttk.Frame(self.root)
+        self.buttons_store_grid.grid(row=0, column=1)
+        btn_grid = ttk.Checkbutton(self.buttons_store_grid,
+                                        text="Show Grid",
+                                        variable=self.store_layout_canvas.show_grid,
+                                        onvalue=1, offvalue=0,
+                                        command=self.store_layout_canvas.hide_grid_lines)
+        btn_grid.pack(side=tk.LEFT, padx=20)
+
+        btn_clear_shelves = ttk.Button(self.buttons_store_grid,
+                                       text="Remove all shelves",
+                                       command=self.store_layout_canvas.clear_shelves)
+        btn_clear_shelves.pack(side=tk.RIGHT)
+
+        # Parameters tab
         column_size_text = 200
         column_size_input = 100
-        img = ImageTk.PhotoImage(Image.open("questionmark.png").resize((15, 15)))
         params = eval(os.environ["PARAMS"])
 
         input_tab_control = ttk.Notebook(frm_parameters)
@@ -71,9 +85,9 @@ class Gui:
             lbl = ttk.Label(tab_root, text=label)
             lbl.grid(row=index, column=0, sticky="w")
 
-            desc = ttk.Label(tab_root, image=img)
+            desc = ttk.Label(tab_root, text="?")
             create_tool_tip(desc, description)
-            desc.grid(row=index, column=1, sticky="e")
+            desc.grid(row=index, column=1, sticky="e", padx=10)
 
             if callback is None:
                 ent = ttk.Entry(tab_root)
@@ -92,34 +106,43 @@ class Gui:
         seed = add_param_input(tab_simulation, 0, "Seed:", 888892,
                                "The seed is the id of the simulation.\n"
                                "This is used when generating random variables.\n"
-                               "Rerunning a simulation with the same seed will use the same random variables.")
+                               "Rerunning a simulation with the same seed will use the same random variables.\n"
+                               "Should be an integer larger than 0.")
 
         max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 100,
-                                    "For how many steps the simulation will maximally run.")
+                                    "For how many steps the simulation will maximally run.\n"
+                                    "Should be an integer larger than 0.")
 
         # Customer Tab
         tab_customer = ttk.Frame(input_tab_control)
 
         nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 100,
-                                       "How many customers will enter the store.")
+                                       "How many customers will enter the store.\n"
+                                       "Should be an integer larger than 0.")
 
         prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
-                                            "Probability on each time step a new customer will enter the store.")
+                                            "Probability on each time step a new customer will enter the store.\n"
+                                            "Should be a number between 0 and 1.")
 
         prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
-                                            "Probability of a new customer being infected.")
+                                            "Probability of a new customer being infected.\n"
+                                            "Should be a number between 0 and 1.")
 
         prob_block_random_step = add_param_input(tab_customer, 3, "Prob. Random Step:", 0.8,
-                                                 "Probability of customer taking a random step when their path is blocked.")
+                                                 "Probability of customer taking a random step when their path is blocked.\n"
+                                                 "Should be a number between 0 and 1.")
 
         prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
-                                     "Probability of a customer coughing per step.")
+                                     "Probability of a customer coughing per step.\n"
+                                     "Should be a number between 0 and 1.")
 
         plume_conc_cough = add_param_input(tab_customer, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
-                                           "Aerosol concentration when a customer coughs.")
+                                           "Aerosol concentration when a customer coughs.\n"
+                                           "Should be a number larger than 0.")
 
         max_shopping_list = add_param_input(tab_customer, 6, "Max Items on Shopping List:", 20,
-                                            "Maximum number of items on a customer's shopping list.")
+                                            "Maximum number of items on a customer's shopping list.\n"
+                                            "Should be an integer larger than 0.")
 
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
@@ -143,20 +166,26 @@ class Gui:
             self.update_exits(nexits, ent)
             return True
 
-        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"], "Number of exits in the store.",
+        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"],
+                                 "Number of exits in the store.\n"
+                                 "Should be an integer larger than 0.",
                                  update_nexits)
 
         cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"],
-                                   "The distance between the exits.", update_cashierd)
+                                   "The distance between the exits.\n"
+                                   "Should be an integer larger than 2.",
+                                   update_cashierd)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
 
         diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
-                                     "Diffusion coefficient.")
+                                     "The magnitude of the molar flux through a surface per unit concentration gradient out-of-plane.\n"
+                                     "Should be a number between 0 and 1.")
 
         acsinkcoeff = add_param_input(tab_diffusion, 1, "Sink Coefficient:", params["ACSINKCOEFF"],
-                                      "Coefficient for the sink term of the form: -k*c.")
+                                      "Coefficient for the sink term of the form: -k*c.\n"
+                                      "Should be a number between 0 and 1.")
 
         # Plume Tab
         tab_plume = ttk.Frame(input_tab_control)
@@ -208,12 +237,14 @@ class Gui:
                                      "plume_conc_cough": plume_conc_cough.get(),
                                      "plume_conc_cont": plume_conc_cont.get()
                                  },
-                                 store_layout=self.store_layout_canvas
+                                 store_layout=self.store_layout_canvas,
+                                 btn_run=btn_run,
+                                 frm_parameters=frm_parameters
                              ))
         btn_run.pack()
 
-        frm_layout.pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
-        frm_parameters.pack(fill=tk.BOTH, side=tk.RIGHT, expand=True)
+        self.frm_layout.grid(row=1, column=1, padx=50, sticky="ne")
+        frm_parameters.grid(row=1, column=0, sticky="nw")
         
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
@@ -279,7 +310,7 @@ class Gui:
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
             return False
-        
+
         # Empty store
         if store_empty:
             tk.messagebox.showerror("Error!", "The store is empty! Please add at least one shelf.")
@@ -289,7 +320,7 @@ class Gui:
             return True
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
-                       store_layout):
+                       store_layout, btn_run, frm_parameters):
         self.simulating = True
 
         input_valid = self.validate_input(
@@ -301,7 +332,10 @@ class Gui:
         )
 
         if input_valid:
-            outputGui = GuiOutput(self.frm_output_window, simulation_params, self.count, customer_params["nr_customers"])
+            self.frm_layout.grid_forget()
+            self.buttons_store_grid.grid_forget()
+            btn_run.forget()
+            outputGui = GuiOutput(self.root, frm_parameters, self.frm_buttons, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
                 # Update global params
@@ -341,13 +375,13 @@ class Gui:
                     imageName=store_layout.saveCanvas(),
                     useDiffusion=1,
                     dx=1.0)
+                
                 store_plot = sim.runSimulation()
                 outputGui.simulating = False
                 outputGui.update_on_sim_finished(store_plot)
 
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim, daemon=True).start()
-
 
     def update_exits(self, _nexits, _cashierd):
         params = eval(os.environ["PARAMS"])
@@ -389,33 +423,3 @@ class Gui:
     def update_layout_entrance_exits(self, nexits, cashierd):
         self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
 
-
-class ToolTip(object):
-    def __init__(self, widget):
-        self.text = ""
-        self.widget = widget
-        self.tip_window = None
-        self.id = None
-        self.x = self.y = 0
-
-    def showtip(self, text):
-        self.text = text
-        "Display text in tooltip window"
-        if self.tip_window or not self.text:
-            return
-        x, y, cx, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() - 100
-        y = y + cy + self.widget.winfo_rooty() + 20
-        self.tip_window = tw = Toplevel(self.widget)
-        tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        label = Label(tw, text=self.text, justify=LEFT,
-                      background="#ffffe0", relief=SOLID, borderwidth=1,
-                      font=("tahoma", "8", "normal"))
-        label.pack(ipadx=1)
-
-    def hidetip(self):
-        tw = self.tip_window
-        self.tip_window = None
-        if tw:
-            tw.destroy()

@@ -31,7 +31,7 @@ class Simulation:
 		# Set gui
 		self.gui = gui
 		self.gui.update_output("-")
-		self.gui.update_output("Initializing...")
+		# self.gui.update_output("Initializing...")
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -364,7 +364,7 @@ class Simulation:
 		self.np_time = np.zeros([self.maxSteps, self.nCustomers])
 		self.np_exposure = np.zeros([self.maxSteps, self.nCustomers])
 
-		self.gui.update_output("Done")
+		# self.gui.update_output("Done")
 
 
 	## adds a new customer to the store
@@ -509,7 +509,7 @@ class Simulation:
 		if approxOutFlux<self.probNewCustomer:
 			print('Influx too large, the store will most likely fill with customers')
 			self.gui.update_output("! Influx too large, the store will most likely fill with customers")
-		self.gui.update_output("-")
+		# self.gui.update_output("-")
 
 		self.newCustomer()
 		stepStr = ""
@@ -550,7 +550,7 @@ class Simulation:
 				customersHeadExit += c.headingForExit
 				if tx==-1 and ty==-1:
 					customersExit.append(j)
-
+					
 			self.stepNow+=1
 
 			## here the customers at exit are erased from the system.
@@ -589,17 +589,17 @@ class Simulation:
 				print("All customers have visited the store")
 				self.gui.update_output("-")
 				self.gui.update_output("All customers have visited the store")
-				self.gui.update_output("Finishing up the simulation...")
+				# self.gui.update_output("Finishing up the simulation...")
 				self.printEndStatistics()
 				return
 		print("Reached the step limit")
 		self.gui.update_output("-")
 		self.gui.update_output("Reached the step limit")
-		self.gui.update_output("Finishing up the simulation...")
+		# self.gui.update_output("Finishing up the simulation...")
 		self.generateVideo()
 		# self.createGif()
 		self.printEndStatistics()
-		storePlot = StorePlot(store=self.store, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
+		storePlot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
 		return storePlot
 

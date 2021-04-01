@@ -18,11 +18,10 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
-import numpy as np
-
 class StorePlot:
-    def __init__(self, store, customers, time, exposure, parula_map, useDiffusion, seed, sim_id):
+    def __init__(self, store, gui, customers, time, exposure, parula_map, useDiffusion, seed, sim_id):
         self.store = store
+        self.gui = gui
         self.customers = customers
         self.parula_map = parula_map
         self.useDiffusion = useDiffusion
@@ -83,9 +82,5 @@ class StorePlot:
                 self.ax1.lines[0].set_data(x, self.time[:, c])
                 self.ax2.lines[0].set_data(x, self.exposure[:, c])
 
-                # Update scale
-                self.ax1.axis((0, max(self.step, 1), 0, max(np.amax(self.time) * 1.25, 1)))
-                self.ax2.axis((0, max(self.step, 1), 0, max(np.amax(self.exposure) * 1.25, 1)))
-
-                self.customer_canvas.draw_idle()
+                self.gui.update_customer_markers(self.step, self.time, self.exposure)
         

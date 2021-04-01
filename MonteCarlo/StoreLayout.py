@@ -7,7 +7,7 @@ from PIL import Image, ImageGrab
 class StoreLayout:
     color_floor = "white"
     color_shelf = "black"
-    canvas_width = 400
+    canvas_width = 600
     step = int(canvas_width / 20)
 
     def __init__(self, frame):
@@ -17,21 +17,10 @@ class StoreLayout:
                                 height=self.canvas_width)
         self.canvas.bind('<B1-Motion>', self.onCanvasDrag)
         self.canvas.bind('<Button-1>', self.onCanvasClick)
-        self.canvas.pack()
+        self.canvas.grid(row=1, column=0, columnspan=2)
 
-        # button to show/hide the grid
+        # # button to show/hide the grid
         self.show_grid = tk.IntVar(value=1)
-        self.btn_grid = ttk.Checkbutton(frame,
-                                        text="Show Grid",
-                                        variable=self.show_grid,
-                                        onvalue=1, offvalue=0,
-                                        command=self.hide_grid_lines)
-        self.btn_grid.pack()
-
-        btn_clear_shelves = ttk.Button(frame,
-                                       text="Remove all shelves",
-                                       command=self.clear_shelves)
-        btn_clear_shelves.pack()
 
         # init col row
         self.click_row = 0
@@ -115,7 +104,6 @@ class StoreLayout:
 
         # Restore entrance and exits
         self.draw_entrance_exits(self.nexits, self.cashierd)
-
         return str(fileName)
 
     def check_store_empty(self):
