@@ -80,7 +80,7 @@ class GuiOutput:
         self.ax_time.axis((0, 1, 0, 1))
         self.ax_customer_exposure.axis((0, 1, 0, 1))
 
-        self.ax_time.plot([], [], color='black', label='Time spent in store')
+        self.ax_time.plot([], [], color='grey', label='Time spent in store')
         # ax.plot([], [], color='green', label='Exposure')
         self.ax_customer_exposure.plot([], [], color='green', label='Exposure')
 
