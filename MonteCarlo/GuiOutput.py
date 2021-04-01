@@ -127,9 +127,9 @@ class GuiOutput:
     # Output
     def draw_output_window(self):
 
-        def create_tool_tip(widget, text):
+        def create_tool_tip(widget,row, text):
             desc = ttk.Label(widget, text="?")
-            desc.grid(row=0,column=1, sticky="e")
+            desc.grid(row=row,column=1, sticky="e")
             tool_tip = ToolTip(desc)
 
             def enter(event):
@@ -206,11 +206,11 @@ class GuiOutput:
 
         # Graph frame
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
+        self.frm_graphs.grid(row=1, column=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
         lbl_graph.grid(row=0,column=0, pady=10)
-        create_tool_tip(self.frm_graphs, "Click in the graphs to jump to its corresponding step in the simulation")
+        create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
         fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
@@ -241,19 +241,7 @@ class GuiOutput:
         # Customer detail graph
         lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
         lbl_customer_graph.grid(row=3,column=0, pady=10)
-
-        desc = ttk.Label(self.frm_graphs, text="?")
-        desc.grid(row=3,column=1, sticky="e")
-        tool_tip = ToolTip(desc)
-
-        def enter(event):
-            tool_tip.showtip("Click on a customer in the simulation to show their specific details in the graph")
-
-        def leave(event):
-            tool_tip.hidetip()
-
-        desc.bind('<Enter>', enter)
-        desc.bind('<Leave>', leave)
+        create_tool_tip(self.frm_graphs, 3, "Click on a customer in the simulation to show their specific details in the graph")
 
         self.init_customer_graph()
         self.customer_canvas.draw()
