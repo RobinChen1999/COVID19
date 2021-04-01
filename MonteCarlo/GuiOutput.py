@@ -28,9 +28,9 @@ class GuiOutput:
         self.draw_output_window()
 
         self.fig = 0
-        self.ax_time = 0
-        self.ax_customer_exposure = 0
-        self.customer_canvas = 0
+        # self.ax_time = 0
+        # self.ax_customer_exposure = 0
+        # self.customer_canvas = 0
         self.time = 0
         self.exposure = 0
         self.customer_graph_visible = False
@@ -46,8 +46,6 @@ class GuiOutput:
         self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
 
-        self.init_customer_graph()
-
         self.store_plot = store_plot
         self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
 
@@ -60,16 +58,11 @@ class GuiOutput:
         btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
         btn_export.pack()
 
-        self.customer_canvas.draw_idle()
-        self.customer_canvas.get_tk_widget().pack(fill=tk.BOTH)
-        self.frm_customer_graph.pack(fill=None, expand=False, pady=10)
-
     # initialize the graph for customer details
     def init_customer_graph(self):
-        self.frm_customer_graph = ttk.Frame(self.frm_sim)
         
         plt.ion()
-        self.fig = plt.Figure(figsize=(5.5, 4), dpi=100)
+        self.fig = plt.Figure(figsize=(6, 4), dpi=100)
 
         self.ax_time = self.fig.add_subplot(111)
         self.ax_time.set_xlabel('Step')
@@ -82,13 +75,12 @@ class GuiOutput:
         self.ax_customer_exposure.axis((0, int(self.max_steps) - 1, 0, 1))
 
         self.ax_time.plot([], [], color='grey', label='Time spent in store')
-        # ax.plot([], [], color='green', label='Exposure')
         self.ax_customer_exposure.plot([], [], color='green', label='Exposure')
 
         self.ax_time.legend(loc="upper left")
         self.ax_customer_exposure.legend(loc="upper right")
 
-        self.customer_canvas = FigureCanvasTkAgg(self.fig, self.frm_customer_graph)
+        self.customer_canvas = FigureCanvasTkAgg(self.fig, self.frm_graphs)
         self.customer_canvas.callbacks.connect('button_press_event', self.graph_on_click)
 
     # opens a 'save-as' window to save the video
@@ -168,7 +160,7 @@ class GuiOutput:
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
         aerosol_meter.grid(row=1, column=0, columnspan=4*4)
-        frm_aerosol.grid(row=0, column=1)
+        frm_aerosol.grid(row=0, column=1, padx=10)
 
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
@@ -212,12 +204,13 @@ class GuiOutput:
         self.frm_event.pack(fill=tk.BOTH)
         self.cough_line_nr = 0
 
+        # Graph frame
         self.frm_graphs = ttk.Frame(self.window)
         self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
-        lbl_graph.grid(row=0,column=0)
-        create_tool_tip(self.frm_graphs, "Click in the graph to jump to its corresponding step in the simulation")
+        lbl_graph.grid(row=0,column=0, pady=10)
+        create_tool_tip(self.frm_graphs, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
         fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
@@ -245,7 +238,28 @@ class GuiOutput:
 
         self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2)
 
-        self.frm_sim.grid(row=1, column=1, sticky="nw")
+        # Customer detail graph
+        lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
+        lbl_customer_graph.grid(row=3,column=0, pady=10)
+
+        desc = ttk.Label(self.frm_graphs, text="?")
+        desc.grid(row=3,column=1, sticky="e")
+        tool_tip = ToolTip(desc)
+
+        def enter(event):
+            tool_tip.showtip("Click on a customer in the simulation to show their specific details in the graph")
+
+        def leave(event):
+            tool_tip.hidetip()
+
+        desc.bind('<Enter>', enter)
+        desc.bind('<Leave>', leave)
+
+        self.init_customer_graph()
+        self.customer_canvas.draw()
+        self.customer_canvas.get_tk_widget().grid(row=4,column=0,columnspan=2)
+
+        self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
 
     def update_output(self, line):
         if self.frm_output == 0:
