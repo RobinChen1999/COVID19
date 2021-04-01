@@ -43,7 +43,7 @@ class GuiTabs:
 
     def create_simulation(self, pos):
         self.numOfSims+=1
-        frame = ttk.Frame(self.tab_control)
+        frame = ttk.Frame(self.tab_control, padding=20)
         name = "    Simulation " + str(pos+1) + "  "
 
         frm_buttons = ttk.Frame(frame)
@@ -56,7 +56,7 @@ class GuiTabs:
 
         frm_buttons.grid(row=0, column=0, sticky="w")
         
-        self.tab_control.insert(pos=pos, child=frame, text=name, padding=10)
+        self.tab_control.insert(pos=pos, child=frame, text=name)
         if not pos == "end": 
             self.tab_control.select(pos)
         
