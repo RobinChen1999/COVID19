@@ -22,6 +22,8 @@ class GuiOutput:
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
+        self.sim_terminated = tk.BooleanVar()
+        self.sim_terminated.set(False)
         self.window = output_window
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
@@ -33,10 +35,19 @@ class GuiOutput:
         self.t.start()
 
         
+    def terminate_sim(self):
+        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
+        if len(figureList) > 1:
+            self.sim_terminated.set(True)
+            self.lbl_status.config(text="Simulation terminated")
+            self.btn_terminate.destroy()
+        self.window.focus()
+
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
+        self.btn_terminate.destroy()
 
         self.store_plot = store_plot
         self.store_plot.init_canvas(window=self.frm_sim, height=self.canvas_height)
@@ -128,7 +139,8 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
-        # self.btn_terminate = ttk.Button(self.frm_buttons, command=self.terminate_sim)
+        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim)
+        self.btn_terminate.pack(side=tk.LEFT)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
