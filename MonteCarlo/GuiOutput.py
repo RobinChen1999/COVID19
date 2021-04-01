@@ -22,6 +22,8 @@ class GuiOutput:
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
+        self.sim_terminated = tk.BooleanVar()
+        self.sim_terminated.set(False)
         self.window = output_window
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
@@ -34,10 +36,19 @@ class GuiOutput:
         self.t.start()
 
         
+    def terminate_sim(self):
+        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
+        if len(figureList) > 1:
+            self.sim_terminated.set(True)
+            self.lbl_status.config(text="Simulation terminated")
+            self.btn_terminate.destroy()
+        self.window.focus()
+
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
+        self.btn_terminate.destroy()
 
         self.store_plot = store_plot
         self.store_plot.init_canvas(window=self.frm_sim, height=self.canvas_height)
@@ -48,7 +59,7 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
-        btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
+        btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
         btn_export.pack()
 
     # opens a 'save-as' window to save the video
@@ -138,6 +149,9 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
+        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim)
+        self.btn_terminate.pack(side=tk.LEFT)
+
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
         self.canvas_height = self.window_height / 3 * 2
@@ -200,7 +214,7 @@ class GuiOutput:
         self.cough_line_nr = 0
 
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
+        self.frm_graphs.grid(row=1, column=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
         lbl_graph.grid(row=0,column=0)
