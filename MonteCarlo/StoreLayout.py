@@ -21,17 +21,6 @@ class StoreLayout:
 
         # # button to show/hide the grid
         self.show_grid = tk.IntVar(value=1)
-        # self.btn_grid = ttk.Checkbutton(frame,
-        #                                 text="Show Grid",
-        #                                 variable=self.show_grid,
-        #                                 onvalue=1, offvalue=0,
-        #                                 command=self.hide_grid_lines)
-        # self.btn_grid.pack()
-
-        # btn_clear_shelves = ttk.Button(frame,
-        #                                text="Remove all shelves",
-        #                                command=self.clear_shelves)
-        # btn_clear_shelves.pack()
 
         # init col row
         self.click_row = 0

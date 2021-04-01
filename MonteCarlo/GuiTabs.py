@@ -111,5 +111,6 @@ class GuiTabs:
             theme = "breeze-dark"
         else:
             theme = "breeze"
-
+        
         self.style.theme_use(theme)
+        self.root.focus()

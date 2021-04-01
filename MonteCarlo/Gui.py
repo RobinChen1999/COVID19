@@ -24,6 +24,8 @@ class Gui:
 
     # Input window
     def draw_input_window(self):
+
+        # tooltip
         def create_tool_tip(widget, text):
             tool_tip = ToolTip(widget)
 
@@ -35,6 +37,7 @@ class Gui:
 
             widget.bind('<Enter>', enter)
             widget.bind('<Leave>', leave)
+
         # Parameters frame
         frm_parameters = ttk.Frame(self.root)
 
@@ -69,8 +72,6 @@ class Gui:
         btn_clear_shelves.pack(side=tk.RIGHT)
 
         # Parameters tab
-        
-
         column_size_text = 200
         column_size_input = 100
         params = eval(os.environ["PARAMS"])
@@ -242,8 +243,8 @@ class Gui:
                              ))
         btn_run.pack()
 
-        self.frm_layout.grid(row=1, column=1, padx=50, sticky="ne") #pack(fill=tk.BOTH, side=tk.LEFT, anchor="nw", expand=True)
-        frm_parameters.grid(row=1, column=0, sticky="nw") #pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        self.frm_layout.grid(row=1, column=1, padx=50, sticky="ne")
+        frm_parameters.grid(row=1, column=0, sticky="nw")
         
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):

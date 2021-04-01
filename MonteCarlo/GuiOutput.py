@@ -26,9 +26,6 @@ class GuiOutput:
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
         self.draw_output_window()
-        # self.update_output(
-        #     "Running simulation until all {} customers are finished\n or step limit of {} has been reached.".format(
-        #         nr_customers, self.max_steps))
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -38,9 +35,6 @@ class GuiOutput:
         
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
-        # self.txt_output.config(cursor='arrow')
-        # self.txt_output.pack()
-        # self.update_output("Simulation finished!")
         self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
 
@@ -120,7 +114,7 @@ class GuiOutput:
 
         def create_tool_tip(widget, text):
             desc = ttk.Label(widget, text="?")
-            desc.grid(row=0,column=1, sticky="e") #pack(side=tk.RIGHT, anchor='ne')
+            desc.grid(row=0,column=1, sticky="e")
             tool_tip = ToolTip(desc)
 
             def enter(event):
@@ -129,8 +123,8 @@ class GuiOutput:
             def leave(event):
                 tool_tip.hidetip()
 
-            widget.bind('<Enter>', enter)
-            widget.bind('<Leave>', leave)
+            desc.bind('<Enter>', enter)
+            desc.bind('<Leave>', leave)
 
         self.output_line_nr = 0
 
@@ -147,11 +141,10 @@ class GuiOutput:
             aerosol_label = ttk.Label(frm_aerosol, text=("10^"+str(2-i)))
             aerosol_label.grid(row=0, column=i*5)
         img = Image.open("aerosols_meter_horizontal.png")
-        # img_meter = ImageTk.PhotoImage(img)
         img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height),int(img.size[1]/2))))
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
-        aerosol_meter.grid(row=1, column=0, columnspan=4*4) #pack(side=tk.TOP, anchor="ne")
+        aerosol_meter.grid(row=1, column=0, columnspan=4*4)
         frm_aerosol.grid(row=0, column=1)
 
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
@@ -160,7 +153,6 @@ class GuiOutput:
         # Output frame
         self.frm_output = ttk.LabelFrame(self.frm_parameters, text="Output")
         self.frm_output.pack(fill=tk.BOTH)
-        # ttk.Frame(self.frm_parameters, height=self.window_height / 2, width=self.window_width / 2)
         i = 0
         lbl_stick = 'w'
         value_stick = 'e'
@@ -197,18 +189,8 @@ class GuiOutput:
         self.frm_event.pack(fill=tk.BOTH)
         self.cough_line_nr = 0
 
-
-        # self.txt_output = tk.Text(
-        #     frm_output, height=15, width=40, cursor='watch')
-        # self.txt_output.config(wrap='none', state='disabled')
-        # self.txt_output.pack()
-
-        # self.txt_step_output = tk.Text(frm_output, height=4, width=40)
-        # self.txt_step_output.config(wrap='none', state='disabled')
-        # self.txt_step_output.pack(pady=20)
-
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n') #pack(fill=None, expand=False)
+        self.frm_graphs.grid(row=0, column=2, rowspan=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
         lbl_graph.grid(row=0,column=0)
@@ -238,7 +220,7 @@ class GuiOutput:
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
-        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2) #pack(fill=tk.BOTH)
+        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2)
 
         self.frm_sim.grid(row=1, column=1, sticky="nw")
 
@@ -248,29 +230,9 @@ class GuiOutput:
         else:
             lbl = ttk.Label(self.frm_output, text=line)
             lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
-            # # Construct output line
-            # output_line = ""
-
-            # if line == "-":
-            #     if self.txt_output.get("end-1c linestart") != "-":
-            #         output_line += "\n" + "-" * 20
-            # else:
-            #     if self.txt_output.get("1.0", tk.END) != "\n":
-            #         output_line += "\n"
-
-            #     # output_line += str(self.output_line_nr) + ": " + line
-            #     output_line += line
-
-            # # Update output
-            # self.txt_output.config(state='normal')
-            # self.txt_output.insert(tk.END, output_line)
-            # self.txt_output.see('end -1 lines')
-            # self.txt_output.config(state='disabled')
-
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
-        print("uche uche")
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
         lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w')
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
@@ -310,16 +272,6 @@ class GuiOutput:
             self.lbl_customers_value.configure(text=customers_in_store)
             self.lbl_infected_value.configure(text=emitting_customers_in_store)
             self.lbl_exposure_value.configure(text=exposure)
-            # output = " Step: {}\n" \
-            #          "  Customers in store:            {:.0f}\n" \
-            #          "  Infected customers:            {:.0f}\n" \
-            #          "  Exposure on healthy customers: {:.3f}".format(step, customers_in_store,
-            #                                                           emitting_customers_in_store, exposure)
-
-            # self.txt_step_output.config(state='normal')
-            # self.txt_step_output.delete('1.0', tk.END)
-            # self.txt_step_output.insert(tk.END, output)
-            # self.txt_step_output.config(state='disabled')
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
