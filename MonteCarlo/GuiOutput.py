@@ -177,7 +177,7 @@ class GuiOutput:
 
         # Output frame
         self.frm_output_frame = ttk.LabelFrame(self.frm_parameters, text='Output')
-        self.frm_output_frame.pack(fill=tk.BOTH)
+        self.frm_output_frame.pack(fill=tk.BOTH, pady=10)
 
         self.frm_output = ttk.Frame(self.frm_output_frame)
         self.frm_output.pack(fill=tk.BOTH, padx=10, pady=5)
@@ -275,7 +275,7 @@ class GuiOutput:
 
     def output_cough_event(self, step, x, y):
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
-        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w')
+        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
         lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=10)
 
