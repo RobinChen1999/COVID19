@@ -25,6 +25,7 @@ class GuiOutput:
         self.sim_terminated = tk.BooleanVar()
         self.sim_terminated.set(False)
         self.window = output_window
+        self.style = ttk.Style(self.window)
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
         self.draw_output_window()
@@ -175,16 +176,24 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Output frame
-        self.frm_output = ttk.LabelFrame(self.frm_parameters, text="Output")
-        self.frm_output.pack(fill=tk.BOTH)
+        self.frm_output_frame = ttk.LabelFrame(self.frm_parameters, text='Output')
+        self.frm_output_frame.pack(fill=tk.BOTH)
+
+        self.frm_output = ttk.Frame(self.frm_output_frame)
+        self.frm_output.pack(fill=tk.BOTH, padx=10, pady=5)
+        self.frm_output.grid_columnconfigure(0, weight=1)
+        self.frm_output.grid_columnconfigure(1, weight=1)
+
         i = 0
         lbl_stick = 'w'
         value_stick = 'e'
-        self.lbl_status = ttk.Label(self.frm_output, text="Initializing simulation...")
-        self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='e', pady=10)
+        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center')
+        self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='we')
         i+=1
-        self.output_line_nr = i
-        self.update_output("-")
+
+        lbl_linebreak = ttk.Label(self.frm_output, text="")
+        lbl_linebreak.grid(row=i, column=0, columnspan=2, sticky='w')
+        i+=1
 
         lbl_step = ttk.Label(self.frm_output, text="Step:")
         lbl_step.grid(row=i, column=0, sticky=lbl_stick)
@@ -250,12 +259,18 @@ class GuiOutput:
 
         self.frm_sim.grid(row=1, column=1, sticky="nw")
 
-    def update_output(self, line):
+    def update_output(self, line, value=""):
         if self.frm_output == 0:
             raise Exception("Output text is undefined")
         else:
             lbl = ttk.Label(self.frm_output, text=line)
-            lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
+            lbl2 = ttk.Label(self.frm_output, text=value)
+
+            if value != "":
+                lbl.grid(row=self.output_line_nr, column=0, sticky='w')
+                lbl2.grid(row=self.output_line_nr, column=1, sticky='e')
+            else:
+                lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
@@ -297,7 +312,7 @@ class GuiOutput:
             self.lbl_step_value.configure(text=step)
             self.lbl_customers_value.configure(text=customers_in_store)
             self.lbl_infected_value.configure(text=emitting_customers_in_store)
-            self.lbl_exposure_value.configure(text=exposure)
+            self.lbl_exposure_value.configure(text=round(exposure, 3))
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
