@@ -217,11 +217,6 @@ class GuiOutput:
 
         self.output_line_nr = i+1
 
-        ### cough event ###
-        self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
-        self.frm_event.pack(fill=tk.BOTH)
-        self.cough_line_nr = 0
-
         self.frm_graphs = ttk.Frame(self.window)
         self.frm_graphs.grid(row=1, column=2, sticky='n')
 
@@ -274,6 +269,12 @@ class GuiOutput:
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
+        if not hasattr(self, 'cough_line_nr'):
+            ### cough event ###
+            self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
+            self.frm_event.pack(fill=tk.BOTH)
+            self.cough_line_nr = 0
+
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
         lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
