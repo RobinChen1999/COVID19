@@ -62,13 +62,13 @@ class StorePlot:
         scaley = self.height / 109.5
         self.canvas.delete("customer_point")        # delete point from previous frame
         for i, c in enumerate(self.customers):
-            if c.initStep <= self.step+1 and self.step < (c.initStep + len(c.route)):
+            if c.initStep <= self.step and self.step < (c.initStep + len(c.route)):
                 if c.infected:
                     col = 'red'
                 else:
                     col = 'yellow'
-                x = startx + c.route[self.step-c.initStep+1][0] * scalex
-                y = starty - (c.route[self.step-c.initStep+1][1] * scaley)
+                x = startx + c.route[self.step-c.initStep][0] * scalex
+                y = starty - (c.route[self.step-c.initStep][1] * scaley)
                 oval = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, tags=("customer_point"))
                 self.customer_list.append((i, oval))
                 self.canvas.tag_bind(oval, '<Button-1>', self.on_customer_click)

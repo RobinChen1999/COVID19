@@ -458,7 +458,7 @@ class Simulation:
 		np.savetxt("store_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
 		np.savetxt("integrated_plumes_store_data_{:d}_{}.dat".format(self.gui.id,self.seed), self.store.plumesIntegrated, header=header)
 
-		store_plot = StorePlot(store=self.store, customers=self.allCustomers,
+		store_plot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
 		
 		return store_plot
@@ -520,6 +520,7 @@ class Simulation:
 		customersHeadExit = 0
 		emittingCustomers = 0
 		maxQueue=self.WEIRDQUEUELIMIT ## variable for plotting images to check that no blocks at exits - we start to worry when >50
+		self.printStore(self.stepNow, title=stepStr)
 		for i in range(self.maxSteps):
 			if not self.gui.sim_terminated.get():
 
@@ -586,7 +587,7 @@ class Simulation:
 
 
 				if self.outputLevel or customersHeadExit>maxQueue:
-					self.printStore(i, title=stepStr)
+					self.printStore(self.stepNow, title=stepStr)
 
 
 				## end condition
