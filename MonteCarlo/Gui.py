@@ -51,7 +51,9 @@ class Gui:
         lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
         lbl_id_layout.grid(row=0, column=0)
         desc = ttk.Label(self.frm_layout, text="?")
-        create_tool_tip(desc, "Click and drag to draw shelves on the grid \nClicking on a shelf will remove it from the store")
+        create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
+                              "Clicking on a shelf will remove it from the store.\n"
+                              "A red box marks the entrance and a blue box marks an exit.")
         desc.grid(row=0, column=1, sticky="e")
 
         self.store_layout_canvas = StoreLayout(self.frm_layout)
