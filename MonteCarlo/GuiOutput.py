@@ -31,7 +31,7 @@ class GuiOutput:
         self.draw_output_window()
         self.slider_value_old = 0
 
-        self.fig = 0
+        # self.fig = 0
         # self.ax_time = 0
         # self.ax_customer_exposure = 0
         # self.customer_canvas = 0
@@ -235,7 +235,7 @@ class GuiOutput:
         self.frm_graphs.grid(row=1, column=2, sticky='n')
 
         lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
-        lbl_graph.grid(row=0,column=0, pady=10)
+        lbl_graph.grid(row=0,column=0)
         create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
@@ -256,8 +256,8 @@ class GuiOutput:
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
         self.ax_exposure.plot([], [], color='green', label='Total Exposure')
 
-        self.ax_customer.legend(loc="upper left", prop={'size': 8})
-        self.ax_exposure.legend(loc="upper right", prop={'size': 8})
+        self.ax_customer.legend(loc="upper left", prop={'size': 7})
+        self.ax_exposure.legend(loc="upper right", prop={'size': 7})
 
         self.canvas = FigureCanvasTkAgg(self.fig_graphs, self.frm_graphs)
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
@@ -268,11 +268,12 @@ class GuiOutput:
 
         # Customer detail graph
         lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
-        lbl_customer_graph.grid(row=3,column=0, pady=10)
+        lbl_customer_graph.grid(row=3,column=0)
         create_tool_tip(self.frm_graphs, 3, "Click on a customer in the simulation to show their specific details in the graph")
 
         self.init_customer_graph()
         self.customer_canvas.draw()
+        self.update_customer_plot_theme("breeze-dark")
         self.customer_canvas.get_tk_widget().grid(row=4,column=0,columnspan=2)
 
         self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
@@ -420,6 +421,33 @@ class GuiOutput:
         self.ax_customer.tick_params(axis='y', colors=color_axes)
 
         self.canvas.draw_idle()
+
+    def update_customer_plot_theme(self, theme):
+        c_light = (239/255, 240/255, 241/255)
+        c_dark = (55/255, 60/255, 65/255)
+
+        if theme == "breeze-dark":
+            color_background = c_dark
+            color_axes = c_light
+        else:
+            color_background = c_light
+            color_axes = c_dark
+
+        # Background
+        self.fig.set_facecolor(color_background)
+        self.ax_time.set_facecolor(color_background)
+
+        # Axes
+        for side in ['top', 'right', 'bottom', 'left']:
+            self.ax_customer_exposure.spines[side].set_color(color_axes)
+        self.ax_customer_exposure.yaxis.label.set_color(color_axes)
+        self.ax_customer_exposure.tick_params(axis='y', colors=color_axes)
+        self.ax_time.xaxis.label.set_color(color_axes)
+        self.ax_time.yaxis.label.set_color(color_axes)
+        self.ax_time.tick_params(axis='x', colors=color_axes)
+        self.ax_time.tick_params(axis='y', colors=color_axes)
+
+        self.customer_canvas.draw_idle()
 
 class ToolTip(object):
     def __init__(self, widget):
