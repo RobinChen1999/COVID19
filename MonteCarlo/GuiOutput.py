@@ -16,6 +16,7 @@ import numpy as np
 class GuiOutput:
     window_width = 1600
     window_height = 800
+    plt.rcParams["figure.figsize"] = 4,3
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
@@ -62,7 +63,8 @@ class GuiOutput:
     def init_customer_graph(self):
         
         plt.ion()
-        self.fig = plt.Figure(figsize=(6, 4), dpi=100)
+        self.fig = plt.Figure(dpi=100)
+        self.fig.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
 
         self.ax_time = self.fig.add_subplot(111)
         self.ax_time.set_xlabel('Step')
@@ -77,8 +79,8 @@ class GuiOutput:
         self.ax_time.plot([], [], color='grey', label='Time spent in store')
         self.ax_customer_exposure.plot([], [], color='green', label='Exposure')
 
-        self.ax_time.legend(loc="upper left")
-        self.ax_customer_exposure.legend(loc="upper right")
+        self.ax_time.legend(loc="upper left", prop={'size': 8})
+        self.ax_customer_exposure.legend(loc="upper right", prop={'size': 8})
 
         self.customer_canvas = FigureCanvasTkAgg(self.fig, self.frm_graphs)
         self.customer_canvas.callbacks.connect('button_press_event', self.graph_on_click)
@@ -213,7 +215,8 @@ class GuiOutput:
         create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
-        fig_graphs = plt.Figure(figsize=(6, 4), dpi=100)
+        fig_graphs = plt.Figure(dpi=100)
+        fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
 
         self.ax_customer = fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
@@ -229,14 +232,14 @@ class GuiOutput:
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
         self.ax_exposure.plot([], [], color='green', label='Total Exposure')
 
-        self.ax_customer.legend(loc="upper left")
-        self.ax_exposure.legend(loc="upper right")
+        self.ax_customer.legend(loc="upper left", prop={'size': 8})
+        self.ax_exposure.legend(loc="upper right", prop={'size': 8})
 
         self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
-        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2)
+        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2, padx=10, pady=10)
 
         # Customer detail graph
         lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
