@@ -167,7 +167,6 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
-        self.style.configure('Terminate.TButton', foreground='red')
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
         self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
