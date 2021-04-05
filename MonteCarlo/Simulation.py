@@ -440,6 +440,7 @@ class Simulation:
 
 	## save a .dat file of the customer output
 	def printEndStatistics(self):
+		self.generateVideo()
 
 		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore), self.NEXITS, self.PROBSREADPLUME)
 		if not self.useDiffusion:
@@ -454,7 +455,10 @@ class Simulation:
 		np.savetxt("store_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
 		np.savetxt("integrated_plumes_store_data_{:d}_{}.dat".format(self.gui.id,self.seed), self.store.plumesIntegrated, header=header)
 
-		return
+		store_plot = StorePlot(store=self.store, customers=self.allCustomers,
+								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
+		
+		return store_plot
 
 	def generateVideo(self):
 		imageFolder = "simFigures"
@@ -584,8 +588,9 @@ class Simulation:
 					self.gui.update_output("-")
 					self.gui.update_output("All customers have visited the store")
 					# self.gui.update_output("Finishing up the simulation...")
-					self.printEndStatistics()
-					return
+					
+					self.gui.max_steps = i
+					return self.printEndStatistics()
 			
 			else:
 				self.gui.update_output("-")
@@ -599,11 +604,11 @@ class Simulation:
 			self.gui.update_output("Reached the step limit")
 		
 		
-		self.generateVideo()
-		self.printEndStatistics()
-		storePlot = StorePlot(store=self.store, customers=self.allCustomers,
-								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
-		return storePlot
+		# self.generateVideo()
+		# self.printEndStatistics()
+		# storePlot = StorePlot(store=self.store, customers=self.allCustomers,
+		# 						parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
+		return self.printEndStatistics()
 
 
 
