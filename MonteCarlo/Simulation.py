@@ -30,7 +30,6 @@ class Simulation:
 	def __init__(self, gui, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
 		# Set gui
 		self.gui = gui
-		self.gui.update_output("-")
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -503,11 +502,13 @@ class Simulation:
 		# before starting simulation add first customer to the system
 		approxOutFlux = 1.0/(0.5*(self.MAXSHOPPINGLIST+1)+1)*self.NEXITS
 		print("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))
-		self.gui.update_output("Approx influx:          {:.2f} customers / s".format(self.probNewCustomer))
-		self.gui.update_output("Approx maximum outflux: {:.2f} customers / s".format(approxOutFlux))
+		self.gui.update_output("")
+		self.gui.update_output("Approx influx:", "{:.2f} customers / s".format(self.probNewCustomer))
+		self.gui.update_output("Approx maximum outflux:", "{:.2f} customers / s".format(approxOutFlux))
 		if approxOutFlux<self.probNewCustomer:
 			print('Influx too large, the store will most likely fill with customers')
-			self.gui.update_output("! Influx too large, the store will most likely fill with customers")
+			self.gui.update_output("")
+			self.gui.update_output("Influx too large, the store will most likely fill with customers!")
 		# self.gui.update_output("-")
 
 		self.newCustomer()
@@ -594,15 +595,15 @@ class Simulation:
 					return
 			
 			else:
-				self.gui.update_output("-")
-				self.gui.update_output("Simulation terminated")
+				self.gui.update_output("")
+				self.gui.update_output("Simulation terminated!")
 				self.gui.max_steps = i
 				break
 		
 		if not self.gui.sim_terminated.get():
 			print("Reached the step limit")
-			self.gui.update_output("-")
-			self.gui.update_output("Reached the step limit")
+			self.gui.update_output("")
+			self.gui.update_output("Reached the step limit!")
 		
 		
 		self.generateVideo()

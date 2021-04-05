@@ -51,7 +51,9 @@ class Gui:
         lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
         lbl_id_layout.grid(row=0, column=0)
         desc = ttk.Label(self.frm_layout, text="?")
-        create_tool_tip(desc, "Click and drag to draw shelves on the grid \nClicking on a shelf will remove it from the store")
+        create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
+                              "Clicking on a shelf will remove it from the store.\n"
+                              "A red box marks the entrance and a blue box marks an exit.")
         desc.grid(row=0, column=1, sticky="e")
 
         self.store_layout_canvas = StoreLayout(self.frm_layout)
@@ -210,8 +212,11 @@ class Gui:
         frm_parameters_input.pack()
 
         # Run button
-        btn_run = ttk.Button(frm_parameters,
-                             text="Run",
+        style = ttk.Style(self.root)
+        style.configure('Run.TButton', foreground='green')
+        btn_run = ttk.Button(self.frm_buttons,
+                             style='Run.TButton',
+                             text="Run Simulation",
                              command=lambda: self.run_simulation(
                                  simulation_params={
                                      "seed": seed.get(),
@@ -242,7 +247,7 @@ class Gui:
                                  btn_run=btn_run,
                                  frm_parameters=frm_parameters
                              ))
-        btn_run.pack()
+        btn_run.pack(side=tk.LEFT, padx=10)
 
         self.frm_layout.grid(row=1, column=1, padx=50, sticky="ne")
         frm_parameters.grid(row=1, column=0, sticky="nw")

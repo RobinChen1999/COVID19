@@ -44,6 +44,7 @@ class GuiTabs:
     def create_simulation(self, pos):
         self.numOfSims+=1
         frame = ttk.Frame(self.tab_control, padding=20)
+        frame.grid_columnconfigure(2, weight=1)
         name = "    Simulation " + str(pos+1) + "  "
 
         frm_buttons = ttk.Frame(frame)
