@@ -43,25 +43,24 @@ class GuiTabs:
 
     def create_simulation(self, pos):
         self.numOfSims+=1
-        frame = ttk.Frame(self.tab_control)
+        frame = ttk.Frame(self.tab_control, padding=20)
         name = "    Simulation " + str(pos+1) + "  "
 
         frm_buttons = ttk.Frame(frame)
+        frm_buttons.grid(row=0, column=0, sticky="w")
 
-        btn_close_tab = ttk.Button(frm_buttons, text="Close tab", command=self.close_tab)
+        btn_close_tab = ttk.Button(frm_buttons, text="Close Tab", command=self.close_tab)
         btn_close_tab.pack(side=tk.LEFT)
 
-        self.btn_switch_theme = ttk.Button(frm_buttons, text="Switch Theme", command=self.switch_theme)
-        self.btn_switch_theme.pack(side=tk.LEFT, padx=10)
-
-        frm_buttons.grid(row=0, column=0, sticky="w")
+        self.btn_switch_theme = ttk.Button(frame, text="    Switch Theme    ", command=self.switch_theme)
+        self.btn_switch_theme.grid(row=0, column=2, sticky="ne") #pack(side=tk.RIGHT, padx=10)
         
-        self.tab_control.insert(pos=pos, child=frame, text=name, padding=10)
+        self.tab_control.insert(pos=pos, child=frame, text=name)
         if not pos == "end": 
             self.tab_control.select(pos)
         
-        simulation = Gui(frame, frm_buttons, self.numOfSims)
-        simulation.draw_input_window()
+        self.simulation = Gui(frame, frm_buttons, self.numOfSims)
+        self.simulation.draw_input_window()
 
         
 
@@ -111,6 +110,9 @@ class GuiTabs:
             theme = "breeze-dark"
         else:
             theme = "breeze"
-        
+
+        if self.simulation.outputGui is not None:
+            self.simulation.outputGui.update_plot_theme(theme)
+
         self.style.theme_use(theme)
         self.root.focus()

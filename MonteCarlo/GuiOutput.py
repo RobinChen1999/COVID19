@@ -23,10 +23,13 @@ class GuiOutput:
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
+        self.sim_terminated = tk.BooleanVar()
+        self.sim_terminated.set(False)
         self.window = output_window
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
         self.draw_output_window()
+        self.slider_value_old = 0
 
         self.fig = 0
         # self.ax_time = 0
@@ -42,10 +45,19 @@ class GuiOutput:
         self.t.start()
 
         
+    def terminate_sim(self):
+        figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
+        if len(figureList) > 1:
+            self.sim_terminated.set(True)
+            self.lbl_status.config(text="Simulation terminated")
+            self.btn_terminate.destroy()
+        self.window.focus()
+
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.lbl_status.config(text="Simulation finished!")
         self.lbl_sim.destroy()
+        self.btn_terminate.destroy()
 
         self.store_plot = store_plot
         self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
@@ -56,7 +68,7 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
-        btn_export = ttk.Button(self.frm_buttons, text="Export video", command=lambda: self.save_file())
+        btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
         btn_export.pack()
 
     # initialize the graph for customer details
@@ -100,9 +112,18 @@ class GuiOutput:
     # Handle slider response
     def slider_handler(self, value):
         value = float(value)
-        if int(value) != value:
-            self.slider.set(round(value))
-            self.update_step(round(value))
+        if value != self.slider_value_old:
+            value = round(value)
+            x = False
+            if value != self.slider_value_old:
+                x = True
+            self.slider_value_old = value
+            self.slider.set(value)
+            if x:
+                var = tk.IntVar()
+                self.window.after(10, var.set, 1)
+                self.window.wait_variable(var)
+                self.update_step(round(value))
 
     def update_step(self, value):
         self.store_plot.update_figure(str(value))
@@ -144,6 +165,9 @@ class GuiOutput:
             desc.bind('<Leave>', leave)
 
         self.output_line_nr = 0
+
+        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim)
+        self.btn_terminate.pack(side=tk.LEFT)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
@@ -215,10 +239,10 @@ class GuiOutput:
         create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
-        fig_graphs = plt.Figure(dpi=100)
-        fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        self.fig_graphs = plt.Figure(dpi=100)
+        self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
 
-        self.ax_customer = fig_graphs.add_subplot(111)
+        self.ax_customer = self.fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
         self.ax_customer.set_ylabel('Customers')
 
@@ -235,10 +259,11 @@ class GuiOutput:
         self.ax_customer.legend(loc="upper left", prop={'size': 8})
         self.ax_exposure.legend(loc="upper right", prop={'size': 8})
 
-        self.canvas = FigureCanvasTkAgg(fig_graphs, self.frm_graphs)
+        self.canvas = FigureCanvasTkAgg(self.fig_graphs, self.frm_graphs)
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
+        self.update_plot_theme("breeze-dark")
         self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2, padx=10, pady=10)
 
         # Customer detail graph
@@ -368,6 +393,33 @@ class GuiOutput:
             value = round(event.xdata)
             self.slider.set(str(value))
             self.update_step(value)
+
+    def update_plot_theme(self, theme):
+        c_light = (239/255, 240/255, 241/255)
+        c_dark = (55/255, 60/255, 65/255)
+
+        if theme == "breeze-dark":
+            color_background = c_dark
+            color_axes = c_light
+        else:
+            color_background = c_light
+            color_axes = c_dark
+
+        # Background
+        self.fig_graphs.set_facecolor(color_background)
+        self.ax_customer.set_facecolor(color_background)
+
+        # Axes
+        for side in ['top', 'right', 'bottom', 'left']:
+            self.ax_exposure.spines[side].set_color(color_axes)
+        self.ax_exposure.yaxis.label.set_color(color_axes)
+        self.ax_exposure.tick_params(axis='y', colors=color_axes)
+        self.ax_customer.xaxis.label.set_color(color_axes)
+        self.ax_customer.yaxis.label.set_color(color_axes)
+        self.ax_customer.tick_params(axis='x', colors=color_axes)
+        self.ax_customer.tick_params(axis='y', colors=color_axes)
+
+        self.canvas.draw_idle()
 
 class ToolTip(object):
     def __init__(self, widget):

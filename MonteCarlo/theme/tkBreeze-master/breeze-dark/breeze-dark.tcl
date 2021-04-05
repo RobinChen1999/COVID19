@@ -13,7 +13,7 @@ namespace eval ttk::theme::breeze-dark {
 
     variable colors
     array set colors {
-        -bg             "#31363b"
+        -bg             "#373c41"
         -fg             "#eff0f1"
         
         -disabledbg     "#4d4d4d"

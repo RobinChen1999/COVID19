@@ -31,7 +31,6 @@ class Simulation:
 		# Set gui
 		self.gui = gui
 		self.gui.update_output("-")
-		# self.gui.update_output("Initializing...")
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -517,87 +516,96 @@ class Simulation:
 		emittingCustomers = 0
 		maxQueue=self.WEIRDQUEUELIMIT ## variable for plotting images to check that no blocks at exits - we start to worry when >50
 		for i in range(self.maxSteps):
+			if not self.gui.sim_terminated.get():
 
-			self.customersNowInStore[self.stepNow]=len(self.customers)
-			self.customersNowInQueue[self.stepNow]=customersHeadExit
-			self.emittingCustomersNowInStore[self.stepNow]=emittingCustomers
-			self.exposureDuringTimeStep[self.stepNow]= self.store.storeWideExposure
-
-
-			emittingCustomers = 0
-			self.store.initializeExposureDuringTimeStep()
-
-			self.gui.update_displayed_step(self.stepNow, self.customersNowInStore[self.stepNow],
-										   self.emittingCustomersNowInStore[self.stepNow],
-										   self.exposureDuringTimeStep[self.stepNow])
-
-			self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
-
-			if customersHeadExit>maxQueue:
-				maxQueue = customersHeadExit
-
-			## main point of the time step: every customer takes a step. Customers at exit are saved for next part of the code
-			customersExit = []
-			customersHeadExit = 0
-			for j,c in enumerate(self.customers):
-				self.np_time[self.stepNow, j] = c.timeInStore
-				self.np_exposure[self.stepNow, j] = c.exposure
-				if c.infected:
-					emittingCustomers +=1
-				tx, ty = c.takeStep(self.store)
-				coords = [tx, ty]
-				c.route.append(coords)		# append to route for StorePlot
-				customersHeadExit += c.headingForExit
-				if tx==-1 and ty==-1:
-					customersExit.append(j)
-					
-			self.stepNow+=1
-
-			## here the customers at exit are erased from the system.
-			for ind in customersExit[::-1]:
-				leavingCustomer = self.customers.pop(ind)
-				self.store.updateQueue([leavingCustomer.x, leavingCustomer.y])
-				ti,tx,ty,tz, tw, twt = leavingCustomer.getFinalStats()
-				stepStr = "step {} ({} customers, {} for exit): customer {} left with {} on shopping list, {} total time in store, {} exposure".format(i, len(self.customers), customersHeadExit,ti,tx,ty,tz)
-				self.exposureHist[self.customerNow]=tz
-				self.exposureHistTime[self.customerNow]=tw
-				self.exposureHistTimeThres[self.customerNow]=twt
-				self.itemsBought[self.customerNow]=tx
-				self.timeSpent[self.customerNow]=ty
-				self.customerInfected[self.customerNow]=ti
-				self.customerNow +=1
-				print(stepStr)
-
-			## if discrete plumes, shorten their duration by 1 and check if new customer enters
-			if self.updatePlumes and not self.useDiffusion:
-				self.store.plumes[self.store.plumes>0]-=1
-				if self.nCustomers and np.random.rand()<self.probNewCustomer:
-					self.newCustomer()
-			## if using diffusion, compute the updated plume map
-			elif self.updatePlumes and self.useDiffusion:
-				self.store.updateDiffusion()
-				if self.nCustomers and np.random.rand()<self.probNewCustomer:
-					self.newCustomer()
+				self.customersNowInStore[self.stepNow]=len(self.customers)
+				self.customersNowInQueue[self.stepNow]=customersHeadExit
+				self.emittingCustomersNowInStore[self.stepNow]=emittingCustomers
+				self.exposureDuringTimeStep[self.stepNow]= self.store.storeWideExposure
 
 
-			if self.outputLevel or customersHeadExit>maxQueue:
-				self.printStore(i, title=stepStr)
+				emittingCustomers = 0
+				self.store.initializeExposureDuringTimeStep()
+
+				self.gui.update_displayed_step(self.stepNow, self.customersNowInStore[self.stepNow],
+											self.emittingCustomersNowInStore[self.stepNow],
+											self.exposureDuringTimeStep[self.stepNow])
+
+				self.gui.update_graph(self.stepNow, self.customersNowInStore, self.emittingCustomersNowInStore, self.exposureDuringTimeStep)
+
+				if customersHeadExit>maxQueue:
+					maxQueue = customersHeadExit
+
+				## main point of the time step: every customer takes a step. Customers at exit are saved for next part of the code
+				customersExit = []
+				customersHeadExit = 0
+				for j,c in enumerate(self.customers):
+					self.np_time[self.stepNow, j] = c.timeInStore
+					self.np_exposure[self.stepNow, j] = c.exposure
+					if c.infected:
+						emittingCustomers +=1
+					tx, ty = c.takeStep(self.store)
+					coords = [tx, ty]
+					c.route.append(coords)		# append to route for StorePlot
+					customersHeadExit += c.headingForExit
+					if tx==-1 and ty==-1:
+						customersExit.append(j)
+
+				self.stepNow+=1
+
+				## here the customers at exit are erased from the system.
+				for ind in customersExit[::-1]:
+					leavingCustomer = self.customers.pop(ind)
+					self.store.updateQueue([leavingCustomer.x, leavingCustomer.y])
+					ti,tx,ty,tz, tw, twt = leavingCustomer.getFinalStats()
+					stepStr = "step {} ({} customers, {} for exit): customer {} left with {} on shopping list, {} total time in store, {} exposure".format(i, len(self.customers), customersHeadExit,ti,tx,ty,tz)
+					self.exposureHist[self.customerNow]=tz
+					self.exposureHistTime[self.customerNow]=tw
+					self.exposureHistTimeThres[self.customerNow]=twt
+					self.itemsBought[self.customerNow]=tx
+					self.timeSpent[self.customerNow]=ty
+					self.customerInfected[self.customerNow]=ti
+					self.customerNow +=1
+					print(stepStr)
+
+				## if discrete plumes, shorten their duration by 1 and check if new customer enters
+				if self.updatePlumes and not self.useDiffusion:
+					self.store.plumes[self.store.plumes>0]-=1
+					if self.nCustomers and np.random.rand()<self.probNewCustomer:
+						self.newCustomer()
+				## if using diffusion, compute the updated plume map
+				elif self.updatePlumes and self.useDiffusion:
+					self.store.updateDiffusion()
+					if self.nCustomers and np.random.rand()<self.probNewCustomer:
+						self.newCustomer()
 
 
-			## end condition
-			if not self.nCustomers and not len(self.customers):
-				print("All customers have visited the store")
+				if self.outputLevel or customersHeadExit>maxQueue:
+					self.printStore(i, title=stepStr)
+
+
+				## end condition
+				if not self.nCustomers and not len(self.customers):
+					print("All customers have visited the store")
+					self.gui.update_output("-")
+					self.gui.update_output("All customers have visited the store")
+					# self.gui.update_output("Finishing up the simulation...")
+					self.printEndStatistics()
+					return
+			
+			else:
 				self.gui.update_output("-")
-				self.gui.update_output("All customers have visited the store")
-				# self.gui.update_output("Finishing up the simulation...")
-				self.printEndStatistics()
-				return
-		print("Reached the step limit")
-		self.gui.update_output("-")
-		self.gui.update_output("Reached the step limit")
-		# self.gui.update_output("Finishing up the simulation...")
+				self.gui.update_output("Simulation terminated")
+				self.gui.max_steps = i
+				break
+		
+		if not self.gui.sim_terminated.get():
+			print("Reached the step limit")
+			self.gui.update_output("-")
+			self.gui.update_output("Reached the step limit")
+		
+		
 		self.generateVideo()
-		# self.createGif()
 		self.printEndStatistics()
 		storePlot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
