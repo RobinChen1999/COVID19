@@ -16,7 +16,7 @@ import numpy as np
 class GuiOutput:
     window_width = 1600
     window_height = 800
-    plt.rcParams["figure.figsize"] = 4,3
+    plt.rcParams["figure.figsize"] = 6, 3
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
@@ -239,10 +239,6 @@ class GuiOutput:
         self.frm_graphs = ttk.Frame(self.window)
         self.frm_graphs.grid(row=1, column=2, sticky='n')
 
-        lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
-        lbl_graph.grid(row=0,column=0)
-        create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
-
         plt.ion()
         self.fig_graphs = plt.Figure(dpi=100)
         self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
@@ -269,17 +265,12 @@ class GuiOutput:
         self.canvas.draw()
 
         self.update_plot_theme("breeze-dark")
-        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2, padx=10, pady=10)
-
-        # Customer detail graph
-        lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
-        lbl_customer_graph.grid(row=3,column=0)
-        create_tool_tip(self.frm_graphs, 3, "Click on a customer in the simulation to show their specific details in the graph")
+        self.canvas.get_tk_widget().pack(padx=10, pady=10)
 
         self.init_customer_graph()
         self.customer_canvas.draw()
         self.update_customer_plot_theme("breeze-dark")
-        self.customer_canvas.get_tk_widget().grid(row=4,column=0,columnspan=2)
+        self.customer_canvas.get_tk_widget().pack()
 
         self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
 
@@ -437,6 +428,9 @@ class GuiOutput:
         self.ax_customer.tick_params(axis='x', colors=color_axes)
         self.ax_customer.tick_params(axis='y', colors=color_axes)
 
+        # Title
+        self.fig_graphs.suptitle('All Customers', color=color_axes)
+
         self.canvas.draw_idle()
 
     def update_customer_plot_theme(self, theme):
@@ -463,6 +457,9 @@ class GuiOutput:
         self.ax_time.yaxis.label.set_color(color_axes)
         self.ax_time.tick_params(axis='x', colors=color_axes)
         self.ax_time.tick_params(axis='y', colors=color_axes)
+
+        # Title
+        self.fig.suptitle('Clicked Customer', color=color_axes)
 
         self.customer_canvas.draw_idle()
 
