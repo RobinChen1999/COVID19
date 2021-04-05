@@ -61,7 +61,7 @@ class GuiOutput:
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
         btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
-        btn_export.pack()
+        btn_export.pack(side=tk.LEFT, padx=10)
 
     # opens a 'save-as' window to save the video
     def save_file(self):
@@ -150,8 +150,9 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
-        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim)
-        self.btn_terminate.pack(side=tk.LEFT)
+        self.style.configure('Terminate.TButton', foreground='red')
+        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
+        self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height / 2, width=self.window_width / 2)
