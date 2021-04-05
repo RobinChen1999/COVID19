@@ -273,6 +273,9 @@ class GuiOutput:
 
         self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
 
+        self.update_plot_theme(self.style.theme_use())
+        self.update_customer_plot_theme(self.style.theme_use())
+
     def update_output(self, line, value=""):
         if self.frm_output == 0:
             raise Exception("Output text is undefined")
