@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, font
 import Params
 from Simulation import *
 from StoreLayout import *
@@ -213,7 +213,6 @@ class Gui:
 
         # Run button
         style = ttk.Style(self.root)
-        style.configure('Run.TButton', foreground='green')
         btn_run = ttk.Button(self.frm_buttons,
                              style='Run.TButton',
                              text="Run Simulation",

@@ -167,7 +167,6 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
-        self.style.configure('Terminate.TButton', foreground='red')
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
         self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
@@ -273,6 +272,9 @@ class GuiOutput:
         self.customer_canvas.get_tk_widget().pack()
 
         self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
+
+        self.update_plot_theme(self.style.theme_use())
+        self.update_customer_plot_theme(self.style.theme_use())
 
     def update_output(self, line, value=""):
         if self.frm_output == 0:
