@@ -19,7 +19,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 class StorePlot:
-    def __init__(self, store, gui, customers, time, exposure, parula_map, useDiffusion, seed, sim_id):
+    def __init__(self, store, gui, customers, time, exposure, norm_exposure, parula_map, useDiffusion, seed, sim_id):
         self.store = store
         self.gui = gui
         self.customers = customers
@@ -30,6 +30,7 @@ class StorePlot:
         self.window = 0
         self.time = time
         self.exposure = exposure
+        self.norm_exposure = norm_exposure
         self.customer_list = []
         self.radius = 10
         self.step = 0
@@ -62,15 +63,16 @@ class StorePlot:
         self.canvas.delete("customer_point")        # delete point from previous frame
         for i, c in enumerate(self.customers):
             if c.initStep <= self.step and self.step < (c.initStep + len(c.route)):
-                if c.infected:
-                    col = 'red'
-                else:
-                    col = 'yellow'
                 x = startx + c.route[self.step-c.initStep+1][0] * scalex
                 y = starty - (c.route[self.step-c.initStep+1][1] * scaley)
-                oval = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, tags=("customer_point"))
-                self.customer_list.append((i, oval))
-                self.canvas.tag_bind(oval, '<Button-1>', self.on_customer_click)
+                if c.infected:
+                    shape = self.canvas.create_polygon([x - 10, y-10, x+10, y+10], outline="black"
+                              fill="red", tags=("customer_point"))
+                else:
+                    col = matplotlib.colors.to_hex([1, 1 - self.norm_exposure[self.step, i], 0])
+                    shape = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, tags=("customer_point"))
+                self.customer_list.append((i, shape))
+                self.canvas.tag_bind(shape, '<Button-1>', self.on_customer_click)
         
     def on_customer_click(self, customer):
         oval = customer.widget.find_withtag('current&&customer_point')[0]

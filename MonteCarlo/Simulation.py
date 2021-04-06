@@ -21,6 +21,7 @@ from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 
+from sklearn import preprocessing
 from numpy import linspace, meshgrid
 #from matplotlib.mlab import griddata
 
@@ -566,7 +567,7 @@ class Simulation:
 					self.timeSpent[self.customerNow]=ty
 					self.customerInfected[self.customerNow]=ti
 					self.customerNow +=1
-					print(stepStr)
+					# print(stepStr)
 
 				## if discrete plumes, shorten their duration by 1 and check if new customer enters
 				if self.updatePlumes and not self.useDiffusion:
@@ -590,8 +591,9 @@ class Simulation:
 					self.gui.update_output("-")
 					self.gui.update_output("All customers have visited the store")
 					# self.gui.update_output("Finishing up the simulation...")
-					self.printEndStatistics()
-					return
+					self.gui.max_steps = i
+					#
+					break
 			
 			else:
 				self.gui.update_output("-")
@@ -604,10 +606,12 @@ class Simulation:
 			self.gui.update_output("-")
 			self.gui.update_output("Reached the step limit")
 		
+		# normalize exposure data
+		self.norm_exposure = preprocessing.normalize(self.np_exposure)
 		
 		self.generateVideo()
 		self.printEndStatistics()
-		storePlot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure,
+		storePlot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure, norm_exposure=self.norm_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
 		return storePlot
 

@@ -31,10 +31,6 @@ class GuiOutput:
         self.draw_output_window()
         self.slider_value_old = 0
 
-        # self.fig = 0
-        # self.ax_time = 0
-        # self.ax_customer_exposure = 0
-        # self.customer_canvas = 0
         self.time = 0
         self.exposure = 0
         self.customer_graph_visible = False
