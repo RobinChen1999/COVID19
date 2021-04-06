@@ -25,7 +25,7 @@ class GuiTabs:
         self.style.theme_use('breeze-dark')
 
     def draw_window(self):
-        self.root.title("Input window")
+        self.root.title("Supermarket Spread")
         self.root.state('zoomed')
 
         self.tab_control = ttk.Notebook(self.root)

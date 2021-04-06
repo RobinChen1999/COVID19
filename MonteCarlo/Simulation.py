@@ -463,7 +463,7 @@ class Simulation:
 
 	def generateVideo(self):
 		imageFolder = "simFigures"
-		images = [img for img in os.listdir(imageFolder) if img.endswith(".png")]
+		images = [img for img in os.listdir(imageFolder) if 'simFigure_%d_%s'%(self.gui.id, self.seed) in img]
 
 		# Determine the width and height from the first image
 		frame = cv2.imread(os.path.join(imageFolder, images[0]))
