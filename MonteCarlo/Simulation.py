@@ -31,7 +31,6 @@ class Simulation:
 	def __init__(self, gui, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
 		# Set gui
 		self.gui = gui
-		self.gui.update_output("-")
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -445,6 +444,7 @@ class Simulation:
 
 	## save a .dat file of the customer output
 	def printEndStatistics(self):
+		self.generateVideo()
 
 		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore), self.NEXITS, self.PROBSREADPLUME)
 		if not self.useDiffusion:
@@ -459,7 +459,13 @@ class Simulation:
 		np.savetxt("store_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
 		np.savetxt("integrated_plumes_store_data_{:d}_{}.dat".format(self.gui.id,self.seed), self.store.plumesIntegrated, header=header)
 
-		return
+		# normalize exposure data
+		self.norm_exposure = preprocessing.normalize(self.np_exposure)
+
+		store_plot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure, norm_exposure=self.norm_exposure,
+								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
+		
+		return store_plot
 
 	def generateVideo(self):
 		imageFolder = "simFigures"
@@ -504,11 +510,13 @@ class Simulation:
 		# before starting simulation add first customer to the system
 		approxOutFlux = 1.0/(0.5*(self.MAXSHOPPINGLIST+1)+1)*self.NEXITS
 		print("Approx influx: {} customers / s --- Approx maximum outflux: {} customers / s".format(self.probNewCustomer, approxOutFlux))
-		self.gui.update_output("Approx influx:          {:.2f} customers / s".format(self.probNewCustomer))
-		self.gui.update_output("Approx maximum outflux: {:.2f} customers / s".format(approxOutFlux))
+		self.gui.update_output("")
+		self.gui.update_output("Approx influx:", "{:.2f} customers / s".format(self.probNewCustomer))
+		self.gui.update_output("Approx maximum outflux:", "{:.2f} customers / s".format(approxOutFlux))
 		if approxOutFlux<self.probNewCustomer:
 			print('Influx too large, the store will most likely fill with customers')
-			self.gui.update_output("! Influx too large, the store will most likely fill with customers")
+			self.gui.update_output("")
+			self.gui.update_output("Influx too large, the store will most likely fill with customers!")
 		# self.gui.update_output("-")
 
 		self.newCustomer()
@@ -516,6 +524,7 @@ class Simulation:
 		customersHeadExit = 0
 		emittingCustomers = 0
 		maxQueue=self.WEIRDQUEUELIMIT ## variable for plotting images to check that no blocks at exits - we start to worry when >50
+		self.printStore(self.stepNow, title=stepStr)
 		for i in range(self.maxSteps):
 			if not self.gui.sim_terminated.get():
 
@@ -582,7 +591,7 @@ class Simulation:
 
 
 				if self.outputLevel or customersHeadExit>maxQueue:
-					self.printStore(i, title=stepStr)
+					self.printStore(self.stepNow, title=stepStr)
 
 
 				## end condition
@@ -590,30 +599,21 @@ class Simulation:
 					print("All customers have visited the store")
 					self.gui.update_output("-")
 					self.gui.update_output("All customers have visited the store")
-					# self.gui.update_output("Finishing up the simulation...")
 					self.gui.max_steps = i
-					#
 					break
 			
 			else:
-				self.gui.update_output("-")
-				self.gui.update_output("Simulation terminated")
+				self.gui.update_output("")
+				self.gui.update_output("Simulation terminated!")
 				self.gui.max_steps = i
 				break
 		
 		if not self.gui.sim_terminated.get():
 			print("Reached the step limit")
-			self.gui.update_output("-")
-			self.gui.update_output("Reached the step limit")
+			self.gui.update_output("")
+			self.gui.update_output("Reached the step limit!")
 		
-		# normalize exposure data
-		self.norm_exposure = preprocessing.normalize(self.np_exposure)
-		
-		self.generateVideo()
-		self.printEndStatistics()
-		storePlot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure, norm_exposure=self.norm_exposure,
-								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
-		return storePlot
+		return self.printEndStatistics()
 
 
 

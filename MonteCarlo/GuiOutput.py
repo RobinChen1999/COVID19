@@ -16,7 +16,7 @@ import numpy as np
 class GuiOutput:
     window_width = 1600
     window_height = 800
-    plt.rcParams["figure.figsize"] = 4,3
+    plt.rcParams["figure.figsize"] = 6, 3
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
@@ -26,6 +26,7 @@ class GuiOutput:
         self.sim_terminated = tk.BooleanVar()
         self.sim_terminated.set(False)
         self.window = output_window
+        self.style = ttk.Style(self.window)
         self.frm_parameters = frm_parameters
         self.frm_buttons = frm_buttons
         self.draw_output_window()
@@ -65,7 +66,7 @@ class GuiOutput:
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
         btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
-        btn_export.pack()
+        btn_export.pack(side=tk.LEFT, padx=10)
 
     # initialize the graph for customer details
     def init_customer_graph(self):
@@ -162,8 +163,8 @@ class GuiOutput:
 
         self.output_line_nr = 0
 
-        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim)
-        self.btn_terminate.pack(side=tk.LEFT)
+        self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
+        self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
@@ -188,16 +189,24 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Output frame
-        self.frm_output = ttk.LabelFrame(self.frm_parameters, text="Output")
-        self.frm_output.pack(fill=tk.BOTH)
+        self.frm_output_frame = ttk.LabelFrame(self.frm_parameters, text='Output')
+        self.frm_output_frame.pack(fill=tk.BOTH, pady=10)
+
+        self.frm_output = ttk.Frame(self.frm_output_frame)
+        self.frm_output.pack(fill=tk.BOTH, padx=10, pady=5)
+        self.frm_output.grid_columnconfigure(0, weight=1)
+        self.frm_output.grid_columnconfigure(1, weight=1)
+
         i = 0
         lbl_stick = 'w'
         value_stick = 'e'
-        self.lbl_status = ttk.Label(self.frm_output, text="Initializing simulation...")
-        self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='e', pady=10)
+        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center')
+        self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='we')
         i+=1
-        self.output_line_nr = i
-        self.update_output("-")
+
+        lbl_linebreak = ttk.Label(self.frm_output, text="")
+        lbl_linebreak.grid(row=i, column=0, columnspan=2, sticky='w')
+        i+=1
 
         lbl_step = ttk.Label(self.frm_output, text="Step:")
         lbl_step.grid(row=i, column=0, sticky=lbl_stick)
@@ -221,18 +230,9 @@ class GuiOutput:
 
         self.output_line_nr = i+1
 
-        ### cough event ###
-        self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
-        self.frm_event.pack(fill=tk.BOTH)
-        self.cough_line_nr = 0
-
         # Graph frame
         self.frm_graphs = ttk.Frame(self.window)
         self.frm_graphs.grid(row=1, column=2, sticky='n')
-
-        lbl_graph = ttk.Label(self.frm_graphs, text="Customer Exposure Graph")
-        lbl_graph.grid(row=0,column=0)
-        create_tool_tip(self.frm_graphs, 0, "Click in the graphs to jump to its corresponding step in the simulation")
 
         plt.ion()
         self.fig_graphs = plt.Figure(dpi=100)
@@ -260,31 +260,41 @@ class GuiOutput:
         self.canvas.draw()
 
         self.update_plot_theme("breeze-dark")
-        self.canvas.get_tk_widget().grid(row=1,column=0,columnspan=2, padx=10, pady=10)
-
-        # Customer detail graph
-        lbl_customer_graph = ttk.Label(self.frm_graphs, text="Individual Customer Graph")
-        lbl_customer_graph.grid(row=3,column=0)
-        create_tool_tip(self.frm_graphs, 3, "Click on a customer in the simulation to show their specific details in the graph")
+        self.canvas.get_tk_widget().pack(padx=10, pady=10)
 
         self.init_customer_graph()
         self.customer_canvas.draw()
         self.update_customer_plot_theme("breeze-dark")
-        self.customer_canvas.get_tk_widget().grid(row=4,column=0,columnspan=2)
+        self.customer_canvas.get_tk_widget().pack()
 
         self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
 
-    def update_output(self, line):
+        self.update_plot_theme(self.style.theme_use())
+        self.update_customer_plot_theme(self.style.theme_use())
+
+    def update_output(self, line, value=""):
         if self.frm_output == 0:
             raise Exception("Output text is undefined")
         else:
             lbl = ttk.Label(self.frm_output, text=line)
-            lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
+            lbl2 = ttk.Label(self.frm_output, text=value)
+
+            if value != "":
+                lbl.grid(row=self.output_line_nr, column=0, sticky='w')
+                lbl2.grid(row=self.output_line_nr, column=1, sticky='e')
+            else:
+                lbl.grid(row=self.output_line_nr, column=0, columnspan=2, sticky='w')
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
+        if not hasattr(self, 'cough_line_nr'):
+            ### cough event ###
+            self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
+            self.frm_event.pack(fill=tk.BOTH)
+            self.cough_line_nr = 0
+
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
-        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w')
+        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
         lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=10)
 
@@ -321,7 +331,7 @@ class GuiOutput:
             self.lbl_step_value.configure(text=step)
             self.lbl_customers_value.configure(text=customers_in_store)
             self.lbl_infected_value.configure(text=emitting_customers_in_store)
-            self.lbl_exposure_value.configure(text=exposure)
+            self.lbl_exposure_value.configure(text=round(exposure, 3))
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
@@ -416,6 +426,9 @@ class GuiOutput:
         self.ax_customer.tick_params(axis='x', colors=color_axes)
         self.ax_customer.tick_params(axis='y', colors=color_axes)
 
+        # Title
+        self.fig_graphs.suptitle('All Customers', color=color_axes)
+
         self.canvas.draw_idle()
 
     def update_customer_plot_theme(self, theme):
@@ -442,6 +455,9 @@ class GuiOutput:
         self.ax_time.yaxis.label.set_color(color_axes)
         self.ax_time.tick_params(axis='x', colors=color_axes)
         self.ax_time.tick_params(axis='y', colors=color_axes)
+
+        # Title
+        self.fig.suptitle('Clicked Customer', color=color_axes)
 
         self.customer_canvas.draw_idle()
 

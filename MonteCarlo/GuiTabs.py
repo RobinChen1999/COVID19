@@ -22,7 +22,8 @@ class GuiTabs:
         self.root.tk.call('package', 'require', 'awlight')
         self.root.tk.call('source', 'theme/tkBreeze-master/breeze/breeze.tcl')
         self.root.tk.call('source', 'theme/tkBreeze-master/breeze-dark/breeze-dark.tcl')
-        self.style.theme_use('breeze-dark')
+        self.style.theme_use('breeze')
+        self.switch_theme()
 
     def draw_window(self):
         self.root.title("Supermarket Spread")
@@ -44,6 +45,7 @@ class GuiTabs:
     def create_simulation(self, pos):
         self.numOfSims+=1
         frame = ttk.Frame(self.tab_control, padding=20)
+        frame.grid_columnconfigure(2, weight=1)
         name = "    Simulation " + str(pos+1) + "  "
 
         frm_buttons = ttk.Frame(frame)
@@ -108,12 +110,22 @@ class GuiTabs:
     def switch_theme(self):
         if self.style.theme_use() == "breeze":
             theme = "breeze-dark"
+            color_run = '#44bb44'
+            color_terminate = '#f94548'
         else:
             theme = "breeze"
+            color_run = 'green'
+            color_terminate = '#dd0000'
 
-        if self.simulation.outputGui is not None:
-            self.simulation.outputGui.update_plot_theme(theme)
-            self.simulation.outputGui.update_customer_plot_theme(theme)
+        if hasattr(self, 'simulation'):
+            if self.simulation.outputGui is not None:
+                self.simulation.outputGui.update_plot_theme(theme)
+                self.simulation.outputGui.update_customer_plot_theme(theme)
 
         self.style.theme_use(theme)
+
+        self.style.configure('Run.TButton', foreground=color_run, font=('Helvetica', 10, 'bold'))
+        self.style.configure('Terminate.TButton', foreground=color_terminate, font=('Helvetica', 10, 'bold'))
+        self.style.configure('.', font=('Helvetica', 10))
+
         self.root.focus()
