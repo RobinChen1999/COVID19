@@ -62,18 +62,12 @@ class StorePlot:
     def draw_customers(self, step):
         self.step = step
         # add every customer to the plot,and the colour denotes infected and healthy customers
-        # startx = -3
-        # starty = self.height * 0.87
-        # scalex = self.height / 101.5
-        # scaley = self.height / 109.5
         self.canvas.delete("customer_point")        # delete point from previous frame
         for i, c in enumerate(self.customers):
             if c.initStep <= self.step and self.step < (c.initStep + len(c.route)):
                 x = self.startx + c.route[self.step-c.initStep][0] * self.scalex
                 y = self.starty - (c.route[self.step-c.initStep][1] * self.scaley)
                 if c.infected:
-                    # shape = self.canvas.create_polygon([x-10, y-10, x+10, y+10], outline="black",
-                    #           fill="red", tags=("customer_point"))
                     r = self.radius/2
                     shape = self.canvas.create_polygon([x+r, y, x+2*r, y+r, x+r, y+2*r, x, y+r], outline="black", activewidth=1, activeoutline="white",
                               fill="red", tags=("customer_point"))
