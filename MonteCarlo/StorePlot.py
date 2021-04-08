@@ -72,7 +72,10 @@ class StorePlot:
                 x = self.startx + c.route[self.step-c.initStep][0] * self.scalex
                 y = self.starty - (c.route[self.step-c.initStep][1] * self.scaley)
                 if c.infected:
-                    shape = self.canvas.create_polygon([x-10, y-10, x+10, y+10], outline="black",
+                    # shape = self.canvas.create_polygon([x-10, y-10, x+10, y+10], outline="black",
+                    #           fill="red", tags=("customer_point"))
+                    r = self.radius/2
+                    shape = self.canvas.create_polygon([x+r, y, x+2*r, y+r, x+r, y+2*r, x, y+r], outline="black", activewidth=1, activeoutline="white",
                               fill="red", tags=("customer_point"))
                 else:
                     col = matplotlib.colors.to_hex([1, 1 - self.norm_exposure[self.step, i], 0])
