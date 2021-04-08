@@ -79,7 +79,7 @@ class StorePlot:
                               fill="red", tags=("customer_point"))
                 else:
                     col = matplotlib.colors.to_hex([1, 1 - self.norm_exposure[self.step, i], 0])
-                    shape = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, activewidth=2, activeoutline="white", tags=("customer_point"))
+                    shape = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, activewidth=1, activeoutline="white", tags=("customer_point"))
                 
                 if i == self.selected_customer:
                     self.canvas.itemconfig(shape, width=2, outline="white")
@@ -120,7 +120,7 @@ class StorePlot:
                     self.selected_customer = None       # deselect the customer if clicked again
                 else:
                     self.selected_customer = c          # set new selected customer
-                    self.canvas.itemconfig(j, width=2, outline="white")
+                    self.canvas.itemconfig(j, width=1, outline="white")
 
                 x = list(range(len(self.time[:, c])))
 
