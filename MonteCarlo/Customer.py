@@ -270,7 +270,6 @@ class SmartCustomer(Customer):
             for index,item in enumerate(self.completeShoppingList):
                 if item[0] == itemPos[0] and item[1] == itemPos[1]:
                     self.completeShoppingList[index].append(self.initStep+self.timeInStore)
-                    print("item found")
             
             self.waitingTime = np.random.randint(self.MINWAITINGTIME,self.MAXWAITINGTIME)
             return itemPos
