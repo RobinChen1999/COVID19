@@ -34,6 +34,7 @@ class StorePlot:
         self.customer_list = []
         self.radius = 10
         self.step = 0
+        self.selected_customer = None
         
     def init_canvas(self, window, height, axis1, axis2, canvas):
         self.height = height
@@ -71,14 +72,30 @@ class StorePlot:
                               fill="red", tags=("customer_point"))
                 else:
                     col = matplotlib.colors.to_hex([1, 1 - self.norm_exposure[self.step, i], 0])
-                    shape = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, tags=("customer_point"))
+                    shape = self.canvas.create_oval(x, y, x+self.radius, y+self.radius, fill=col, activewidth=2, activeoutline="white", tags=("customer_point"))
+                
+                if i == self.selected_customer:
+                    self.canvas.itemconfig(shape, width=2, outline="white")
+
                 self.customer_list.append((i, shape))
                 self.canvas.tag_bind(shape, '<Button-1>', self.on_customer_click)
         
+    def draw_shoppinglist(self):
+        pass
+
+
     def on_customer_click(self, customer):
         oval = customer.widget.find_withtag('current&&customer_point')[0]
         for c, j in self.customer_list:
-            if j == oval:              
+            if j == oval:
+
+                # if there was a previously selected customer, reset visuals to normal
+                self.canvas.itemconfig("customer_point", width=1, outline="black") 
+                
+                # set new selected customer
+                self.selected_customer = c
+                self.canvas.itemconfig(j, width=2, outline="white")
+
                 x = list(range(len(self.time[:, c])))
 
                 # Update lines
