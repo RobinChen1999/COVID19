@@ -32,13 +32,17 @@ class StorePlot:
         self.exposure = exposure
         self.norm_exposure = norm_exposure
         self.customer_list = []
-        self.radius = 10
         self.step = 0
+        self.radius = 10
+        self.startx = -3
         self.selected_customer = None
         
     def init_canvas(self, window, height, axis1, axis2, canvas):
         self.height = height
         self.window = window
+        self.starty = self.height * 0.87
+        self.scalex = self.height / 101.5
+        self.scaley = self.height / 109.5
         self.ax1 = axis1
         self.ax2 = axis2
         self.customer_canvas = canvas
@@ -53,20 +57,20 @@ class StorePlot:
         self.canvas.itemconfig(self.store_fig, image=self.step_img)
         self.customer_list.clear()
         self.draw_customers(int(value))
+        self.draw_shoppinglist()
 
     def draw_customers(self, step):
         self.step = step
         # add every customer to the plot,and the colour denotes infected and healthy customers
-        radius = 13
-        startx = -3
-        starty = self.height * 0.87
-        scalex = self.height / 101.5
-        scaley = self.height / 109.5
+        # startx = -3
+        # starty = self.height * 0.87
+        # scalex = self.height / 101.5
+        # scaley = self.height / 109.5
         self.canvas.delete("customer_point")        # delete point from previous frame
         for i, c in enumerate(self.customers):
             if c.initStep <= self.step and self.step < (c.initStep + len(c.route)):
-                x = startx + c.route[self.step-c.initStep][0] * scalex
-                y = starty - (c.route[self.step-c.initStep][1] * scaley)
+                x = self.startx + c.route[self.step-c.initStep][0] * self.scalex
+                y = self.starty - (c.route[self.step-c.initStep][1] * self.scaley)
                 if c.infected:
                     shape = self.canvas.create_polygon([x-10, y-10, x+10, y+10], outline="black",
                               fill="red", tags=("customer_point"))
@@ -81,7 +85,23 @@ class StorePlot:
                 self.canvas.tag_bind(shape, '<Button-1>', self.on_customer_click)
         
     def draw_shoppinglist(self):
-        pass
+        self.canvas.delete("shopping_items")        # delete shopping items from previous selected customer
+        if self.selected_customer:
+            customer = self.customers[self.selected_customer]
+            for item in customer.completeShoppingList:
+                radius = 5
+                x = self.startx + self.radius - radius + item[0] * self.scalex
+                y = self.starty + self.radius - radius - item[1] * self.scaley
+                col="green"
+                try:
+                    if item[2] <= self.step:
+                        col="pink"
+                except:
+                    # item is not found withing the step limit
+                    pass
+                                    
+                shape = self.canvas.create_rectangle(x, y, x+radius, y+radius, fill=col, tags=("shopping_items"))
+
 
 
     def on_customer_click(self, customer):
@@ -103,4 +123,5 @@ class StorePlot:
                 self.ax2.lines[0].set_data(x, self.exposure[:, c])
 
                 self.gui.update_customer_markers(self.step, self.time, self.exposure)
+                self.draw_shoppinglist()
         

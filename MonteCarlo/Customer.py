@@ -12,6 +12,7 @@ class Customer:
         self.y =y  
         self.infected=infected ## int boolean
         self.shoppingList=[] ## list of points to visit
+        self.completeShoppingList=[] ## the complete shoppinglist
         self.path=None
         self.exposure=0
         self.exposureTime=0
@@ -44,6 +45,7 @@ class Customer:
     ## adds coordinate to the shopping list
     def addTarget(self, target):
         self.shoppingList.append(target)
+        self.completeShoppingList.append(target.copy())
         return
         
     #~ The costumer is assumed to behave logically, i.e. he/she always advances towards the closest target, which is updated utilizing this function
@@ -138,6 +140,7 @@ class SmartCustomer(Customer):
     # adds coordinate to the shopping list
     def addTarget(self, target):
         self.shoppingList.append(target)
+        self.completeShoppingList.append(target.copy())
         return
 
     # ~ The costumer is assumed to behave logically, i.e. he/she always advances towards the closest target, which is updated utilizing this function
@@ -264,6 +267,11 @@ class SmartCustomer(Customer):
         
         if self.itemFound():
             itemPos = self.shoppingList.pop(0)
+            for index,item in enumerate(self.completeShoppingList):
+                if item[0] == itemPos[0] and item[1] == itemPos[1]:
+                    self.completeShoppingList[index].append(self.initStep+self.timeInStore)
+                    print("item found")
+            
             self.waitingTime = np.random.randint(self.MINWAITINGTIME,self.MAXWAITINGTIME)
             return itemPos
             
