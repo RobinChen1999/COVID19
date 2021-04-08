@@ -112,9 +112,12 @@ class StorePlot:
                 # if there was a previously selected customer, reset visuals to normal
                 self.canvas.itemconfig("customer_point", width=1, outline="black") 
                 
-                # set new selected customer
-                self.selected_customer = c
-                self.canvas.itemconfig(j, width=2, outline="white")
+               
+                if self.selected_customer == c:
+                    self.selected_customer = None       # deselect the customer if clicked again
+                else:
+                    self.selected_customer = c          # set new selected customer
+                    self.canvas.itemconfig(j, width=2, outline="white")
 
                 x = list(range(len(self.time[:, c])))
 
