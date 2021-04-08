@@ -89,7 +89,7 @@ class StorePlot:
         
     def draw_shoppinglist(self):
         self.canvas.delete("shopping_items")        # delete shopping items from previous selected customer
-        if self.selected_customer:
+        if self.selected_customer != None:
             customer = self.customers[self.selected_customer]
             for item in customer.completeShoppingList:
                 radius = 5
