@@ -76,7 +76,6 @@ class Gui:
 
         # Parameters tab
         column_size_text = 200
-        column_size_input = 100
         params = eval(os.environ["PARAMS"])
 
         input_tab_control = ttk.Notebook(frm_parameters)
@@ -84,7 +83,6 @@ class Gui:
 
         def add_param_input(tab_root, index, label, value, description, callback=None):
             tab_root.grid_columnconfigure(0, minsize=column_size_text)
-            tab_root.grid_columnconfigure(2, minsize=column_size_input)
 
             lbl = ttk.Label(tab_root, text=label)
             lbl.grid(row=index, column=0, sticky="w", padx=10, pady=10)
@@ -94,14 +92,14 @@ class Gui:
             desc.grid(row=index, column=1, sticky="e", padx=5)
 
             if callback is None:
-                ent = ttk.Entry(tab_root)
+                ent = ttk.Entry(tab_root, justify='right', width=8)
                 ent.insert(0, value)
             else:
-                ent = ttk.Entry(tab_root, validate="key", validatecommand=(self.root.register(callback), '%P'))
+                ent = ttk.Entry(tab_root, justify='right', width=8, validate="key", validatecommand=(self.root.register(callback), '%P'))
                 ent.insert(0, value)
 
             self.params.append(ent)
-            ent.grid(row=index, column=2, sticky="we", padx=10)
+            ent.grid(row=index, column=2, sticky="e", padx=5)
 
             return ent
 
