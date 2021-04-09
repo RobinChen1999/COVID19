@@ -12,6 +12,33 @@ from tkinter.filedialog import asksaveasfile
 from pathlib import Path
 
 import numpy as np
+import time
+
+
+def format_time(time_in_seconds):
+    seconds = round(time_in_seconds % 60)
+    minutes = int(time_in_seconds / 60) % 60
+    hours = int(time_in_seconds / 3600) % 60
+
+    formatted_time = ""
+
+    # Check if hours need to be displayed
+    if hours != 0:
+        # Add leading zero
+        if minutes < 10:
+            minutes = "0" + str(minutes)
+        formatted_time += str(hours) + ":" + str(minutes)
+    else:
+        formatted_time += str(minutes)
+
+    # Add leading zero
+    if seconds < 10:
+        seconds = "0" + str(seconds)
+
+    formatted_time += ":" + str(seconds)
+
+    return formatted_time
+
 
 class GuiOutput:
     window_width = 1600
@@ -35,6 +62,9 @@ class GuiOutput:
         self.time = 0
         self.exposure = 0
         self.customer_graph_visible = False
+        self.last_updated_time = time.time()
+        self.time_per_step = 1
+        self.time_left = self.max_steps
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -55,6 +85,10 @@ class GuiOutput:
         self.lbl_status.config(text="Simulation Finished!")
         self.lbl_sim.destroy()
         self.btn_terminate.destroy()
+
+        # Remove time_left counter
+        self.lbl_eta.destroy()
+        self.lbl_eta_value.destroy()
 
         self.store_plot = store_plot
         self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
@@ -228,6 +262,12 @@ class GuiOutput:
         self.lbl_exposure_value = ttk.Label(self.frm_output)
         self.lbl_exposure_value.grid(row=i, column=1, sticky=value_stick)
 
+        i += 1
+        self.lbl_eta = ttk.Label(self.frm_output, text='Estimated time left:', padding=(0, 12, 0, 0))
+        self.lbl_eta.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_eta_value = ttk.Label(self.frm_output, padding=(0, 12, 0, 0))
+        self.lbl_eta_value.grid(row=i, column=1, sticky=value_stick)
+
         self.output_line_nr = i+1
 
         # Graph frame
@@ -332,6 +372,20 @@ class GuiOutput:
             self.lbl_customers_value.configure(text=int(customers_in_store))
             self.lbl_infected_value.configure(text=int(emitting_customers_in_store))
             self.lbl_exposure_value.configure(text=round(exposure, 3))
+
+            # Update estimated time left every {update_speed} steps
+            update_speed = 5
+            if step % update_speed == 0:
+                time_diff = time.time() - self.last_updated_time
+                self.time_per_step = time_diff / update_speed
+                time_left = (int(self.max_steps) - step) * self.time_per_step
+                self.time_left = time_left
+
+                self.last_updated_time = time.time()
+            else:
+                time_left = self.time_left - (step % update_speed) * self.time_per_step
+            self.lbl_eta_value.configure(text=format_time(time_left))
+
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
