@@ -262,11 +262,10 @@ class GuiOutput:
         self.lbl_exposure_value = ttk.Label(self.frm_output)
         self.lbl_exposure_value.grid(row=i, column=1, sticky=value_stick)
 
-        i += 1
         self.lbl_eta = ttk.Label(self.frm_output, text='Estimated time left:', padding=(0, 12, 0, 0))
-        self.lbl_eta.grid(row=i, column=0, sticky=lbl_stick)
+        self.lbl_eta.grid(row=100, column=0, sticky=lbl_stick)
         self.lbl_eta_value = ttk.Label(self.frm_output, padding=(0, 12, 0, 0))
-        self.lbl_eta_value.grid(row=i, column=1, sticky=value_stick)
+        self.lbl_eta_value.grid(row=100, column=1, sticky=value_stick)
 
         self.output_line_nr = i+1
 
