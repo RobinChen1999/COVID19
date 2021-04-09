@@ -329,8 +329,8 @@ class GuiOutput:
                 exposure = self.ax_exposure.lines[0].get_ydata()[step]
 
             self.lbl_step_value.configure(text=step)
-            self.lbl_customers_value.configure(text=customers_in_store)
-            self.lbl_infected_value.configure(text=emitting_customers_in_store)
+            self.lbl_customers_value.configure(text=int(customers_in_store))
+            self.lbl_infected_value.configure(text=int(emitting_customers_in_store))
             self.lbl_exposure_value.configure(text=round(exposure, 3))
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
