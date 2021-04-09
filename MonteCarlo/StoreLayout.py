@@ -30,6 +30,9 @@ class StoreLayout:
         self.nexits = 0
         self.cashierd = 0
 
+        # draw init layout
+        self.draw_initial_layout()
+
     # draws all elements in the canvas
     def draw_store_layout(self):
         self.draw_grid_lines()
@@ -128,3 +131,39 @@ class StoreLayout:
             x = (img_width - cashierd * i) * width_factor
             y = img_width * width_factor
             self.canvas.create_rectangle(x - 5, y - 5, x, y, fill="blue", width=0, tags="exit")
+
+    def create_row_coords(self, initial_pos, is_horizontal, length):
+        coords = [initial_pos]
+
+        for i in range(length):
+            if is_horizontal:
+                coords.append((initial_pos[0] + i, initial_pos[1]))
+            else:
+                coords.append((initial_pos[0], initial_pos[1] + i))
+
+        return coords
+
+    def draw_initial_layout(self):
+        coords = []
+
+        coords.extend(self.create_row_coords((1, 1), True, 8))
+        coords.extend(self.create_row_coords((11, 1), True, 8))
+        coords.extend(self.create_row_coords((1, 4), True, 8))
+        coords.extend(self.create_row_coords((1, 7), True, 8))
+        coords.extend(self.create_row_coords((1, 10), True, 8))
+        coords.extend(self.create_row_coords((11, 4), False, 7))
+        coords.extend(self.create_row_coords((18, 4), False, 7))
+        coords.extend(self.create_row_coords((14, 4), True, 2))
+        coords.extend(self.create_row_coords((14, 6), True, 2))
+        coords.extend(self.create_row_coords((14, 8), True, 2))
+        coords.extend(self.create_row_coords((14, 10), True, 2))
+        coords.extend(self.create_row_coords((1, 13), True, 2))
+        coords.extend(self.create_row_coords((1, 16), True, 2))
+        coords.extend(self.create_row_coords((4, 13), False, 4))
+        coords.extend(self.create_row_coords((6, 13), True, 3))
+        coords.extend(self.create_row_coords((6, 16), True, 3))
+        coords.extend(self.create_row_coords((11, 13), True, 8))
+        coords.extend(self.create_row_coords((11, 16), True, 8))
+
+        for coord in coords:
+            self.draw_shelf(coord[0], coord[1])
