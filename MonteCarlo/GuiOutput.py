@@ -112,7 +112,7 @@ class GuiOutput:
         
         plt.ion()
         self.fig = plt.Figure(dpi=100)
-        self.fig.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        self.fig.subplots_adjust(bottom=0.15)
 
         self.ax_time = self.fig.add_subplot(111)
         self.ax_time.set_xlabel('Step')
