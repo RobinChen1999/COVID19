@@ -224,7 +224,7 @@ class Gui:
         input_tab_control.add(tab_diffusion, text="Diffusion")
         # input_tab_control.add(tab_plume, text="Plume")
 
-        input_tab_control.pack(expand=0)
+        input_tab_control.pack(fill=tk.BOTH)
 
         frm_parameters_input = ttk.Frame(frm_parameters, relief=tk.SUNKEN, borderwidth=2)
         frm_parameters_input.pack()

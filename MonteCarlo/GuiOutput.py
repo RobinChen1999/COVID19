@@ -43,7 +43,7 @@ def format_time(time_in_seconds):
 class GuiOutput:
     window_width = 1600
     window_height = 800
-    plt.rcParams["figure.figsize"] = 6, 3
+    plt.rcParams["figure.figsize"] = 5, 3
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
@@ -58,6 +58,11 @@ class GuiOutput:
         self.frm_buttons = frm_buttons
         self.draw_output_window()
         self.slider_value_old = 0
+
+        # Column weights
+        self.window.grid_columnconfigure(0, minsize=350)
+        self.window.grid_columnconfigure(1, weight=10)
+        # self.window.grid_columnconfigure(2, minsize=200)
 
         self.time = 0
         self.exposure = 0
@@ -201,8 +206,8 @@ class GuiOutput:
         self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
-        self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
-        self.canvas_height = self.window_height / 2
+        self.frm_sim = ttk.Frame(self.window)
+        self.canvas_height = 300
 
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
         lbl_id_sim.pack()
@@ -271,11 +276,12 @@ class GuiOutput:
 
         # Graph frame
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=1, column=2, sticky='n')
+        self.frm_graphs.grid(row=1, column=2, sticky='ne')
 
         plt.ion()
         self.fig_graphs = plt.Figure(dpi=100)
-        self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        # self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        self.fig_graphs.subplots_adjust(bottom=0.15)
 
         self.ax_customer = self.fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
@@ -306,7 +312,7 @@ class GuiOutput:
         self.update_customer_plot_theme("breeze-dark")
         self.customer_canvas.get_tk_widget().pack()
 
-        self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
+        self.frm_sim.grid(row=1, column=1, sticky="nwe")
 
         self.update_plot_theme(self.style.theme_use())
         self.update_customer_plot_theme(self.style.theme_use())
@@ -358,6 +364,9 @@ class GuiOutput:
 
     def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
+        # Update image size
+        self.canvas_height = 0.9 * self.frm_sim.winfo_width()
+
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
         else:
