@@ -99,11 +99,12 @@ class StoreLayout:
         self.canvas.delete("exit")
 
         # create postscript image from canvas
-        ps = self.canvas.postscript(colormode="mono", pageheight='101', pagewidth='101')
-        # grab postscript from IO and 
-        img = Image.open(io.BytesIO(ps.encode('utf-8')))
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)  # flip image
-        img.save(fileName)  # save as .png
+        ps = self.canvas.postscript(colormode="mono")           
+        img = Image.open(io.BytesIO(ps.encode('utf-8')))        # grab postscript from IO
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)              # flip image because it is flipped again in the simulation
+        img = img.resize((20, 20), resample=Image.NEAREST)      # scale down so shelf size == pixel size
+        img = img.resize((100,100),resample=Image.NEAREST)      # scale up to the size needed for input simulation
+        img.save(fileName)                                      # save as .png
 
         # Restore entrance and exits
         self.draw_entrance_exits(self.nexits, self.cashierd)

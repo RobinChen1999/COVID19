@@ -391,8 +391,8 @@ class Gui:
                 sim = Simulation(
                     self.outputGui,
                     int(simulation_params["seed"]),
-                    101,
-                    101,
+                    100,
+                    100,
                     25,
                     int(customer_params["nr_customers"]),
                     outputLevel=1,
