@@ -122,7 +122,7 @@ class StoreLayout:
         img_width = 101
         width_factor = self.canvas_width / img_width
 
-        self.canvas.create_rectangle(0, self.canvas_width - 5, 7, self.canvas_width, fill="red", width=0,
+        self.canvas.create_rectangle(0, self.canvas_width - 5, 12, self.canvas_width + 5, fill="red", width=0,
                                      tags="entrance")
 
         self.canvas.delete("exit")
@@ -130,7 +130,7 @@ class StoreLayout:
         for i in range(nexits):
             x = (img_width - cashierd * i) * width_factor
             y = img_width * width_factor
-            self.canvas.create_rectangle(x - 5, y - 5, x, y, fill="blue", width=0, tags="exit")
+            self.canvas.create_rectangle(x - 12, y - 5, x, y + 5, fill="blue", width=0, tags="exit")
 
     def create_row_coords(self, initial_pos, is_horizontal, length):
         coords = [initial_pos]
