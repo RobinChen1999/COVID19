@@ -154,6 +154,23 @@ class Gui:
         self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
         self.lbl_exit_error.grid_remove()
 
+        frm_entrance_exit_info = ttk.Frame(tab_exit)
+        frm_entrance_exit_info.grid(row=20, column=0, columnspan=3, sticky="we")
+        frm_entrance_exit_info.columnconfigure(0, weight=1)
+        frm_entrance_exit_info.columnconfigure(1, weight=5)
+
+        frm_entrance_color = tk.Frame(frm_entrance_exit_info, background='red', width=20, height=10)
+        frm_entrance_color.grid(row=0, column=0, pady=10)
+
+        lbl_entrance_color = ttk.Label(frm_entrance_exit_info, text="Entrance")
+        lbl_entrance_color.grid(row=0, column=1, sticky='w')
+
+        frm_exit_color = tk.Frame(frm_entrance_exit_info, background='blue', width=20, height=10)
+        frm_exit_color.grid(row=1, column=0, pady=10)
+
+        lbl_exit_color = ttk.Label(frm_entrance_exit_info, text="Exit")
+        lbl_exit_color.grid(row=1, column=1, sticky='w')
+
         nexits = None
         cashierd = None
 
