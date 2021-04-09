@@ -134,8 +134,8 @@ class GuiOutput:
         while self.simulating:
             # when simulation has at least 2 figures
             figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
-            if len(figureList) > 1:
-                latest_figure = figureList[-2]  # get second last element
+            if len(figureList) > 2:
+                latest_figure = figureList[-3]  # get second last element picture
                 img = Image.open(latest_figure)
                 self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
                 try:
