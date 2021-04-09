@@ -250,7 +250,7 @@ class GuiOutput:
 
         self.ax_customer.plot([], [], color='blue', label='Nr. of Customers')
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
-        self.ax_exposure.plot([], [], color='green', label='Total Exposure')
+        self.ax_exposure.plot([], [], color='green', label='Nr. of Disease Particles')
 
         self.ax_customer.legend(loc="upper left", prop={'size': 7})
         self.ax_exposure.legend(loc="upper right", prop={'size': 7})
