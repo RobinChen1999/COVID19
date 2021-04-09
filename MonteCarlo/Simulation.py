@@ -550,8 +550,6 @@ class Simulation:
 				customersExit = []
 				customersHeadExit = 0
 				for j,c in enumerate(self.customers):
-					self.np_time[self.stepNow, j] = c.timeInStore
-					self.np_exposure[self.stepNow, j] = c.exposure
 					if c.infected:
 						emittingCustomers +=1
 					tx, ty = c.takeStep(self.store)
@@ -560,6 +558,10 @@ class Simulation:
 					customersHeadExit += c.headingForExit
 					if tx==-1 and ty==-1:
 						customersExit.append(j)
+				
+				for j,c in enumerate(self.allCustomers):
+					self.np_time[self.stepNow, j] = c.timeInStore
+					self.np_exposure[self.stepNow, j] = c.exposure
 
 				self.stepNow+=1
 

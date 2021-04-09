@@ -168,8 +168,8 @@ class GuiOutput:
         while self.simulating:
             # when simulation has at least 2 figures
             figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
-            if len(figureList) > 1:
-                latest_figure = figureList[-2]  # get second last element
+            if len(figureList) > 2:
+                latest_figure = figureList[-3]  # get second last element picture
                 img = Image.open(latest_figure)
                 self.frm_img = ImageTk.PhotoImage(img.resize((int(self.canvas_height), int(self.canvas_height))))
                 try:
@@ -290,7 +290,7 @@ class GuiOutput:
 
         self.ax_customer.plot([], [], color='blue', label='Nr. of Customers')
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
-        self.ax_exposure.plot([], [], color='green', label='Total Exposure')
+        self.ax_exposure.plot([], [], color='green', label='Nr. of Disease Particles')
 
         self.ax_customer.legend(loc="upper left", prop={'size': 7})
         self.ax_exposure.legend(loc="upper right", prop={'size': 7})

@@ -90,6 +90,8 @@ class GuiTabs:
 
     # when window closes
     def close_window(self):
+        self.root.destroy()
+
         # clear figures from simFigures folder
         figureList = glob.glob('simFigures/simFigure*' + '.png')
         for f in figureList:
@@ -104,8 +106,6 @@ class GuiTabs:
         videos = glob.glob('*.mkv')
         for v in videos:
             os.remove(v)
-
-        self.root.destroy()
 
     def switch_theme(self):
         if self.style.theme_use() == "breeze":

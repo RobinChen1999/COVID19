@@ -80,6 +80,7 @@ class Gui:
         params = eval(os.environ["PARAMS"])
 
         input_tab_control = ttk.Notebook(frm_parameters)
+        self.params = []
 
         def add_param_input(tab_root, index, label, value, description, callback=None):
             tab_root.grid_columnconfigure(0, minsize=column_size_text)
@@ -99,6 +100,7 @@ class Gui:
                 ent = ttk.Entry(tab_root, validate="key", validatecommand=(self.root.register(callback), '%P'))
                 ent.insert(0, value)
 
+            self.params.append(ent)
             ent.grid(row=index, column=2, sticky="we", padx=10)
 
             return ent
@@ -355,6 +357,8 @@ class Gui:
         )
 
         if input_valid:
+            for entry in self.params:
+                entry.config(state=tk.DISABLED)
             self.frm_layout.grid_forget()
             self.buttons_store_grid.grid_forget()
             btn_run.forget()
