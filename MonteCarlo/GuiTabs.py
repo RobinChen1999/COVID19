@@ -126,6 +126,7 @@ class GuiTabs:
 
         self.style.configure('Run.TButton', foreground=color_run, font=('Helvetica', 10, 'bold'))
         self.style.configure('Terminate.TButton', foreground=color_terminate, font=('Helvetica', 10, 'bold'))
+        self.style.configure('Error.TLabel', foreground=color_terminate, font=('Helvetica', 10, 'bold'))
         self.style.configure('.', font=('Helvetica', 10))
 
         self.root.focus()

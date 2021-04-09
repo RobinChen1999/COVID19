@@ -150,8 +150,9 @@ class Gui:
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
 
-        self.lbl_exit_error = ttk.Label(tab_exit)
-        self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky="we")
+        self.lbl_exit_error = ttk.Label(tab_exit, style='Error.TLabel')
+        self.lbl_exit_error.configure(anchor='center')
+        self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky='we', pady=10)
         self.lbl_exit_error.grid_remove()
 
         frm_entrance_exit_info = ttk.Frame(tab_exit)
