@@ -46,13 +46,13 @@ class GuiOutput:
         figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
         if len(figureList) > 1:
             self.sim_terminated.set(True)
-            self.lbl_status.config(text="Simulation terminated")
+            self.lbl_status.config(text="Simulation Terminated!")
             self.btn_terminate.destroy()
         self.window.focus()
 
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
-        self.lbl_status.config(text="Simulation finished!")
+        self.lbl_status.config(text="Simulation Finished!")
         self.lbl_sim.destroy()
         self.btn_terminate.destroy()
 

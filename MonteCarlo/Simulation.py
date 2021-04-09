@@ -597,10 +597,10 @@ class Simulation:
 				## end condition
 				if not self.nCustomers and not len(self.customers):
 					print("All customers have visited the store")
-					self.gui.update_output("-")
+					self.gui.update_output("")
 					self.gui.update_output("All customers have visited the store")
 					self.gui.max_steps = i
-					break
+					return self.printEndStatistics()
 			
 			else:
 				self.gui.update_output("")
