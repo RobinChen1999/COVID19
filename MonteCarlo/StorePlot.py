@@ -40,7 +40,7 @@ class StorePlot:
     def init_canvas(self, window, height, axis1, axis2, canvas):
         self.height = height
         self.window = window
-        self.starty = self.height * 0.87
+        self.starty = self.height * 0.97
         self.scalex = self.height / 101.5
         self.scaley = self.height / 109.5
         self.ax1 = axis1
@@ -48,7 +48,7 @@ class StorePlot:
         self.customer_canvas = canvas
         self.canvas = tk.Canvas(window, height=self.height, width=self.height)
         self.canvas.pack()
-        self.store_fig = self.canvas.create_image(0, 0, anchor="nw")
+        self.store_fig = self.canvas.create_image(int(height/2), int(height/2) ) #, anchor="nw")
         self.update_figure(0)
 
     def update_figure(self, value):
