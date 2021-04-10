@@ -57,9 +57,9 @@ class GuiTabs:
 
         btn_frame = ttk.Frame(frame)
         btn_help = ttk.Button(btn_frame, text="    Help    ", command=self.open_help)
-        self.btn_switch_theme = ttk.Button(btn_frame, text="    Switch Theme    ", command=self.switch_theme)
+        self.btn_switch_theme = ttk.Button(btn_frame, text="Switch Theme", command=self.switch_theme)
         btn_help.pack(side=tk.RIGHT)
-        self.btn_switch_theme.pack(side=tk.RIGHT)
+        self.btn_switch_theme.pack(side=tk.RIGHT, padx=10)
         btn_frame.grid(row=0, column=2, sticky="ne")
         
         self.tab_control.insert(pos=pos, child=frame, text=name)
