@@ -155,13 +155,73 @@ class Gui:
         # Exits Tab
         tab_exit = ttk.Frame(input_tab_control)
 
-        self.lbl_exit_error = ttk.Label(tab_exit, style='Error.TLabel')
-        self.lbl_exit_error.configure(anchor='center')
-        self.lbl_exit_error.grid(row=10, column=0, columnspan=3, sticky='we', pady=10)
-        self.lbl_exit_error.grid_remove()
+        def handle_nr_exits(value):
+            if not float(value) % 1 == 0:
+                nr_exits = round(float(value))
+
+                self.lbl_nr_exits_value.configure(text=nr_exits)
+
+                # Update distance slider
+                if nr_exits != 1:
+                    self.scl_d_exits.state(['!disabled'])
+                    self.lbl_d_exits_value.configure(text=int(self.scl_d_exits.get()))
+                    allowed_d_exits = 95 / (nr_exits - 1)
+                    self.scl_d_exits.configure(to=int(allowed_d_exits))
+                else:
+                    self.scl_d_exits.state(['disabled'])
+                    self.lbl_d_exits_value.configure(text=0)
+
+                self.update_layout_entrance_exits(nr_exits, int(self.scl_d_exits.get()))
+                self.scl_nr_exits.set(nr_exits)
+
+        def handle_d_exits(value):
+            if not float(value) % 1 == 0:
+                d_exits = round(float(value))
+
+                self.lbl_d_exits_value.configure(text=d_exits)
+
+                # Update nr slider
+                allowed_nr_exits = 95 / d_exits + 1
+                self.scl_nr_exits.configure(to=int(allowed_nr_exits))
+
+                self.update_layout_entrance_exits(int(self.scl_nr_exits.get()), d_exits)
+                self.scl_d_exits.set(d_exits)
+
+        # Column Weights
+        tab_exit.columnconfigure(0, weight=1)
+        tab_exit.columnconfigure(1, weight=1)
+        tab_exit.columnconfigure(2, weight=1)
+
+        # Initial values
+        initial_nr_exits = params['NEXITS']
+        initial_d_exits = params['CASHIERD']
+        initial_allowed_nr_exits = 95 / initial_d_exits + 1
+        initial_allowed_d_exits = 95 / (initial_nr_exits - 1)
+
+        self.update_layout_entrance_exits(initial_nr_exits, initial_d_exits)
+
+        lbl_nr_exits = ttk.Label(tab_exit, text="Number of exits:")
+        lbl_nr_exits.grid(row=0, column=0, sticky='w', padx=10, pady=10)
+
+        self.lbl_nr_exits_value = ttk.Label(tab_exit, text=initial_nr_exits)
+        self.lbl_nr_exits_value.grid(row=0, column=1)
+
+        self.scl_nr_exits = ttk.Scale(tab_exit, length=100, orient=tk.HORIZONTAL, from_=1, to=initial_allowed_nr_exits,
+                                      value=initial_nr_exits, command=handle_nr_exits)
+        self.scl_nr_exits.grid(row=0, column=2, sticky='e', padx=10)
+
+        lbl_d_exits = ttk.Label(tab_exit, text="Distance between exits:")
+        lbl_d_exits.grid(row=1, column=0, sticky='w', padx=10)
+
+        self.lbl_d_exits_value = ttk.Label(tab_exit, text=initial_d_exits)
+        self.lbl_d_exits_value.grid(row=1, column=1)
+
+        self.scl_d_exits = ttk.Scale(tab_exit, length=100, orient=tk.HORIZONTAL, from_=3, to=initial_allowed_d_exits,
+                                      value=initial_d_exits, command=handle_d_exits)
+        self.scl_d_exits.grid(row=1, column=2, sticky='e', padx=10)
 
         frm_entrance_exit_info = ttk.Frame(tab_exit)
-        frm_entrance_exit_info.grid(row=20, column=0, columnspan=3, sticky="we")
+        frm_entrance_exit_info.grid(row=10, column=0, columnspan=3, sticky="we")
         frm_entrance_exit_info.columnconfigure(0, weight=1)
         frm_entrance_exit_info.columnconfigure(1, weight=5)
 
@@ -176,31 +236,6 @@ class Gui:
 
         lbl_exit_color = ttk.Label(frm_entrance_exit_info, text="Exit")
         lbl_exit_color.grid(row=1, column=1, sticky='w')
-
-        nexits = None
-        cashierd = None
-
-        def update_nexits(value):
-            ent = tk.Entry(None)
-            ent.insert(0, value)
-            self.update_exits(ent, cashierd)
-            return True
-
-        def update_cashierd(value):
-            ent = tk.Entry(None)
-            ent.insert(0, value)
-            self.update_exits(nexits, ent)
-            return True
-
-        nexits = add_param_input(tab_exit, 0, "Nr. of Exits:", params["NEXITS"],
-                                 "Number of exits in the store.\n"
-                                 "Should be an integer larger than 0.",
-                                 update_nexits)
-
-        cashierd = add_param_input(tab_exit, 1, "Distance between exits:", params["CASHIERD"],
-                                   "The distance between the exits.\n"
-                                   "Should be an integer larger than 2.",
-                                   update_cashierd)
 
         # Diffusion Tab
         tab_diffusion = ttk.Frame(input_tab_control)
@@ -412,43 +447,5 @@ class Gui:
             # Start simulation in new thread so GUI doesn't block
             threading.Thread(target=run_sim, daemon=True).start()
 
-    def update_exits(self, _nexits, _cashierd):
-        params = eval(os.environ["PARAMS"])
-
-        if all(x is not None for x in [_nexits, _cashierd]):
-            # Validate input
-            error_message = "Invalid Input!"
-
-            try:
-                str_nexits = _nexits.get()
-                str_cashierd = _cashierd.get()
-
-                int_nexits = int(str_nexits) if str_nexits != "" else 0
-                int_cashierd = int(str_cashierd) if str_cashierd != "" else 0
-
-                if int_nexits <= 0:
-                    error_message = "Nr. of Exits should be higher than 0!"
-                    raise Exception()
-
-                if int_cashierd <= 2:
-                    error_message = "Distance between exits should be higher than 2!"
-                    raise Exception()
-
-                if (int_nexits - 1) * int_cashierd >= 95:
-                    error_message = "Exits are placed outside of the store!"
-                    raise Exception()
-
-                self.lbl_exit_error.config(text="")
-                self.lbl_exit_error.grid_remove()
-                self.update_layout_entrance_exits(int_nexits, int_cashierd)
-            except:
-                self.lbl_exit_error.config(text=error_message)
-                self.lbl_exit_error.grid()
-                return False
-        else:
-            self.update_layout_entrance_exits(params["NEXITS"], params["CASHIERD"])
-        return True
-
     def update_layout_entrance_exits(self, nexits, cashierd):
         self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
-
