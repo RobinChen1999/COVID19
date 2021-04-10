@@ -43,13 +43,13 @@ class Gui:
         frm_parameters = ttk.Frame(self.root)
 
         lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters")
-        lbl_id_parameters.pack()
+        lbl_id_parameters.pack(pady=10)
 
         # Layout frame
         self.frm_layout = ttk.Frame(self.root)
 
         lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
-        lbl_id_layout.grid(row=0, column=0)
+        lbl_id_layout.grid(row=0, column=0, pady=10, sticky='w')
         desc = ttk.Label(self.frm_layout, text="?")
         create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
                               "Clicking on a shelf will remove it from the store.\n"
@@ -72,7 +72,7 @@ class Gui:
         btn_clear_shelves = ttk.Button(self.buttons_store_grid,
                                        text="Remove All Shelves",
                                        command=self.store_layout_canvas.clear_shelves)
-        btn_clear_shelves.pack(side=tk.RIGHT)
+        btn_clear_shelves.pack(side=tk.RIGHT, padx=10)
 
         btn_default_layout = ttk.Button(self.buttons_store_grid,
                                        text="Draw Default Layout",
@@ -235,7 +235,6 @@ class Gui:
         frm_parameters_input.pack()
 
         # Run button
-        style = ttk.Style(self.root)
         btn_run = ttk.Button(self.frm_buttons,
                              style='Run.TButton',
                              text="Run Simulation",
