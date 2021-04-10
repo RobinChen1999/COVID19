@@ -382,17 +382,18 @@ class GuiOutput:
             self.lbl_exposure_value.configure(text=round(exposure, 3))
 
             # Update estimated time left every {update_speed} steps
-            update_speed = 5
-            if step % update_speed == 0:
-                time_diff = time.time() - self.last_updated_time
-                self.time_per_step = time_diff / update_speed
-                time_left = (int(self.max_steps) - step) * self.time_per_step
-                self.time_left = time_left
+            if self.simulating:
+                update_speed = 5
+                if step % update_speed == 0:
+                    time_diff = time.time() - self.last_updated_time
+                    self.time_per_step = time_diff / update_speed
+                    time_left = (int(self.max_steps) - step) * self.time_per_step
+                    self.time_left = time_left
 
-                self.last_updated_time = time.time()
-            else:
-                time_left = self.time_left - (step % update_speed) * self.time_per_step
-            self.lbl_eta_value.configure(text=format_time(time_left))
+                    self.last_updated_time = time.time()
+                else:
+                    time_left = self.time_left - (step % update_speed) * self.time_per_step
+                self.lbl_eta_value.configure(text=format_time(time_left))
 
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
