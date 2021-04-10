@@ -117,10 +117,12 @@ class GuiTabs:
             theme = "breeze-dark"
             color_run = '#44bb44'
             color_terminate = '#f94548'
+            color_header = '#ddd'
         else:
             theme = "breeze"
             color_run = 'green'
             color_terminate = '#dd0000'
+            color_header = '#222'
 
         if hasattr(self, 'simulation'):
             if self.simulation.outputGui is not None:
@@ -131,7 +133,7 @@ class GuiTabs:
 
         self.style.configure('Run.TButton', foreground=color_run, font=('Helvetica', 10, 'bold'))
         self.style.configure('Terminate.TButton', foreground=color_terminate, font=('Helvetica', 10, 'bold'))
-        self.style.configure('Error.TLabel', foreground=color_terminate, font=('Helvetica', 10, 'bold'))
+        self.style.configure('Header.TLabel', foreground=color_header)
         self.style.configure('.', font=('Helvetica', 10))
 
         self.root.focus()

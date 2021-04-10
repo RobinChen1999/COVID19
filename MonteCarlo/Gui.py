@@ -42,13 +42,13 @@ class Gui:
         # Parameters frame
         frm_parameters = ttk.Frame(self.root)
 
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters")
+        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters", style='Header.TLabel', font=('Helvetica', '14'))
         lbl_id_parameters.pack(pady=10)
 
         # Layout frame
         self.frm_layout = ttk.Frame(self.root)
 
-        lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout")
+        lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout", style='Header.TLabel', font=('Helvetica', 14))
         lbl_id_layout.grid(row=0, column=0, pady=10, sticky='w')
         desc = ttk.Label(self.frm_layout, text="?")
         create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
