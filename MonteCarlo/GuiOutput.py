@@ -207,6 +207,7 @@ class GuiOutput:
             self.slider.set(step)
             self.update_step(step)
             time.sleep(speed)
+        self.window.focus()
 
     def update_step(self, value):
         self.store_plot.update_figure(str(value))
