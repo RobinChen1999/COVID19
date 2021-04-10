@@ -70,6 +70,7 @@ class GuiOutput:
         self.last_updated_time = time.time()
         self.time_per_step = 1
         self.time_left = self.max_steps
+        self.time_started = time.time()
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -97,8 +98,8 @@ class GuiOutput:
         self.btn_terminate.destroy()
 
         # Remove time_left counter
-        self.lbl_eta.destroy()
-        self.lbl_eta_value.destroy()
+        self.lbl_eta.configure(text='Total simulation time:')
+        self.lbl_eta_value.configure(text=format_time(time.time() - self.time_started))
 
         self.store_plot = store_plot
         self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
