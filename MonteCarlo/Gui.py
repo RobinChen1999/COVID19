@@ -287,46 +287,42 @@ class Gui:
         
 
     def validate_input(self, simulation_params, customer_params, diffusion_params, store_empty):
-        # Simulation
+        # Default
         try:
             int_seed = int(simulation_params["seed"])
             int_max_steps = int(simulation_params["max_steps"])
 
+            int_nr_customers = int(customer_params["nr_customers"])
+            float_prob_inf_customer = float(customer_params["prob_inf_customer"])
+
             if any(x <= 0 for x in (int_seed, int_max_steps)):
                 raise Exception()
+
+            if any(x <= 0 for x in (int_nr_customers, float_prob_inf_customer)) \
+                    or float_prob_inf_customer >= 1:
+                raise Exception()
         except:
-            tk.messagebox.showerror("Error!", "Invalid input in Simulation tab!")
+            tk.messagebox.showerror("Error!", "Invalid input in Default tab!")
             return False
 
-        # Customer
+        # Advanced
         try:
-            int_nr_customers = int(customer_params["nr_customers"])
             float_prob_new_customer = float(customer_params["prob_new_customer"])
-            float_prob_inf_customer = float(customer_params["prob_inf_customer"])
             float_prob_block_random_step = float(customer_params["prob_block_random_step"])
             float_prob_cough = float(customer_params["prob_cough"])
             int_max_shopping_list = int(customer_params["max_shopping_list"])
 
-            if any(x <= 0 for x in (
-                    int_nr_customers, float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step,
-                    float_prob_cough, int_max_shopping_list)) \
-                    or any(x >= 1 for x in (
-                    float_prob_new_customer, float_prob_inf_customer, float_prob_block_random_step, float_prob_cough)):
-                raise Exception()
-        except:
-            tk.messagebox.showerror("Error!", "Invalid input in Customer tab!")
-            return False
-
-        # Diffusion
-        try:
             float_diff_coeff = float(diffusion_params["diff_coeff"])
             float_acsinkcoeff = float(diffusion_params["acsinkcoeff"])
 
-            if any(x <= 0 for x in (float_diff_coeff, float_acsinkcoeff)) or \
-                    any(x >= 1 for x in (float_diff_coeff, float_acsinkcoeff)):
+            if any(x <= 0 for x in (
+                    float_prob_new_customer, float_prob_block_random_step,
+                    float_prob_cough, int_max_shopping_list, float_diff_coeff, float_acsinkcoeff)) \
+                    or any(x >= 1 for x in (float_prob_new_customer, float_prob_block_random_step, float_prob_cough,
+                                            float_diff_coeff, float_acsinkcoeff)):
                 raise Exception()
         except:
-            tk.messagebox.showerror("Error!", "Invalid input in Diffusion tab!")
+            tk.messagebox.showerror("Error!", "Invalid input in Advanced tab!")
             return False
 
         # Empty store
