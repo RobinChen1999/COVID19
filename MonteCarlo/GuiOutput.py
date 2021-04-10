@@ -12,11 +12,38 @@ from tkinter.filedialog import asksaveasfile
 from pathlib import Path
 
 import numpy as np
+import time
+
+
+def format_time(time_in_seconds):
+    seconds = round(time_in_seconds % 60)
+    minutes = int(time_in_seconds / 60) % 60
+    hours = int(time_in_seconds / 3600) % 60
+
+    formatted_time = ""
+
+    # Check if hours need to be displayed
+    if hours != 0:
+        # Add leading zero
+        if minutes < 10:
+            minutes = "0" + str(minutes)
+        formatted_time += str(hours) + ":" + str(minutes)
+    else:
+        formatted_time += str(minutes)
+
+    # Add leading zero
+    if seconds < 10:
+        seconds = "0" + str(seconds)
+
+    formatted_time += ":" + str(seconds)
+
+    return formatted_time
+
 
 class GuiOutput:
     window_width = 1600
     window_height = 800
-    plt.rcParams["figure.figsize"] = 6, 3
+    plt.rcParams["figure.figsize"] = 5, 3
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
@@ -32,9 +59,17 @@ class GuiOutput:
         self.draw_output_window()
         self.slider_value_old = 0
 
+        # Column weights
+        self.window.grid_columnconfigure(0, minsize=350)
+        self.window.grid_columnconfigure(1, weight=10)
+        # self.window.grid_columnconfigure(2, minsize=200)
+
         self.time = 0
         self.exposure = 0
         self.customer_graph_visible = False
+        self.last_updated_time = time.time()
+        self.time_per_step = 1
+        self.time_left = self.max_steps
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -56,6 +91,10 @@ class GuiOutput:
         self.lbl_sim.destroy()
         self.btn_terminate.destroy()
 
+        # Remove time_left counter
+        self.lbl_eta.destroy()
+        self.lbl_eta_value.destroy()
+
         self.store_plot = store_plot
         self.store_plot.init_canvas(self.frm_sim, self.canvas_height, self.ax_time, self.ax_customer_exposure, self.customer_canvas)
 
@@ -73,7 +112,7 @@ class GuiOutput:
         
         plt.ion()
         self.fig = plt.Figure(dpi=100)
-        self.fig.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        self.fig.subplots_adjust(bottom=0.15)
 
         self.ax_time = self.fig.add_subplot(111)
         self.ax_time.set_xlabel('Step')
@@ -167,8 +206,8 @@ class GuiOutput:
         self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
-        self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
-        self.canvas_height = self.window_width / 3
+        self.frm_sim = ttk.Frame(self.window)
+        self.canvas_height = 300
 
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
         lbl_id_sim.pack()
@@ -228,15 +267,21 @@ class GuiOutput:
         self.lbl_exposure_value = ttk.Label(self.frm_output)
         self.lbl_exposure_value.grid(row=i, column=1, sticky=value_stick)
 
+        self.lbl_eta = ttk.Label(self.frm_output, text='Estimated time left:', padding=(0, 12, 0, 0))
+        self.lbl_eta.grid(row=100, column=0, sticky=lbl_stick)
+        self.lbl_eta_value = ttk.Label(self.frm_output, padding=(0, 12, 0, 0))
+        self.lbl_eta_value.grid(row=100, column=1, sticky=value_stick)
+
         self.output_line_nr = i+1
 
         # Graph frame
         self.frm_graphs = ttk.Frame(self.window)
-        self.frm_graphs.grid(row=1, column=2, sticky='n')
+        self.frm_graphs.grid(row=1, column=2, sticky='ne')
 
         plt.ion()
         self.fig_graphs = plt.Figure(dpi=100)
-        self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        # self.fig_graphs.subplots_adjust(left=0.14, bottom=0.15, right=0.85)
+        self.fig_graphs.subplots_adjust(bottom=0.15)
 
         self.ax_customer = self.fig_graphs.add_subplot(111)
         self.ax_customer.set_xlabel('Step')
@@ -267,7 +312,7 @@ class GuiOutput:
         self.update_customer_plot_theme("breeze-dark")
         self.customer_canvas.get_tk_widget().pack()
 
-        self.frm_sim.grid(row=1, column=1, sticky="nw", padx=10)
+        self.frm_sim.grid(row=1, column=1, sticky="nwe")
 
         self.update_plot_theme(self.style.theme_use())
         self.update_customer_plot_theme(self.style.theme_use())
@@ -319,6 +364,9 @@ class GuiOutput:
 
     def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
+        # Update image size
+        self.canvas_height = 0.9 * self.frm_sim.winfo_width()
+
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
         else:
@@ -329,9 +377,23 @@ class GuiOutput:
                 exposure = self.ax_exposure.lines[0].get_ydata()[step]
 
             self.lbl_step_value.configure(text=step)
-            self.lbl_customers_value.configure(text=customers_in_store)
-            self.lbl_infected_value.configure(text=emitting_customers_in_store)
+            self.lbl_customers_value.configure(text=int(customers_in_store))
+            self.lbl_infected_value.configure(text=int(emitting_customers_in_store))
             self.lbl_exposure_value.configure(text=round(exposure, 3))
+
+            # Update estimated time left every {update_speed} steps
+            update_speed = 5
+            if step % update_speed == 0:
+                time_diff = time.time() - self.last_updated_time
+                self.time_per_step = time_diff / update_speed
+                time_left = (int(self.max_steps) - step) * self.time_per_step
+                self.time_left = time_left
+
+                self.last_updated_time = time.time()
+            else:
+                time_left = self.time_left - (step % update_speed) * self.time_per_step
+            self.lbl_eta_value.configure(text=format_time(time_left))
+
 
     def update_graph(self, step, customers_in_store, infected_customers, exposure):
         # Get only relevant data
