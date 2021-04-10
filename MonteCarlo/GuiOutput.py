@@ -248,9 +248,6 @@ class GuiOutput:
         self.frm_sim = ttk.Frame(self.window)
         self.canvas_height = 300
 
-        lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
-        lbl_id_sim.pack()
-
         # Aerosol meter
         frm_aerosol = ttk.Frame(self.window)
         for i in range(4):
@@ -261,7 +258,7 @@ class GuiOutput:
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
         aerosol_meter.grid(row=1, column=0, columnspan=4*4)
-        frm_aerosol.grid(row=0, column=1, padx=10)
+        frm_aerosol.grid(row=0, column=1, padx=10, pady=10)
 
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
