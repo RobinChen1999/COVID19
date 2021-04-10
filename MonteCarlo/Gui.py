@@ -385,11 +385,18 @@ class Gui:
         )
 
         if input_valid:
+            # Disable params
             for entry in self.params:
                 entry.config(state=tk.DISABLED)
+
+            self.scl_nr_exits.state(['disabled'])
+            self.scl_d_exits.state(['disabled'])
+
+            # Remove layout
             self.frm_layout.grid_forget()
             self.buttons_store_grid.grid_forget()
             btn_run.forget()
+
             self.outputGui = GuiOutput(self.root, frm_parameters, self.frm_buttons, simulation_params, self.count, customer_params["nr_customers"])
 
             def run_sim():
