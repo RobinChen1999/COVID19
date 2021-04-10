@@ -24,6 +24,7 @@ class GuiTabs:
         self.root.tk.call('source', 'theme/tkBreeze-master/breeze-dark/breeze-dark.tcl')
         self.style.theme_use('breeze')
         self.switch_theme()
+        
 
     def draw_window(self):
         self.root.title("Supermarket Spread")
@@ -54,8 +55,12 @@ class GuiTabs:
         btn_close_tab = ttk.Button(frm_buttons, text="Close Tab", command=self.close_tab)
         btn_close_tab.pack(side=tk.LEFT)
 
-        self.btn_switch_theme = ttk.Button(frame, text="    Switch Theme    ", command=self.switch_theme)
-        self.btn_switch_theme.grid(row=0, column=2, sticky="ne") #pack(side=tk.RIGHT, padx=10)
+        btn_frame = ttk.Frame(frame)
+        btn_help = ttk.Button(btn_frame, text="    Help    ", command=self.open_help)
+        self.btn_switch_theme = ttk.Button(btn_frame, text="    Switch Theme    ", command=self.switch_theme)
+        btn_help.pack(side=tk.RIGHT)
+        self.btn_switch_theme.pack(side=tk.RIGHT)
+        btn_frame.grid(row=0, column=2, sticky="ne")
         
         self.tab_control.insert(pos=pos, child=frame, text=name)
         if not pos == "end": 
@@ -130,3 +135,15 @@ class GuiTabs:
         self.style.configure('.', font=('Helvetica', 10))
 
         self.root.focus()
+
+    def open_help(self):
+        self.help_frame = ttk.Frame(self.root)
+        btn_close = ttk.Button(self.help_frame, text="Close", command=self.close_help)
+        btn_close.pack(anchor="ne")
+        message = ttk.Label(self.help_frame, text="HEEELLUUUUP")
+        message.pack()
+        self.help_frame.place(relheight=1, relwidth=1, relx=0, rely=0, bordermode=tk.INSIDE)
+        
+        
+    def close_help(self):
+        self.help_frame.place_forget()
