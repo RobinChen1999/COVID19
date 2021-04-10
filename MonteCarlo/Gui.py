@@ -287,8 +287,8 @@ class Gui:
                                      "max_shopping_list": max_shopping_list.get()
                                  },
                                  exit_params={
-                                     "nexits": nexits.get(),
-                                     "cashierd": cashierd.get()
+                                     "nexits": self.scl_nr_exits.get(),
+                                     "cashierd": self.scl_d_exits.get()
                                  },
                                  diffusion_params={
                                      "diff_coeff": diff_coeff.get(),
@@ -338,15 +338,6 @@ class Gui:
                 raise Exception()
         except:
             tk.messagebox.showerror("Error!", "Invalid input in Customer tab!")
-            return False
-
-        # Exit
-        try:
-            if self.lbl_exit_error.cget("text") != "":
-                raise Exception()
-            # Other validation is done in update_exits
-        except:
-            tk.messagebox.showerror("Error!", "Invalid input in Exits tab!")
             return False
 
         # Diffusion
