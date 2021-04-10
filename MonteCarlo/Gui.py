@@ -108,52 +108,39 @@ class Gui:
 
             return ent
 
-        # Simulation Tab
-        tab_simulation = ttk.Frame(input_tab_control)
+        def add_param_label(tab_root, row, text):
+            lbl = ttk.Label(tab_root, text=text, font=('Helvetica', 11), padding=(0, 8, 0, 0))
+            lbl.grid(row=row, column=0, columnspan=3)
 
-        seed = add_param_input(tab_simulation, 0, "Seed:", 888892,
+        # Default Tab
+        tab_default = ttk.Frame(input_tab_control)
+
+        add_param_label(tab_default, 0, "Simulation")
+
+        seed = add_param_input(tab_default, 1, "Seed:", 888892,
                                "The seed is the id of the simulation.\n"
                                "This is used when generating random variables.\n"
                                "Rerunning a simulation with the same seed will use the same random variables.\n"
                                "Should be an integer larger than 0.")
 
-        max_steps = add_param_input(tab_simulation, 1, "Max Steps:", 100,
+        max_steps = add_param_input(tab_default, 2, "Max Steps:", 100,
                                     "For how many steps the simulation will maximally run.\n"
                                     "Should be an integer larger than 0.")
 
-        # Customer Tab
-        tab_customer = ttk.Frame(input_tab_control)
+        add_param_label(tab_default, 10, "Customers")
 
-        nr_customers = add_param_input(tab_customer, 0, "Nr. of Customers:", 100,
+        nr_customers = add_param_input(tab_default, 11, "Nr. of Customers:", 100,
                                        "How many customers will enter the store.\n"
                                        "Should be an integer larger than 0.")
 
-        prob_new_customer = add_param_input(tab_customer, 1, "Prob. New Customer:", 0.2,
-                                            "Probability on each time step a new customer will enter the store.\n"
-                                            "Should be a number between 0 and 1.")
-
-        prob_inf_customer = add_param_input(tab_customer, 2, "Prob. Infected Customer:", 0.01,
+        prob_inf_customer = add_param_input(tab_default, 12, "Prob. Infected Customer:", 0.01,
                                             "Probability of a new customer being infected.\n"
                                             "Should be a number between 0 and 1.")
 
-        prob_block_random_step = add_param_input(tab_customer, 3, "Prob. Random Step:", 0.8,
-                                                 "Probability of customer taking a random step when their path is blocked.\n"
-                                                 "Should be a number between 0 and 1.")
+        add_param_label(tab_default, 20, "Entrance / Exits")
 
-        prob_cough = add_param_input(tab_customer, 4, "Prob. Cough:", 0.0003,
-                                     "Probability of a customer coughing per step.\n"
-                                     "Should be a number between 0 and 1.")
-
-        plume_conc_cough = add_param_input(tab_customer, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
-                                           "Aerosol concentration when a customer coughs.\n"
-                                           "Should be a number larger than 0.")
-
-        max_shopping_list = add_param_input(tab_customer, 6, "Max Items on Shopping List:", 20,
-                                            "Maximum number of items on a customer's shopping list.\n"
-                                            "Should be an integer larger than 0.")
-
-        # Exits Tab
-        tab_exit = ttk.Frame(input_tab_control)
+        frm_entrance_exit = ttk.Frame(tab_default)
+        frm_entrance_exit.grid(row=21, column=0, columnspan=3)
 
         def handle_nr_exits(value):
             if not float(value) % 1 == 0:
@@ -188,9 +175,9 @@ class Gui:
                 self.scl_d_exits.set(d_exits)
 
         # Column Weights
-        tab_exit.columnconfigure(0, weight=1)
-        tab_exit.columnconfigure(1, weight=1)
-        tab_exit.columnconfigure(2, weight=1)
+        frm_entrance_exit.columnconfigure(0, weight=1)
+        frm_entrance_exit.columnconfigure(1, weight=1)
+        frm_entrance_exit.columnconfigure(2, weight=1)
 
         # Initial values
         initial_nr_exits = params['NEXITS']
@@ -200,51 +187,58 @@ class Gui:
 
         self.update_layout_entrance_exits(initial_nr_exits, initial_d_exits)
 
-        lbl_nr_exits = ttk.Label(tab_exit, text="Number of exits:")
+        lbl_nr_exits = ttk.Label(frm_entrance_exit, text="Number of exits:")
         lbl_nr_exits.grid(row=0, column=0, sticky='w', padx=10, pady=10)
 
-        self.lbl_nr_exits_value = ttk.Label(tab_exit, text=initial_nr_exits)
+        self.lbl_nr_exits_value = ttk.Label(frm_entrance_exit, text=initial_nr_exits)
         self.lbl_nr_exits_value.grid(row=0, column=1)
 
-        self.scl_nr_exits = ttk.Scale(tab_exit, length=100, orient=tk.HORIZONTAL, from_=1, to=initial_allowed_nr_exits,
+        self.scl_nr_exits = ttk.Scale(frm_entrance_exit, length=100, orient=tk.HORIZONTAL, from_=1, to=initial_allowed_nr_exits,
                                       value=initial_nr_exits, command=handle_nr_exits)
         self.scl_nr_exits.grid(row=0, column=2, sticky='e', padx=10)
 
-        lbl_d_exits = ttk.Label(tab_exit, text="Distance between exits:")
+        lbl_d_exits = ttk.Label(frm_entrance_exit, text="Distance between exits:")
         lbl_d_exits.grid(row=1, column=0, sticky='w', padx=10)
 
-        self.lbl_d_exits_value = ttk.Label(tab_exit, text=initial_d_exits)
+        self.lbl_d_exits_value = ttk.Label(frm_entrance_exit, text=initial_d_exits)
         self.lbl_d_exits_value.grid(row=1, column=1)
 
-        self.scl_d_exits = ttk.Scale(tab_exit, length=100, orient=tk.HORIZONTAL, from_=3, to=initial_allowed_d_exits,
+        self.scl_d_exits = ttk.Scale(frm_entrance_exit, length=100, orient=tk.HORIZONTAL, from_=3, to=initial_allowed_d_exits,
                                       value=initial_d_exits, command=handle_d_exits)
         self.scl_d_exits.grid(row=1, column=2, sticky='e', padx=10)
 
-        frm_entrance_exit_info = ttk.Frame(tab_exit)
-        frm_entrance_exit_info.grid(row=10, column=0, columnspan=3, sticky="we")
-        frm_entrance_exit_info.columnconfigure(0, weight=1)
-        frm_entrance_exit_info.columnconfigure(1, weight=5)
+        # Advanced Tab
+        tab_advanced = ttk.Frame(input_tab_control)
 
-        frm_entrance_color = tk.Frame(frm_entrance_exit_info, background='red', width=20, height=10)
-        frm_entrance_color.grid(row=0, column=0, pady=10)
+        add_param_label(tab_advanced, 0, "Customers")
 
-        lbl_entrance_color = ttk.Label(frm_entrance_exit_info, text="Entrance")
-        lbl_entrance_color.grid(row=0, column=1, sticky='w')
+        prob_new_customer = add_param_input(tab_advanced, 1, "Prob. New Customer:", 0.2,
+                                            "Probability on each time step a new customer will enter the store.\n"
+                                            "Should be a number between 0 and 1.")
 
-        frm_exit_color = tk.Frame(frm_entrance_exit_info, background='blue', width=20, height=10)
-        frm_exit_color.grid(row=1, column=0, pady=10)
+        prob_block_random_step = add_param_input(tab_advanced, 3, "Prob. Random Step:", 0.8,
+                                                 "Probability of customer taking a random step when their path is blocked.\n"
+                                                 "Should be a number between 0 and 1.")
 
-        lbl_exit_color = ttk.Label(frm_entrance_exit_info, text="Exit")
-        lbl_exit_color.grid(row=1, column=1, sticky='w')
+        prob_cough = add_param_input(tab_advanced, 4, "Prob. Cough:", 0.0003,
+                                     "Probability of a customer coughing per step.\n"
+                                     "Should be a number between 0 and 1.")
 
-        # Diffusion Tab
-        tab_diffusion = ttk.Frame(input_tab_control)
+        plume_conc_cough = add_param_input(tab_advanced, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
+                                           "Aerosol concentration when a customer coughs.\n"
+                                           "Should be a number larger than 0.")
 
-        diff_coeff = add_param_input(tab_diffusion, 0, "Diffusion Coefficient:", params["DIFFCOEFF"],
+        max_shopping_list = add_param_input(tab_advanced, 6, "Max Items on Shopping List:", 20,
+                                            "Maximum number of items on a customer's shopping list.\n"
+                                            "Should be an integer larger than 0.")
+
+        add_param_label(tab_advanced, 10, "Diffusion")
+
+        diff_coeff = add_param_input(tab_advanced, 11, "Diffusion Coefficient:", params["DIFFCOEFF"],
                                      "The magnitude of the molar flux through a surface per unit concentration gradient out-of-plane.\n"
                                      "Should be a number between 0 and 1.")
 
-        acsinkcoeff = add_param_input(tab_diffusion, 1, "Sink Coefficient:", params["ACSINKCOEFF"],
+        acsinkcoeff = add_param_input(tab_advanced, 12, "Sink Coefficient:", params["ACSINKCOEFF"],
                                       "Coefficient for the sink term of the form: -k*c.\n"
                                       "Should be a number between 0 and 1.")
 
@@ -258,10 +252,8 @@ class Gui:
                                           "Continuous aerosol emission.")
 
         # Add all tabs
-        input_tab_control.add(tab_simulation, text="Simulation")
-        input_tab_control.add(tab_customer, text="Customer")
-        input_tab_control.add(tab_exit, text="Exits")
-        input_tab_control.add(tab_diffusion, text="Diffusion")
+        input_tab_control.add(tab_default, text="Default")
+        input_tab_control.add(tab_advanced, text="Advanced")
         # input_tab_control.add(tab_plume, text="Plume")
 
         input_tab_control.pack(fill=tk.BOTH)
