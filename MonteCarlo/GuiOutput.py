@@ -275,7 +275,7 @@ class GuiOutput:
         i = 0
         lbl_stick = 'w'
         value_stick = 'e'
-        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center')
+        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center', font=('Helvetica', 11))
         self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='we')
         i+=1
 
