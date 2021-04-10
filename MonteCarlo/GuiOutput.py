@@ -47,11 +47,11 @@ class GuiOutput:
 
     def __init__(self, output_window, frm_parameters, frm_buttons, simulation_params, sim_id, nr_customers):
         self.simulating = True
+        self.sim_playing = tk.BooleanVar(False)
         self.max_steps = simulation_params["max_steps"]
         self.seed = simulation_params["seed"]
         self.id = sim_id
-        self.sim_terminated = tk.BooleanVar()
-        self.sim_terminated.set(False)
+        self.sim_terminated = tk.BooleanVar(False)
         self.window = output_window
         self.style = ttk.Style(self.window)
         self.frm_parameters = frm_parameters
@@ -75,6 +75,11 @@ class GuiOutput:
         self.t = threading.Thread(target=self.load_figures)
         self.t.setDaemon(True)
         self.t.start()
+
+        # Create a thread for playing the simulation
+        # self.thread_play = threading.Thread(target=self.play_simulation, daemon=True)
+        # self.thread_play.setDaemon(True)
+        self.threads = []
 
         
     def terminate_sim(self):
@@ -104,8 +109,19 @@ class GuiOutput:
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
         self.slider.pack()
+
+        frm_play_btns = ttk.Frame(self.frm_sim)
+        btn_prev = ttk.Button(frm_play_btns, text="Prev", command=lambda: self.handle_play_buttons(-1))
+        btn_prev.pack(side=tk.LEFT)
+        self.btn_play = ttk.Button(frm_play_btns, text="Play", command=lambda: self.handle_play_buttons(0))
+        self.btn_play.pack(side=tk.LEFT)
+        btn_next = ttk.Button(frm_play_btns, text="Next", command=lambda: self.handle_play_buttons(1))
+        btn_next.pack(side=tk.LEFT)
+        frm_play_btns.pack()
+
         btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
         btn_export.pack(side=tk.LEFT, padx=10)
+
 
     # initialize the graph for customer details
     def init_customer_graph(self):
@@ -160,6 +176,37 @@ class GuiOutput:
                 self.window.after(10, var.set, 1)
                 self.window.wait_variable(var)
                 self.update_step(round(value))
+
+    # handle the "Prev", "Play" and "Next" buttons
+    def handle_play_buttons(self, value):
+        if value == 0:      # play button clicked
+            if self.sim_playing.get():
+                self.sim_playing.set(False)
+                self.btn_play.config(text="Play")
+            else:
+                self.sim_playing.set(True)
+                self.btn_play.config(text="Pause")
+                t = threading.Thread(target=self.play_simulation, daemon=True).start()
+        else:               # if prev = -1 or next = 1 clicked
+            self.sim_playing.set(False)
+            next_step = int(self.slider.get() + value)
+            if 0 <= next_step and next_step < int(self.max_steps):
+                self.slider.set(next_step)
+                self.update_step(next_step)
+            self.window.focus()
+    
+    def play_simulation(self):
+        step = int(self.slider.get())
+        speed = max(2/int(self.max_steps), 0.005)
+        while self.sim_playing.get():
+            step += 1
+            if step >= int(self.max_steps):
+                self.sim_playing.set(False)
+                self.btn_play.config(text="Play")
+                break
+            self.slider.set(step)
+            self.update_step(step)
+            time.sleep(speed)
 
     def update_step(self, value):
         self.store_plot.update_figure(str(value))
