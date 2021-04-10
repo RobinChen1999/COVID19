@@ -242,19 +242,9 @@ class Gui:
                                       "Coefficient for the sink term of the form: -k*c.\n"
                                       "Should be a number between 0 and 1.")
 
-        # Plume Tab
-        tab_plume = ttk.Frame(input_tab_control)
-
-        plume_lifetime = add_param_input(tab_plume, 0, "Plume Lifetime:", params["PLUMELIFETIME"],
-                                         "Lifetime of plume for discrete plumes without diffusion.")
-
-        plume_conc_cont = add_param_input(tab_plume, 2, "Continuous Aerosol Emission:", params["PLUMECONCCONT"],
-                                          "Continuous aerosol emission.")
-
         # Add all tabs
         input_tab_control.add(tab_default, text="Default")
         input_tab_control.add(tab_advanced, text="Advanced")
-        # input_tab_control.add(tab_plume, text="Plume")
 
         input_tab_control.pack(fill=tk.BOTH)
 
@@ -286,11 +276,6 @@ class Gui:
                                      "diff_coeff": diff_coeff.get(),
                                      "acsinkcoeff": acsinkcoeff.get()
                                  },
-                                 plume_params={
-                                     "plume_lifetime": plume_lifetime.get(),
-                                     "plume_conc_cough": plume_conc_cough.get(),
-                                     "plume_conc_cont": plume_conc_cont.get()
-                                 },
                                  store_layout=self.store_layout_canvas,
                                  btn_run=btn_run,
                                  frm_parameters=frm_parameters
@@ -301,7 +286,7 @@ class Gui:
         frm_parameters.grid(row=1, column=0, sticky="nw")
         
 
-    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
+    def validate_input(self, simulation_params, customer_params, diffusion_params, store_empty):
         # Simulation
         try:
             int_seed = int(simulation_params["seed"])
@@ -344,18 +329,6 @@ class Gui:
             tk.messagebox.showerror("Error!", "Invalid input in Diffusion tab!")
             return False
 
-        # Plume
-        try:
-            int_plume_lifetime = int(plume_params["plume_lifetime"])
-            float_plume_conc_cough = float(plume_params["plume_conc_cough"])
-            float_plume_conc_cont = float(plume_params["plume_conc_cont"])
-
-            if any(x <= 0 for x in (int_plume_lifetime, float_plume_conc_cough, float_plume_conc_cont)):
-                raise Exception()
-        except:
-            tk.messagebox.showerror("Error!", "Invalid input in Plume tab!")
-            return False
-
         # Empty store
         if store_empty:
             tk.messagebox.showerror("Error!", "The store is empty! Please add at least one shelf.")
@@ -364,7 +337,7 @@ class Gui:
         else:
             return True
 
-    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
+    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params,
                        store_layout, btn_run, frm_parameters):
         self.simulating = True
 
@@ -372,7 +345,6 @@ class Gui:
             simulation_params=simulation_params,
             customer_params=customer_params,
             diffusion_params=diffusion_params,
-            plume_params=plume_params,
             store_empty=store_layout.check_store_empty()
         )
 
@@ -407,11 +379,6 @@ class Gui:
                 # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
                 params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
-
-                # Plume
-                params["PLUMELIFETIME"] = int(plume_params["plume_lifetime"])
-                params["PLUMECONCINC"] = float(plume_params["plume_conc_cough"])
-                params["PLUMECONCCONT"] = float(plume_params["plume_conc_cont"])
 
                 os.environ["PARAMS"] = str(params)
 
