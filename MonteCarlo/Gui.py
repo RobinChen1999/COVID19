@@ -70,9 +70,14 @@ class Gui:
         btn_grid.pack(side=tk.LEFT, padx=20)
 
         btn_clear_shelves = ttk.Button(self.buttons_store_grid,
-                                       text="Remove all shelves",
+                                       text="Remove All Shelves",
                                        command=self.store_layout_canvas.clear_shelves)
         btn_clear_shelves.pack(side=tk.RIGHT)
+
+        btn_default_layout = ttk.Button(self.buttons_store_grid,
+                                       text="Draw Default Layout",
+                                       command=self.store_layout_canvas.draw_initial_layout)
+        btn_default_layout.pack(side=tk.RIGHT)
 
         # Parameters tab
         column_size_text = 200
@@ -391,8 +396,8 @@ class Gui:
                 sim = Simulation(
                     self.outputGui,
                     int(simulation_params["seed"]),
-                    101,
-                    101,
+                    100,
+                    100,
                     25,
                     int(customer_params["nr_customers"]),
                     outputLevel=1,

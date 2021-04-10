@@ -382,21 +382,21 @@ class Simulation:
 
 	## when output level 1, the store is plotted to files with seed and simulation time step as keys
 	def printStore(self, step, title):
-		fig = plt.figure(figsize=(11,12))
+		fig = plt.figure(figsize=(12,12))
 
 		# first plot the static store structures
-		ax = fig.add_axes([0, 0.07, 1, 1])
+		ax = fig.add_axes([0, 0, 1, 1])
 
-		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
-		ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
+		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=20)
+		# ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
 
 		for i,s in enumerate(self.store.exit):
-			ax.plot(s[0], s[1], 'bs', ms=10)
-			ax.text(s[0], s[1]-4, "exit",color=(0.5, 0.5, 0.5))
+			ax.plot(s[0], s[1], 'bs', ms=20)
+			# ax.text(s[0], s[1]-4, "exit",color=(0.5, 0.5, 0.5))
 
 		# plot the plumes
 		if not self.useDiffusion:
-			ax.plot(np.argwhere(self.store.plumes>0)[:,0],np.argwhere(self.store.plumes>0)[:,1],'rs',ms=10 )
+			ax.plot(np.argwhere(self.store.plumes>0)[:,0],np.argwhere(self.store.plumes>0)[:,1],'rs',ms=20 )
 		else:
 			x = np.linspace(0.,self.store.Lx-1,self.store.Lx)
 			y = np.linspace(0.,self.store.Ly-1,self.store.Ly)
@@ -414,8 +414,8 @@ class Simulation:
 			cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
 			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower', cmap=cm)
-			ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
-			ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
+			# ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
+			# ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
 
 		# add every cutomer to the plot,and the colour denotes infected and healthy customers
 		for i,c in enumerate(self.customers):

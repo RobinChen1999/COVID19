@@ -168,7 +168,7 @@ class GuiOutput:
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window, height=self.window_height, width=self.window_width / 2)
-        self.canvas_height = self.window_height / 2
+        self.canvas_height = self.window_width / 3
 
         lbl_id_sim = ttk.Label(self.frm_sim, text="Simulation")
         lbl_id_sim.pack()
