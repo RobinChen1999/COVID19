@@ -163,19 +163,10 @@ class GuiOutput:
 
     # Handle slider response
     def slider_handler(self, value):
-        value = float(value)
-        if value != self.slider_value_old:
-            value = round(value)
-            x = False
-            if value != self.slider_value_old:
-                x = True
-            self.slider_value_old = value
-            self.slider.set(value)
-            if x:
-                var = tk.IntVar()
-                self.window.after(10, var.set, 1)
-                self.window.wait_variable(var)
-                self.update_step(round(value))
+        if not float(value) % 1 == 0:
+            scl_step = round(float(value))
+            self.update_step(scl_step)
+            self.slider.set(scl_step)
 
     # handle the "Prev", "Play" and "Next" buttons
     def handle_play_buttons(self, value):
