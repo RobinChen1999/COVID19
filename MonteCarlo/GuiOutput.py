@@ -365,7 +365,7 @@ class GuiOutput:
     def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
         # Update image size
-        self.canvas_height = 0.9 * self.frm_sim.winfo_width()
+        self.canvas_height = 0.75 * self.frm_sim.winfo_width()
 
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
