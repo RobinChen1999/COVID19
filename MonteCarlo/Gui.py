@@ -276,6 +276,9 @@ class Gui:
                                      "diff_coeff": diff_coeff.get(),
                                      "acsinkcoeff": acsinkcoeff.get()
                                  },
+                                 plume_params={
+                                     "plume_conc_cough": plume_conc_cough.get()
+                                 },
                                  store_layout=self.store_layout_canvas,
                                  btn_run=btn_run,
                                  frm_parameters=frm_parameters
@@ -286,7 +289,7 @@ class Gui:
         frm_parameters.grid(row=1, column=0, sticky="nw")
         
 
-    def validate_input(self, simulation_params, customer_params, diffusion_params, store_empty):
+    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Default
         try:
             int_seed = int(simulation_params["seed"])
@@ -315,8 +318,10 @@ class Gui:
             float_diff_coeff = float(diffusion_params["diff_coeff"])
             float_acsinkcoeff = float(diffusion_params["acsinkcoeff"])
 
+            float_plume_conc_cough = float(plume_params["plume_conc_cough"])
+
             if any(x <= 0 for x in (
-                    float_prob_new_customer, float_prob_block_random_step,
+                    float_prob_new_customer, float_prob_block_random_step, float_plume_conc_cough,
                     float_prob_cough, int_max_shopping_list, float_diff_coeff, float_acsinkcoeff)) \
                     or any(x >= 1 for x in (float_prob_new_customer, float_prob_block_random_step, float_prob_cough,
                                             float_diff_coeff, float_acsinkcoeff)):
@@ -333,7 +338,7 @@ class Gui:
         else:
             return True
 
-    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params,
+    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
                        store_layout, btn_run, frm_parameters):
         self.simulating = True
 
@@ -341,6 +346,7 @@ class Gui:
             simulation_params=simulation_params,
             customer_params=customer_params,
             diffusion_params=diffusion_params,
+            plume_params=plume_params,
             store_empty=store_layout.check_store_empty()
         )
 
@@ -375,6 +381,9 @@ class Gui:
                 # Diffusion
                 params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
                 params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
+
+                # Plume
+                params["PLUMECONCINC"] = float(plume_params["plume_conc_cough"])
 
                 os.environ["PARAMS"] = str(params)
 
