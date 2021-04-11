@@ -31,6 +31,7 @@ class Simulation:
 	def __init__(self, gui, seed, Lx,Ly, nShelves, nCustomers=1, probNewCustomer=0.1, probInfCustomer=0.05, nPlumes=20, maxSteps=1000, outputLevel=0, importGeometry=1, useDiffusion=0, imageName="test.pbm", dx=1.0):
 		# Set gui
 		self.gui = gui
+		self.gui.update_status_detail('Initializing')
 
 		# Set Params
 		params = eval(os.environ["PARAMS"])
@@ -363,7 +364,7 @@ class Simulation:
 		self.np_time = np.zeros([self.maxSteps, self.nCustomers])
 		self.np_exposure = np.zeros([self.maxSteps, self.nCustomers])
 
-		# self.gui.update_output("Done")
+		self.gui.update_status_detail('Calculating step')
 
 
 	## adds a new customer to the store
@@ -444,6 +445,7 @@ class Simulation:
 
 	## save a .dat file of the customer output
 	def printEndStatistics(self):
+		self.gui.update_status_detail('Generating video')
 		self.generateVideo()
 
 		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore), self.NEXITS, self.PROBSREADPLUME)
@@ -464,7 +466,8 @@ class Simulation:
 
 		store_plot = StorePlot(store=self.store, gui=self.gui, customers=self.allCustomers, time=self.np_time, exposure=self.np_exposure, norm_exposure=self.norm_exposure,
 								parula_map=self.parula_map, useDiffusion=self.useDiffusion, seed=self.seed, sim_id=self.gui.id)
-		
+
+		self.gui.update_status_detail(self.finish_reason)
 		return store_plot
 
 	def generateVideo(self):
@@ -599,18 +602,18 @@ class Simulation:
 				## end condition
 				if not self.nCustomers and not len(self.customers):
 					print("All customers have visited the store")
-					self.gui.update_status_detail('All customers have visited the store')
+					self.finish_reason = 'All customers have visited the store'
 					self.gui.max_steps = i
 					return self.printEndStatistics()
 			
 			else:
-				self.gui.update_status_detail('Terminated')
+				self.finish_reason = 'Terminated'
 				self.gui.max_steps = i
 				break
 		
 		if not self.gui.sim_terminated.get():
 			print("Reached the step limit")
-			self.gui.update_status_detail('Reached the step limit')
+			self.finish_reason = 'Reached the step limit'
 		
 		return self.printEndStatistics()
 

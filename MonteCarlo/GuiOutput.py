@@ -93,7 +93,6 @@ class GuiOutput:
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.lbl_status.config(text="Simulation Finished!")
-        self.lbl_status_detail.grid()
         self.lbl_sim.destroy()
         self.btn_terminate.destroy()
 
@@ -278,13 +277,12 @@ class GuiOutput:
         i = 0
         lbl_stick = 'w'
         value_stick = 'e'
-        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center', font=('Helvetica', 11))
+        self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center', font=('Helvetica', 11, 'bold'))
         self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='we')
         i+=1
 
-        self.lbl_status_detail = ttk.Label(self.frm_output, text='', anchor='center')
+        self.lbl_status_detail = ttk.Label(self.frm_output, text='', anchor='center', font=('Helvetica', 8, 'italic'))
         self.lbl_status_detail.grid(row=i, column=0, columnspan=2, sticky='we')
-        self.lbl_status_detail.grid_remove()
         i+=1
 
         lbl_linebreak = ttk.Label(self.frm_output, text="")
