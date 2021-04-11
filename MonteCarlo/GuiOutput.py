@@ -108,15 +108,18 @@ class GuiOutput:
         ttk.Style().configure('my.Horizontal.TScale', sliderlength=length, tickinterval=1)
         self.slider = ttk.Scale(self.frm_sim, from_=0, to=steps, length=int(self.canvas_height),
                                 style='my.Horizontal.TScale', orient=tk.HORIZONTAL, command=self.slider_handler)
-        self.slider.pack()
+        self.slider.pack(pady=3)
 
+        self.style.configure('Play.TButton', foreground='#cccccc', font=('Helvetica', 12, 'bold'))
+        self.style.configure('PrevNext.TButton', font=('Helvetica', 12, 'bold'))
+        btn_width=  4
         frm_play_btns = ttk.Frame(self.frm_sim)
-        btn_prev = ttk.Button(frm_play_btns, text="Prev", command=lambda: self.handle_play_buttons(-1))
-        btn_prev.pack(side=tk.LEFT)
-        self.btn_play = ttk.Button(frm_play_btns, text="Play", command=lambda: self.handle_play_buttons(0))
-        self.btn_play.pack(side=tk.LEFT)
-        btn_next = ttk.Button(frm_play_btns, text="Next", command=lambda: self.handle_play_buttons(1))
-        btn_next.pack(side=tk.LEFT)
+        btn_prev = ttk.Button(frm_play_btns, style="PrevNext.TButton", text="<<", width=btn_width, command=lambda: self.handle_play_buttons(-1))
+        btn_prev.pack(side=tk.LEFT, padx=btn_width)
+        self.btn_play = ttk.Button(frm_play_btns, style="Play.TButton", width=btn_width, text="►", command=lambda: self.handle_play_buttons(0))
+        self.btn_play.pack(side=tk.LEFT, padx=btn_width)
+        btn_next = ttk.Button(frm_play_btns, style="PrevNext.TButton", text=">>", width=btn_width, command=lambda: self.handle_play_buttons(1))
+        btn_next.pack(side=tk.LEFT, padx=btn_width)
         frm_play_btns.pack()
 
         btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
@@ -175,10 +178,10 @@ class GuiOutput:
         if value == 0:      # play button clicked
             if self.sim_playing.get():
                 self.sim_playing.set(False)
-                self.btn_play.config(text="Play")
+                self.btn_play.config(text="▶")
             else:
                 self.sim_playing.set(True)
-                self.btn_play.config(text="Pause")
+                self.btn_play.config(text="▮▮")
                 t = threading.Thread(target=self.play_simulation, daemon=True).start()
         else:               # if prev = -1 or next = 1 clicked
             self.sim_playing.set(False)
@@ -195,7 +198,7 @@ class GuiOutput:
             step += 1
             if step >= int(self.max_steps):
                 self.sim_playing.set(False)
-                self.btn_play.config(text="Play")
+                self.btn_play.config(text="▶")
                 break
             self.slider.set(step)
             self.update_step(step)
@@ -407,7 +410,7 @@ class GuiOutput:
     def update_displayed_step(self, step, customers_in_store=-1, emitting_customers_in_store=-1,
                               exposure=-1):
         # Update image size
-        self.canvas_height = 0.75 * self.frm_sim.winfo_width()
+        self.canvas_height = 0.85 * self.frm_sim.winfo_width()
 
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
