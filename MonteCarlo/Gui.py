@@ -243,7 +243,7 @@ class Gui:
                                       "Should be a number between 0 and 1.")
 
         # Add all tabs
-        input_tab_control.add(tab_default, text="Default")
+        input_tab_control.add(tab_default, text="Options")
         input_tab_control.add(tab_advanced, text="Advanced")
 
         input_tab_control.pack(fill=tk.BOTH)
