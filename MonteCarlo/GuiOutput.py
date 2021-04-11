@@ -87,13 +87,13 @@ class GuiOutput:
         figureList = glob.glob('simFigures/simFigure_%d_%s_*' % (self.id, self.seed) + '.png')
         if len(figureList) > 1:
             self.sim_terminated.set(True)
-            self.lbl_status.config(text="Simulation Terminated!")
             self.btn_terminate.destroy()
         self.window.focus()
 
     # updates output window after simulation is done
     def update_on_sim_finished(self, store_plot):
         self.lbl_status.config(text="Simulation Finished!")
+        self.lbl_status_detail.grid()
         self.lbl_sim.destroy()
         self.btn_terminate.destroy()
 
@@ -278,6 +278,11 @@ class GuiOutput:
         value_stick = 'e'
         self.lbl_status = ttk.Label(self.frm_output, text="Simulating...", anchor='center', font=('Helvetica', 11))
         self.lbl_status.grid(row=i, column=0, columnspan=2, sticky='we')
+        i+=1
+
+        self.lbl_status_detail = ttk.Label(self.frm_output, text='', anchor='center')
+        self.lbl_status_detail.grid(row=i, column=0, columnspan=2, sticky='we')
+        self.lbl_status_detail.grid_remove()
         i+=1
 
         lbl_linebreak = ttk.Label(self.frm_output, text="")
@@ -560,6 +565,10 @@ class GuiOutput:
         self.fig.suptitle('Clicked Customer', color=color_axes)
 
         self.customer_canvas.draw_idle()
+
+    def update_status_detail(self, text):
+        self.lbl_status_detail.config(text=text)
+
 
 class ToolTip(object):
     def __init__(self, widget):

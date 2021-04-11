@@ -599,21 +599,18 @@ class Simulation:
 				## end condition
 				if not self.nCustomers and not len(self.customers):
 					print("All customers have visited the store")
-					self.gui.update_output("")
-					self.gui.update_output("All customers have visited the store")
+					self.gui.update_status_detail('All customers have visited the store')
 					self.gui.max_steps = i
 					return self.printEndStatistics()
 			
 			else:
-				self.gui.update_output("")
-				self.gui.update_output("Simulation terminated!")
+				self.gui.update_status_detail('Terminated')
 				self.gui.max_steps = i
 				break
 		
 		if not self.gui.sim_terminated.get():
 			print("Reached the step limit")
-			self.gui.update_output("")
-			self.gui.update_output("Reached the step limit!")
+			self.gui.update_status_detail('Reached the step limit')
 		
 		return self.printEndStatistics()
 
