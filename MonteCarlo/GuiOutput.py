@@ -275,8 +275,30 @@ class GuiOutput:
         self.frm_output_frame = ttk.Frame(self.notebook_output)
         self.notebook_output.add(self.frm_output_frame, text='Output')
 
-        self.frm_event = ttk.Frame(self.notebook_output)
-        self.notebook_output.add(self.frm_event, text="Cough Event")
+        # scrollable canvas for cough event
+        container = ttk.Frame(self.notebook_output)
+        self.notebook_output.add(container, text="Cough Event")
+        
+        # container = ttk.Frame(frm_tab)
+        canvas = tk.Canvas(container, height=200)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        self.frm_event = ttk.Frame(canvas)
+
+        self.frm_event.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.frm_event, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+
         self.lbl_no_event = ttk.Label(self.frm_event, text="There is no cough event yet.")
         self.lbl_no_event.grid(row=0, column=0, sticky="w", padx=10, pady=10)
         self.cough_line_nr = None
