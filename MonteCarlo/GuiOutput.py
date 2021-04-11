@@ -279,11 +279,11 @@ class GuiOutput:
         container = ttk.Frame(self.notebook_output)
         self.notebook_output.add(container, text="Cough Event")
         
-        # container = ttk.Frame(frm_tab)
         canvas = tk.Canvas(container, height=200)
         scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
         self.frm_event = ttk.Frame(canvas)
 
+        # resize scrollregion every time a label is added to the frame
         self.frm_event.bind(
             "<Configure>",
             lambda e: canvas.configure(
@@ -291,14 +291,19 @@ class GuiOutput:
             )
         )
 
-        canvas.create_window((0, 0), window=self.frm_event, anchor="nw")
+        # bind scrolling with mousewheel
+        def handle_scroll(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind("<MouseWheel>", handle_scroll)
 
+        # the canvas window that handles which part of the frame is shown 
+        canvas.create_window((0, 0), window=self.frm_event, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-
+        # placeholder in frame without cough event
         self.lbl_no_event = ttk.Label(self.frm_event, text="There is no cough event yet.")
         self.lbl_no_event.grid(row=0, column=0, sticky="w", padx=10, pady=10)
         self.cough_line_nr = None
