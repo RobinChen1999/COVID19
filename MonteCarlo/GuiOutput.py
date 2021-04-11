@@ -268,10 +268,20 @@ class GuiOutput:
         self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
         self.lbl_sim.pack()
 
-        # Output frame
-        self.frm_output_frame = ttk.LabelFrame(self.frm_parameters, text='Output')
-        self.frm_output_frame.pack(fill=tk.BOTH, pady=10)
+        # Notebook tab for output and cough event
+        notebook_output = ttk.Notebook(self.frm_parameters)
+        notebook_output.pack(fill=tk.BOTH, pady=10)
 
+        self.frm_output_frame = ttk.Frame(notebook_output)
+        notebook_output.add(self.frm_output_frame, text='Output')
+
+        self.frm_event = ttk.Frame(self.frm_parameters)
+        notebook_output.add(self.frm_event, text="Cough Event")
+        self.lbl_no_event = ttk.Label(self.frm_event, text="There is no cough event yet.")
+        self.lbl_no_event.grid(row=0, column=0, sticky="w")
+        self.cough_line_nr = None
+        
+        # Output frame
         self.frm_output = ttk.Frame(self.frm_output_frame)
         self.frm_output.pack(fill=tk.BOTH, padx=10, pady=5)
         self.frm_output.grid_columnconfigure(0, weight=1)
@@ -377,12 +387,8 @@ class GuiOutput:
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
-        if not hasattr(self, 'cough_line_nr'):
-            ### cough event ###
-            self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
-            self.frm_event.pack(fill=tk.BOTH)
-            self.cough_line_nr = 0
-
+        if self.cough_line_nr == None:
+            self.lbl_no_event.destroy()
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
         lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
