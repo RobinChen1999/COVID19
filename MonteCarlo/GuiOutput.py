@@ -123,6 +123,8 @@ class GuiOutput:
         btn_export = ttk.Button(self.frm_buttons, text="Export Video", command=lambda: self.save_file())
         btn_export.pack(side=tk.LEFT, padx=10)
 
+        self.update_displayed_step(0)
+
 
     # initialize the graph for customer details
     def init_customer_graph(self):
