@@ -269,16 +269,16 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Notebook tab for output and cough event
-        notebook_output = ttk.Notebook(self.frm_parameters)
-        notebook_output.pack(fill=tk.BOTH, pady=10)
+        self.notebook_output = ttk.Notebook(self.frm_parameters)
+        self.notebook_output.pack(fill=tk.BOTH, pady=10)
 
-        self.frm_output_frame = ttk.Frame(notebook_output)
-        notebook_output.add(self.frm_output_frame, text='Output')
+        self.frm_output_frame = ttk.Frame(self.notebook_output)
+        self.notebook_output.add(self.frm_output_frame, text='Output')
 
-        self.frm_event = ttk.Frame(self.frm_parameters)
-        notebook_output.add(self.frm_event, text="Cough Event")
+        self.frm_event = ttk.Frame(self.notebook_output)
+        self.notebook_output.add(self.frm_event, text="Cough Event")
         self.lbl_no_event = ttk.Label(self.frm_event, text="There is no cough event yet.")
-        self.lbl_no_event.grid(row=0, column=0, sticky="w")
+        self.lbl_no_event.grid(row=0, column=0, sticky="w", padx=10, pady=10)
         self.cough_line_nr = None
         
         # Output frame
@@ -387,12 +387,20 @@ class GuiOutput:
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
+        pady = 1
+        # on first cough event, destroy placeholder label
         if self.cough_line_nr == None:
             self.lbl_no_event.destroy()
+            self.cough_line_nr = 0
+            pady = 6
+        # add cough event
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
-        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
+        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10, pady=[pady,0])
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
-        lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=10)
+        lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=20, pady=[pady,0])
+        # change tab label
+        name = "Cough Event (" + str(self.cough_line_nr+1) + ")"
+        self.notebook_output.tab(1, text=name)
 
         # mouse event
         def enter(event):
