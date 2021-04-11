@@ -109,7 +109,7 @@ class Gui:
 
         add_param_label(tab_default, 0, "Simulation")
 
-        max_steps = add_param_input(tab_default, 2, "Max Steps:", 100,
+        max_steps = add_param_input(tab_default, 2, "Max Steps:", 1500,
                                     "For how many steps the simulation will maximally run.\n"
                                     "Should be an integer larger than 0.")
 
@@ -119,7 +119,7 @@ class Gui:
                                        "How many customers will enter the store.\n"
                                        "Should be an integer larger than 0.")
 
-        prob_inf_customer = add_param_input(tab_default, 12, "Prob. Infected Customer:", 0.01,
+        prob_inf_customer = add_param_input(tab_default, 12, "Prob. Infected Customer:", 0.05,
                                             "Probability of a new customer being infected.\n"
                                             "Should be a number between 0 and 1.")
 
