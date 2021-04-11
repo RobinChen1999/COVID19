@@ -147,8 +147,8 @@ class Gui:
             self.root.focus()
 
         chk_facemasks_enabled = tk.IntVar()
-        chk_facemasks = ttk.Checkbutton(tab_default, command=remove_focus, variable=chk_facemasks_enabled)
-        chk_facemasks.grid(row=14, column=2, sticky='we', padx=5)
+        self.chk_facemasks = ttk.Checkbutton(tab_default, command=remove_focus, variable=chk_facemasks_enabled)
+        self.chk_facemasks.grid(row=14, column=2, sticky='we', padx=5)
 
         add_param_label(tab_default, 20, "Entrance / Exits")
 
@@ -372,6 +372,7 @@ class Gui:
 
             self.scl_nr_exits.state(['disabled'])
             self.scl_d_exits.state(['disabled'])
+            self.chk_facemasks.state(['disabled'])
 
             # Remove layout
             self.frm_layout.grid_forget()
