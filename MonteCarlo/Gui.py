@@ -42,19 +42,11 @@ class Gui:
         # Parameters frame
         frm_parameters = ttk.Frame(self.root)
 
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters", style='Header.TLabel', font=('Helvetica', '14'))
-        lbl_id_parameters.pack(pady=10)
-
         # Layout frame
         self.frm_layout = ttk.Frame(self.root)
 
         lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout", style='Header.TLabel', font=('Helvetica', 14))
         lbl_id_layout.grid(row=0, column=0, pady=10, sticky='w')
-        desc = ttk.Label(self.frm_layout, text="?")
-        create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
-                              "Clicking on a shelf will remove it from the store.\n"
-                              "A red box marks the entrance and a blue box marks an exit.")
-        desc.grid(row=0, column=1, sticky="e")
 
         self.store_layout_canvas = StoreLayout(self.frm_layout)
         self.store_layout_canvas.draw_store_layout()
@@ -83,7 +75,7 @@ class Gui:
         column_size_text = 200
         params = eval(os.environ["PARAMS"])
 
-        input_tab_control = ttk.Notebook(frm_parameters)
+        input_tab_control = ttk.Notebook(frm_parameters, padding=(0, 20, 0, 0))
         self.params = []
 
         def add_param_input(tab_root, index, label, value, description, callback=None):
