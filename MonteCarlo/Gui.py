@@ -137,6 +137,21 @@ class Gui:
                                             "Probability of a new customer being infected.\n"
                                             "Should be a number between 0 and 1.")
 
+        lbl_facemasks = ttk.Label(tab_default, text='Face Masks:')
+        lbl_facemasks.grid(row=13, column=0, sticky="w", padx=10, pady=10)
+
+        desc_facemasks = ttk.Label(tab_default, text="?")
+        create_tool_tip(desc_facemasks, "Whether customers are wearing face masks. \n"
+                                        "This reduces the emission of aerosols by 50%")
+        desc_facemasks.grid(row=13, column=1, sticky="e", padx=5)
+
+        def remove_focus():
+            self.root.focus()
+
+        chk_facemasks_enabled = tk.IntVar()
+        chk_facemasks = ttk.Checkbutton(tab_default, command=remove_focus, variable=chk_facemasks_enabled)
+        chk_facemasks.grid(row=13, column=2, sticky='we', padx=5)
+
         add_param_label(tab_default, 20, "Entrance / Exits")
 
         frm_entrance_exit = ttk.Frame(tab_default)
@@ -281,7 +296,8 @@ class Gui:
                                  },
                                  store_layout=self.store_layout_canvas,
                                  btn_run=btn_run,
-                                 frm_parameters=frm_parameters
+                                 frm_parameters=frm_parameters,
+                                 facemasks=chk_facemasks_enabled
                              ))
         btn_run.pack(side=tk.LEFT, padx=10)
 
@@ -339,7 +355,7 @@ class Gui:
             return True
 
     def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
-                       store_layout, btn_run, frm_parameters):
+                       store_layout, btn_run, frm_parameters, facemasks):
         self.simulating = True
 
         input_valid = self.validate_input(
@@ -378,12 +394,22 @@ class Gui:
                 params["NEXITS"] = int(exit_params["nexits"])
                 params["CASHIERD"] = int(exit_params["cashierd"])
 
+                diff_coeff = float(diffusion_params["diff_coeff"])
+                ac_sink_coeff = float(diffusion_params["acsinkcoeff"])
+                plume_conc_cough = float(plume_params["plume_conc_cough"])
+
+                if facemasks:
+                    effectivity_rate = 0.5
+                    diff_coeff *= effectivity_rate
+                    ac_sink_coeff *= effectivity_rate
+                    plume_conc_cough *= effectivity_rate
+
                 # Diffusion
-                params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
-                params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
+                params["DIFFCOEFF"] = diff_coeff
+                params["ACSINKCOEFF"] = ac_sink_coeff
 
                 # Plume
-                params["PLUMECONCINC"] = float(plume_params["plume_conc_cough"])
+                params["PLUMECONCINC"] = plume_conc_cough
 
                 os.environ["PARAMS"] = str(params)
 
