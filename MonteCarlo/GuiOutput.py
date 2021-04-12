@@ -269,7 +269,7 @@ class GuiOutput:
         aerosol_meter.grid(row=1, column=0, columnspan=4*4)
         frm_aerosol.grid(row=0, column=1, padx=10, pady=10)
 
-        self.lbl_sim = ttk.Label(self.frm_sim, cursor='watch')
+        self.lbl_sim = ttk.Label(self.frm_sim)
         self.lbl_sim.pack()
 
         # Output frame
