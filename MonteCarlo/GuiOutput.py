@@ -279,7 +279,8 @@ class GuiOutput:
         container = ttk.Frame(self.notebook_output)
         self.notebook_output.add(container, text="Cough Event")
         
-        canvas = tk.Canvas(container, height=200)
+        canvas_height = 200
+        canvas = tk.Canvas(container, height=canvas_height)
         scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
         self.frm_event = ttk.Frame(canvas)
 
@@ -292,9 +293,14 @@ class GuiOutput:
         )
 
         # bind scrolling with mousewheel
+        # only scroll if the canvas is longer then displayed height
         def handle_scroll(event):
-            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind("<MouseWheel>", handle_scroll)
+            if canvas.bbox("all")[3] >= canvas_height:          
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+        # only bind the MouseWheel when mouse is inside the container frame
+        container.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", handle_scroll))
+        container.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
 
         # the canvas window that handles which part of the frame is shown 
         canvas.create_window((0, 0), window=self.frm_event, anchor="nw")
