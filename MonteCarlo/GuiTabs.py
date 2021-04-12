@@ -50,7 +50,7 @@ class GuiTabs:
         name = "    Simulation " + str(pos+1) + "  "
 
         frm_buttons = ttk.Frame(frame)
-        frm_buttons.grid(row=0, column=0, sticky="w")
+        frm_buttons.grid(row=0, column=0, sticky="nw")
 
         btn_close_tab = ttk.Button(frm_buttons, text="Close Tab", command=self.close_tab)
         btn_close_tab.pack(side=tk.LEFT)
