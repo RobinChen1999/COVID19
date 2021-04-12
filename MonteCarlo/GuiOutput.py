@@ -418,9 +418,6 @@ class GuiOutput:
 
         self.step = step
 
-        if step == 1:
-            self.btn_terminate.pack(side=tk.LEFT, padx=10)
-
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
         else:
@@ -580,6 +577,9 @@ class GuiOutput:
 
     def update_status_detail(self, text):
         self.lbl_status_detail.config(text=text)
+
+        if text == 'Calculating step':
+            self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
     def update_expected_shopping_time_left(self, leaving_customer, all_customers_in_store):
         self.left_customers.append(leaving_customer)
