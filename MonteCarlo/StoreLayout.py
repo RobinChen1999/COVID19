@@ -145,6 +145,7 @@ class StoreLayout:
         return coords
 
     def draw_initial_layout(self):
+        self.canvas.delete('shelf')
         coords = []
 
         coords.extend(self.create_row_coords((1, 1), True, 8))
