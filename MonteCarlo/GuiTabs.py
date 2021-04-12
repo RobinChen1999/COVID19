@@ -145,7 +145,7 @@ class GuiTabs:
         width = self.root.winfo_width()
         height = self.root.winfo_height()
 
-        self.help_img = ImageTk.PhotoImage(Image.open("help_input_view.png")) #.resize( (int(width), int(height) ))
+        self.help_img = ImageTk.PhotoImage(Image.open("help_input_view.png").resize( (int(width), int(height) )))
         message = ttk.Label(self.help_frame, image=self.help_img)
         message.place(relheight=1, relwidth=1, relx=0, rely=0)
 
