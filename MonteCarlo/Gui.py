@@ -51,6 +51,10 @@ class Gui:
         self.store_layout_canvas = StoreLayout(self.frm_layout)
         self.store_layout_canvas.draw_store_layout()
 
+        def show_hide_grid():
+            self.remove_focus()
+            self.store_layout_canvas.hide_grid_lines()
+
         # button to show/hide the grid
         self.buttons_store_grid = ttk.Frame(self.root)
         self.buttons_store_grid.grid(row=0, column=1)
@@ -58,24 +62,33 @@ class Gui:
                                         text="Show Grid",
                                         variable=self.store_layout_canvas.show_grid,
                                         onvalue=1, offvalue=0,
-                                        command=self.store_layout_canvas.hide_grid_lines)
+                                        command=show_hide_grid)
         btn_grid.pack(side=tk.LEFT, padx=20)
+
+        def remove_shelves():
+            self.remove_focus()
+            self.store_layout_canvas.clear_shelves()
 
         btn_clear_shelves = ttk.Button(self.buttons_store_grid,
                                        text="Remove All Shelves",
-                                       command=self.store_layout_canvas.clear_shelves)
+                                       command=remove_shelves)
         btn_clear_shelves.pack(side=tk.RIGHT, padx=10)
+
+        def draw_default_layout():
+            self.remove_focus()
+            self.store_layout_canvas.draw_initial_layout()
 
         btn_default_layout = ttk.Button(self.buttons_store_grid,
                                        text="Draw Default Layout",
-                                       command=self.store_layout_canvas.draw_initial_layout)
+                                       command=draw_default_layout)
         btn_default_layout.pack(side=tk.RIGHT)
 
         # Parameters tab
         column_size_text = 200
         params = eval(os.environ["PARAMS"])
 
-        input_tab_control = ttk.Notebook(frm_parameters, padding=(0, 20, 0, 0))
+        input_tab_control = ttk.Notebook(frm_parameters, padding=(0, 20, 0, 0), takefocus=False)
+        input_tab_control.bind("<<NotebookTabChanged>>", lambda event: self.remove_focus())
         self.params = []
 
         def add_param_input(tab_root, index, label, value, description, callback=None):
@@ -135,11 +148,8 @@ class Gui:
                                         "This reduces the emission of aerosols by 50%")
         desc_facemasks.grid(row=14, column=1, sticky="e", padx=5)
 
-        def remove_focus():
-            self.root.focus()
-
         chk_facemasks_enabled = tk.IntVar()
-        self.chk_facemasks = ttk.Checkbutton(tab_default, command=remove_focus, variable=chk_facemasks_enabled)
+        self.chk_facemasks = ttk.Checkbutton(tab_default, command=self.remove_focus, variable=chk_facemasks_enabled)
         self.chk_facemasks.grid(row=14, column=2, sticky='we', padx=5)
 
         add_param_label(tab_default, 20, "Entrance / Exits")
@@ -429,3 +439,6 @@ class Gui:
 
     def update_layout_entrance_exits(self, nexits, cashierd):
         self.store_layout_canvas.draw_entrance_exits(nexits, cashierd)
+
+    def remove_focus(self):
+        self.root.focus()

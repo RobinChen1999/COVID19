@@ -273,7 +273,8 @@ class GuiOutput:
         self.lbl_sim.pack()
 
         # Notebook tab for output and cough event
-        self.notebook_output = ttk.Notebook(self.frm_parameters)
+        self.notebook_output = ttk.Notebook(self.frm_parameters, takefocus=False)
+        self.notebook_output.bind("<<NotebookTabChanged>>", lambda event: self.remove_focus())
         self.notebook_output.pack(fill=tk.BOTH, pady=10)
 
         self.frm_output_frame = ttk.Frame(self.notebook_output)
@@ -657,6 +658,9 @@ class GuiOutput:
         # Update expected step limit
         if expected_steps_left > 0 and round(self.step + expected_steps_left) < int(self.max_steps):
             self.expected_step_limit = round(self.step + expected_steps_left)
+
+    def remove_focus(self):
+        self.window.focus()
 
 class ToolTip(object):
     def __init__(self, widget):
