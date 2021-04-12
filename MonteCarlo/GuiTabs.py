@@ -57,8 +57,8 @@ class GuiTabs:
 
         btn_frame = ttk.Frame(frame)
         btn_help = ttk.Button(btn_frame, text="Help", command=self.open_help)
-        self.btn_switch_theme = ttk.Button(btn_frame, text="Switch Theme", command=self.switch_theme)
         btn_help.pack(side=tk.RIGHT)
+        self.btn_switch_theme = ttk.Button(btn_frame, text="Switch Theme", command=self.switch_theme)
         self.btn_switch_theme.pack(side=tk.RIGHT, padx=10)
         btn_frame.grid(row=0, column=2, sticky="ne")
         
@@ -145,7 +145,14 @@ class GuiTabs:
         width = self.root.winfo_width()
         height = self.root.winfo_height()
 
-        self.help_img = ImageTk.PhotoImage(Image.open("help_input_view.png").resize( (int(width), int(height) )))
+        if self.simulation.outputGui is None:
+            fileName = "help_input_view.png"
+        elif self.simulation.outputGui.simulating:
+            fileName = "output_view_pre.png"
+        else:
+            fileName = "output_view_finished.png"
+        
+        self.help_img = ImageTk.PhotoImage(Image.open(fileName).resize( (int(width), int(height) )))
         message = ttk.Label(self.help_frame, image=self.help_img)
         message.place(relheight=1, relwidth=1, relx=0, rely=0)
 
