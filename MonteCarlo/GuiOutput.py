@@ -607,7 +607,7 @@ class GuiOutput:
 
         params = eval(os.environ["Params"])
 
-        total_items_needed_unknown = (int(self.nr_customers) - len(self.left_customers) - len(all_customers_in_store)) * params["MAXSHOPPINGLIST"]
+        total_items_needed_unknown = (int(self.nr_customers) - len(self.left_customers) - len(all_customers_in_store)) * params["MAXSHOPPINGLIST"] * 0.5
 
         total_items_left = total_items_needed_in_store + total_items_needed_unknown
 
