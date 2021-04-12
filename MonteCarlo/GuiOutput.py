@@ -254,7 +254,7 @@ class GuiOutput:
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
 
         # Simulation frame
-        self.frm_sim = ttk.Frame(self.window)
+        self.frm_sim = ttk.Frame(self.window, padding=(0, 20, 0, 0))
         self.canvas_height = 300
 
         # Aerosol meter
@@ -267,13 +267,14 @@ class GuiOutput:
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
         aerosol_meter.grid(row=1, column=0, columnspan=4*4)
-        frm_aerosol.grid(row=0, column=1, padx=10, pady=10)
+        frm_aerosol.grid(row=0, column=1, padx=10)
 
         self.lbl_sim = ttk.Label(self.frm_sim)
         self.lbl_sim.pack()
 
         # Notebook tab for output and cough event
-        self.notebook_output = ttk.Notebook(self.frm_parameters)
+        self.notebook_output = ttk.Notebook(self.frm_parameters, takefocus=False)
+        self.notebook_output.bind("<<NotebookTabChanged>>", lambda event: self.remove_focus())
         self.notebook_output.pack(fill=tk.BOTH, pady=10)
 
         self.frm_output_frame = ttk.Frame(self.notebook_output)
@@ -657,6 +658,9 @@ class GuiOutput:
         # Update expected step limit
         if expected_steps_left > 0 and round(self.step + expected_steps_left) < int(self.max_steps):
             self.expected_step_limit = round(self.step + expected_steps_left)
+
+    def remove_focus(self):
+        self.window.focus()
 
 class ToolTip(object):
     def __init__(self, widget):
