@@ -249,7 +249,6 @@ class GuiOutput:
         self.output_line_nr = 0
 
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
-        self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window)
@@ -415,6 +414,9 @@ class GuiOutput:
         self.canvas_height = 0.75 * self.frm_sim.winfo_width()
 
         self.step = step
+
+        if step == 1:
+            self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
