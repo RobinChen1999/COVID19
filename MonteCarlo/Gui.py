@@ -42,19 +42,11 @@ class Gui:
         # Parameters frame
         frm_parameters = ttk.Frame(self.root)
 
-        lbl_id_parameters = ttk.Label(frm_parameters, text="Parameters", style='Header.TLabel', font=('Helvetica', '14'))
-        lbl_id_parameters.pack(pady=10)
-
         # Layout frame
         self.frm_layout = ttk.Frame(self.root)
 
         lbl_id_layout = ttk.Label(self.frm_layout, text="Draw your store layout", style='Header.TLabel', font=('Helvetica', 14))
         lbl_id_layout.grid(row=0, column=0, pady=10, sticky='w')
-        desc = ttk.Label(self.frm_layout, text="?")
-        create_tool_tip(desc, "Click and drag to draw shelves on the grid.\n"
-                              "Clicking on a shelf will remove it from the store.\n"
-                              "A red box marks the entrance and a blue box marks an exit.")
-        desc.grid(row=0, column=1, sticky="e")
 
         self.store_layout_canvas = StoreLayout(self.frm_layout)
         self.store_layout_canvas.draw_store_layout()
@@ -83,7 +75,7 @@ class Gui:
         column_size_text = 200
         params = eval(os.environ["PARAMS"])
 
-        input_tab_control = ttk.Notebook(frm_parameters)
+        input_tab_control = ttk.Notebook(frm_parameters, padding=(0, 20, 0, 0))
         self.params = []
 
         def add_param_input(tab_root, index, label, value, description, callback=None):
@@ -117,13 +109,7 @@ class Gui:
 
         add_param_label(tab_default, 0, "Simulation")
 
-        seed = add_param_input(tab_default, 1, "Seed:", 888892,
-                               "The seed is the id of the simulation.\n"
-                               "This is used when generating random variables.\n"
-                               "Rerunning a simulation with the same seed will use the same random variables.\n"
-                               "Should be an integer larger than 0.")
-
-        max_steps = add_param_input(tab_default, 2, "Max Steps:", 100,
+        max_steps = add_param_input(tab_default, 2, "Max Steps:", 1500,
                                     "For how many steps the simulation will maximally run.\n"
                                     "Should be an integer larger than 0.")
 
@@ -133,9 +119,28 @@ class Gui:
                                        "How many customers will enter the store.\n"
                                        "Should be an integer larger than 0.")
 
-        prob_inf_customer = add_param_input(tab_default, 12, "Prob. Infected Customer:", 0.01,
+        prob_inf_customer = add_param_input(tab_default, 12, "Prob. Infected Customer:", 0.05,
                                             "Probability of a new customer being infected.\n"
                                             "Should be a number between 0 and 1.")
+
+        max_shopping_list = add_param_input(tab_default, 13, "Max Items on Shopping List:", 20,
+                                            "Maximum number of items on a customer's shopping list.\n"
+                                            "Should be an integer larger than 0.")
+
+        lbl_facemasks = ttk.Label(tab_default, text='Face Masks:')
+        lbl_facemasks.grid(row=14, column=0, sticky="w", padx=10, pady=10)
+
+        desc_facemasks = ttk.Label(tab_default, text="?")
+        create_tool_tip(desc_facemasks, "Whether customers are wearing face masks. \n"
+                                        "This reduces the emission of aerosols by 50%")
+        desc_facemasks.grid(row=14, column=1, sticky="e", padx=5)
+
+        def remove_focus():
+            self.root.focus()
+
+        chk_facemasks_enabled = tk.IntVar()
+        self.chk_facemasks = ttk.Checkbutton(tab_default, command=remove_focus, variable=chk_facemasks_enabled)
+        self.chk_facemasks.grid(row=14, column=2, sticky='we', padx=5)
 
         add_param_label(tab_default, 20, "Entrance / Exits")
 
@@ -210,40 +215,43 @@ class Gui:
         # Advanced Tab
         tab_advanced = ttk.Frame(input_tab_control)
 
-        add_param_label(tab_advanced, 0, "Customers")
+        add_param_label(tab_advanced, 0, "Simulation")
 
-        prob_new_customer = add_param_input(tab_advanced, 1, "Prob. New Customer:", 0.2,
+        seed = add_param_input(tab_advanced, 1, "Seed:", 888892,
+                               "The seed is used when generating random variables.\n"
+                               "Rerunning a simulation with the same seed will use the same random variables.\n"
+                               "Should be an integer larger than 0.")
+
+        add_param_label(tab_advanced, 10, "Customers")
+
+        prob_new_customer = add_param_input(tab_advanced, 11, "Prob. New Customer:", 0.2,
                                             "Probability on each time step a new customer will enter the store.\n"
                                             "Should be a number between 0 and 1.")
 
-        prob_block_random_step = add_param_input(tab_advanced, 3, "Prob. Random Step:", 0.8,
+        prob_block_random_step = add_param_input(tab_advanced, 12, "Prob. Random Step:", 0.8,
                                                  "Probability of customer taking a random step when their path is blocked.\n"
                                                  "Should be a number between 0 and 1.")
 
-        prob_cough = add_param_input(tab_advanced, 4, "Prob. Cough:", 0.0003,
+        prob_cough = add_param_input(tab_advanced, 13, "Prob. Cough:", 0.0003,
                                      "Probability of a customer coughing per step.\n"
                                      "Should be a number between 0 and 1.")
 
-        plume_conc_cough = add_param_input(tab_advanced, 5, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
+        plume_conc_cough = add_param_input(tab_advanced, 14, "Aerosol Conc. When Coughing:", params["PLUMECONCINC"],
                                            "Aerosol concentration when a customer coughs.\n"
                                            "Should be a number larger than 0.")
 
-        max_shopping_list = add_param_input(tab_advanced, 6, "Max Items on Shopping List:", 20,
-                                            "Maximum number of items on a customer's shopping list.\n"
-                                            "Should be an integer larger than 0.")
+        add_param_label(tab_advanced, 20, "Diffusion")
 
-        add_param_label(tab_advanced, 10, "Diffusion")
-
-        diff_coeff = add_param_input(tab_advanced, 11, "Diffusion Coefficient:", params["DIFFCOEFF"],
+        diff_coeff = add_param_input(tab_advanced, 21, "Diffusion Coefficient:", params["DIFFCOEFF"],
                                      "The magnitude of the molar flux through a surface per unit concentration gradient out-of-plane.\n"
                                      "Should be a number between 0 and 1.")
 
-        acsinkcoeff = add_param_input(tab_advanced, 12, "Sink Coefficient:", params["ACSINKCOEFF"],
+        acsinkcoeff = add_param_input(tab_advanced, 22, "Sink Coefficient:", params["ACSINKCOEFF"],
                                       "Coefficient for the sink term of the form: -k*c.\n"
                                       "Should be a number between 0 and 1.")
 
         # Add all tabs
-        input_tab_control.add(tab_default, text="Default")
+        input_tab_control.add(tab_default, text="Options")
         input_tab_control.add(tab_advanced, text="Advanced")
 
         input_tab_control.pack(fill=tk.BOTH)
@@ -276,9 +284,13 @@ class Gui:
                                      "diff_coeff": diff_coeff.get(),
                                      "acsinkcoeff": acsinkcoeff.get()
                                  },
+                                 plume_params={
+                                     "plume_conc_cough": plume_conc_cough.get()
+                                 },
                                  store_layout=self.store_layout_canvas,
                                  btn_run=btn_run,
-                                 frm_parameters=frm_parameters
+                                 frm_parameters=frm_parameters,
+                                 facemasks=chk_facemasks_enabled
                              ))
         btn_run.pack(side=tk.LEFT, padx=10)
 
@@ -286,19 +298,16 @@ class Gui:
         frm_parameters.grid(row=1, column=0, sticky="nw")
         
 
-    def validate_input(self, simulation_params, customer_params, diffusion_params, store_empty):
+    def validate_input(self, simulation_params, customer_params, diffusion_params, plume_params, store_empty):
         # Default
         try:
-            int_seed = int(simulation_params["seed"])
             int_max_steps = int(simulation_params["max_steps"])
 
             int_nr_customers = int(customer_params["nr_customers"])
             float_prob_inf_customer = float(customer_params["prob_inf_customer"])
+            int_max_shopping_list = int(customer_params["max_shopping_list"])
 
-            if any(x <= 0 for x in (int_seed, int_max_steps)):
-                raise Exception()
-
-            if any(x <= 0 for x in (int_nr_customers, float_prob_inf_customer)) \
+            if any(x <= 0 for x in (int_max_steps, int_nr_customers, float_prob_inf_customer, int_max_shopping_list)) \
                     or float_prob_inf_customer >= 1:
                 raise Exception()
         except:
@@ -307,17 +316,20 @@ class Gui:
 
         # Advanced
         try:
+            int_seed = int(simulation_params["seed"])
+
             float_prob_new_customer = float(customer_params["prob_new_customer"])
             float_prob_block_random_step = float(customer_params["prob_block_random_step"])
             float_prob_cough = float(customer_params["prob_cough"])
-            int_max_shopping_list = int(customer_params["max_shopping_list"])
 
             float_diff_coeff = float(diffusion_params["diff_coeff"])
             float_acsinkcoeff = float(diffusion_params["acsinkcoeff"])
 
-            if any(x <= 0 for x in (
-                    float_prob_new_customer, float_prob_block_random_step,
-                    float_prob_cough, int_max_shopping_list, float_diff_coeff, float_acsinkcoeff)) \
+            float_plume_conc_cough = float(plume_params["plume_conc_cough"])
+
+            if any(x <= 0 for x in (int_seed,
+                    float_prob_new_customer, float_prob_block_random_step, float_plume_conc_cough,
+                    float_prob_cough, float_diff_coeff, float_acsinkcoeff)) \
                     or any(x >= 1 for x in (float_prob_new_customer, float_prob_block_random_step, float_prob_cough,
                                             float_diff_coeff, float_acsinkcoeff)):
                 raise Exception()
@@ -333,14 +345,15 @@ class Gui:
         else:
             return True
 
-    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params,
-                       store_layout, btn_run, frm_parameters):
+    def run_simulation(self, simulation_params, customer_params, exit_params, diffusion_params, plume_params,
+                       store_layout, btn_run, frm_parameters, facemasks):
         self.simulating = True
 
         input_valid = self.validate_input(
             simulation_params=simulation_params,
             customer_params=customer_params,
             diffusion_params=diffusion_params,
+            plume_params=plume_params,
             store_empty=store_layout.check_store_empty()
         )
 
@@ -351,6 +364,7 @@ class Gui:
 
             self.scl_nr_exits.state(['disabled'])
             self.scl_d_exits.state(['disabled'])
+            self.chk_facemasks.state(['disabled'])
 
             # Remove layout
             self.frm_layout.grid_forget()
@@ -372,9 +386,22 @@ class Gui:
                 params["NEXITS"] = int(exit_params["nexits"])
                 params["CASHIERD"] = int(exit_params["cashierd"])
 
+                diff_coeff = float(diffusion_params["diff_coeff"])
+                ac_sink_coeff = float(diffusion_params["acsinkcoeff"])
+                plume_conc_cough = float(plume_params["plume_conc_cough"])
+
+                if facemasks:
+                    effectivity_rate = 0.5
+                    diff_coeff *= effectivity_rate
+                    ac_sink_coeff *= effectivity_rate
+                    plume_conc_cough *= effectivity_rate
+
                 # Diffusion
-                params["DIFFCOEFF"] = float(diffusion_params["diff_coeff"])
-                params["ACSINKCOEFF"] = float(diffusion_params["acsinkcoeff"])
+                params["DIFFCOEFF"] = diff_coeff
+                params["ACSINKCOEFF"] = ac_sink_coeff
+
+                # Plume
+                params["PLUMECONCINC"] = plume_conc_cough
 
                 os.environ["PARAMS"] = str(params)
 

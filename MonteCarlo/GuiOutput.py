@@ -58,6 +58,9 @@ class GuiOutput:
         self.frm_buttons = frm_buttons
         self.draw_output_window()
         self.slider_value_old = 0
+        self.nr_customers = nr_customers
+        self.step = 0
+        self.expected_step_limit = simulation_params["max_steps"]
 
         # Column weights
         self.window.grid_columnconfigure(0, minsize=350)
@@ -71,6 +74,8 @@ class GuiOutput:
         self.time_per_step = 1
         self.time_left = self.max_steps
         self.time_started = time.time()
+
+        self.left_customers = []
 
         # Start load_figures in new thread so GUI doesn't block
         self.t = threading.Thread(target=self.load_figures)
@@ -247,7 +252,6 @@ class GuiOutput:
         self.output_line_nr = 0
 
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
-        self.btn_terminate.pack(side=tk.LEFT, padx=10)
 
         # Simulation frame
         self.frm_sim = ttk.Frame(self.window)
@@ -412,6 +416,11 @@ class GuiOutput:
         # Update image size
         self.canvas_height = 0.85 * self.frm_sim.winfo_width()
 
+        self.step = step
+
+        if step == 1:
+            self.btn_terminate.pack(side=tk.LEFT, padx=10)
+
         if self.lbl_step_value == 0:
             raise Exception("Step output text is undefined")
         else:
@@ -432,7 +441,7 @@ class GuiOutput:
                 if step % update_speed == 0:
                     time_diff = time.time() - self.last_updated_time
                     self.time_per_step = time_diff / update_speed
-                    time_left = (int(self.max_steps) - step) * self.time_per_step
+                    time_left = (int(self.expected_step_limit) - step) * self.time_per_step
                     self.time_left = time_left
 
                     self.last_updated_time = time.time()
@@ -572,6 +581,41 @@ class GuiOutput:
     def update_status_detail(self, text):
         self.lbl_status_detail.config(text=text)
 
+    def update_expected_shopping_time_left(self, leaving_customer, all_customers_in_store):
+        self.left_customers.append(leaving_customer)
+
+        total_time = 0
+        total_items = 0
+        min_time = 99999
+
+        for customer in self.left_customers:
+            if customer[0] < min_time:
+                min_time = customer[0]
+
+        for customer in self.left_customers:
+            total_time += customer[0] - min_time
+            total_items += customer[1]
+
+        if total_time <= 0:
+            total_time = 99999
+
+        avg_time_per_item = total_time / total_items
+
+        total_items_needed_in_store = 0
+        for customer in all_customers_in_store:
+            total_items_needed_in_store += len(customer.shoppingList)
+
+        params = eval(os.environ["Params"])
+
+        total_items_needed_unknown = (int(self.nr_customers) - len(self.left_customers) - len(all_customers_in_store)) * params["MAXSHOPPINGLIST"]
+
+        total_items_left = total_items_needed_in_store + total_items_needed_unknown
+
+        expected_steps_left = total_items_left * avg_time_per_item
+
+        # Update expected step limit
+        if expected_steps_left > 0 and round(self.step + expected_steps_left) < int(self.max_steps):
+            self.expected_step_limit = round(self.step + expected_steps_left)
 
 class ToolTip(object):
     def __init__(self, widget):

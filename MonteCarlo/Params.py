@@ -5,7 +5,7 @@ def set_params():
     params = {
         # some params related to exits
         "NEXITS": 5,  # how many cashiers in the store
-        "CASHIERD": 14,  # distance between cashiers
+        "CASHIERD": 10,  # distance between cashiers
         "ENTRANCEPOS": 0,  # x-coord of entrance to the store
         "EXITPOS": 1,  # Lx - y-coord of the first cashier
 

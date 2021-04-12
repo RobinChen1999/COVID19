@@ -581,6 +581,8 @@ class Simulation:
 					self.timeSpent[self.customerNow]=ty
 					self.customerInfected[self.customerNow]=ti
 					self.customerNow +=1
+
+					self.gui.update_expected_shopping_time_left((ty, tx), self.customers)
 					# print(stepStr)
 
 				## if discrete plumes, shorten their duration by 1 and check if new customer enters
