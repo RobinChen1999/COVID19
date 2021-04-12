@@ -254,7 +254,7 @@ class GuiOutput:
         self.btn_terminate = ttk.Button(self.frm_buttons, text="Terminate Simulation", command=self.terminate_sim, style='Terminate.TButton')
 
         # Simulation frame
-        self.frm_sim = ttk.Frame(self.window)
+        self.frm_sim = ttk.Frame(self.window, padding=(0, 20, 0, 0))
         self.canvas_height = 300
 
         # Aerosol meter
@@ -267,7 +267,7 @@ class GuiOutput:
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter
         aerosol_meter.grid(row=1, column=0, columnspan=4*4)
-        frm_aerosol.grid(row=0, column=1, padx=10, pady=10)
+        frm_aerosol.grid(row=0, column=1, padx=10)
 
         self.lbl_sim = ttk.Label(self.frm_sim)
         self.lbl_sim.pack()
