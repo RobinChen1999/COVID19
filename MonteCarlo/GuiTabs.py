@@ -140,13 +140,19 @@ class GuiTabs:
 
     def open_help(self):
         self.help_frame = ttk.Frame(self.root)
-        btn_close = ttk.Button(self.help_frame, text="Close", command=self.close_help)
-        btn_close.pack(anchor="ne")
-        message = ttk.Label(self.help_frame, text="HEEELLUUUUP")
-        message.pack()
         self.help_frame.place(relheight=1, relwidth=1, relx=0, rely=0, bordermode=tk.INSIDE)
-        
-        
+
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+
+        self.help_img = ImageTk.PhotoImage(Image.open("help_input_view.png")) #.resize( (int(width), int(height) ))
+        message = ttk.Label(self.help_frame, image=self.help_img)
+        message.place(relheight=1, relwidth=1, relx=0, rely=0)
+
+        self.style.configure('Help.TButton', font=('Helvetica', int(width/160)))
+        btn_close = ttk.Button(self.help_frame, style="Help.TButton", text="Close Help", command=self.close_help)
+        btn_close.pack(anchor="ne", padx=int(width/80), pady=int(height/16))
+                
     def close_help(self):
         self.help_frame.place_forget()
 
