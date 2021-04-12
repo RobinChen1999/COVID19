@@ -127,7 +127,6 @@ class GuiTabs:
         if hasattr(self, 'simulation'):
             if self.simulation.outputGui is not None:
                 self.simulation.outputGui.update_plot_theme(theme)
-                self.simulation.outputGui.update_customer_plot_theme(theme)
 
         self.style.theme_use(theme)
 
