@@ -151,7 +151,7 @@ class GuiOutput:
         self.ax_customer_exposure.axis((0, int(self.max_steps) - 1, 0, 1))
 
         self.ax_time.plot([], [], color='grey', label='Time spent in store')
-        self.ax_customer_exposure.plot([], [], color='green', label='Exposure')
+        self.ax_customer_exposure.plot([], [], color='green', label='Cumulative Exposure')
 
         self.ax_time.legend(loc="upper left", prop={'size': 8})
         self.ax_customer_exposure.legend(loc="upper right", prop={'size': 8})
@@ -344,7 +344,7 @@ class GuiOutput:
 
         self.ax_customer.plot([], [], color='blue', label='Nr. of Customers')
         self.ax_customer.plot([], [], color='red', label='Nr. of Infected Customers')
-        self.ax_exposure.plot([], [], color='green', label='Nr. of Disease Particles')
+        self.ax_exposure.plot([], [], color='green', label='Exposure')
 
         self.ax_customer.legend(loc="upper left", prop={'size': 7})
         self.ax_exposure.legend(loc="upper right", prop={'size': 7})
