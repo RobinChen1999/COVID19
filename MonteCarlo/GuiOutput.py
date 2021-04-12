@@ -579,40 +579,38 @@ class GuiOutput:
     def update_expected_shopping_time_left(self, leaving_customer, all_customers_in_store):
         self.left_customers.append(leaving_customer)
 
-        if len(self.left_customers) >= 2:
+        total_time = 0
+        total_items = 0
+        min_time = 99999
 
-            total_time = 0
-            total_items = 0
-            min_time = 99999
+        for customer in self.left_customers:
+            if customer[0] < min_time:
+                min_time = customer[0]
 
-            for customer in self.left_customers:
-                if customer[0] < min_time:
-                    min_time = customer[0]
+        for customer in self.left_customers:
+            total_time += customer[0] - min_time
+            total_items += customer[1]
 
-            for customer in self.left_customers:
-                total_time += customer[0] - min_time
-                total_items += customer[1]
+        if total_time <= 0:
+            total_time = 99999
 
-            if total_time <= 0:
-                total_time = 99999
+        avg_time_per_item = total_time / total_items
 
-            avg_time_per_item = total_time / total_items
+        total_items_needed_in_store = 0
+        for customer in all_customers_in_store:
+            total_items_needed_in_store += len(customer.shoppingList)
 
-            total_items_needed_in_store = 0
-            for customer in all_customers_in_store:
-                total_items_needed_in_store += len(customer.shoppingList)
+        params = eval(os.environ["Params"])
 
-            params = eval(os.environ["Params"])
+        total_items_needed_unknown = (int(self.nr_customers) - len(self.left_customers) - len(all_customers_in_store)) * params["MAXSHOPPINGLIST"]
 
-            total_items_needed_unknown = (int(self.nr_customers) - len(self.left_customers) - len(all_customers_in_store)) * params["MAXSHOPPINGLIST"]
+        total_items_left = total_items_needed_in_store + total_items_needed_unknown
 
-            total_items_left = total_items_needed_in_store + total_items_needed_unknown
+        expected_steps_left = total_items_left * avg_time_per_item
 
-            expected_steps_left = total_items_left * avg_time_per_item
-
-            # Update expected step limit
-            if expected_steps_left > 0:
-                self.expected_step_limit = round(self.step + expected_steps_left)
+        # Update expected step limit
+        if expected_steps_left > 0 and round(self.step + expected_steps_left) < int(self.max_steps):
+            self.expected_step_limit = round(self.step + expected_steps_left)
 
 class ToolTip(object):
     def __init__(self, widget):
