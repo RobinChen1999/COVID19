@@ -33,13 +33,13 @@ class StorePlot:
         self.norm_exposure = norm_exposure
         self.customer_list = []
         self.step = 0
-        self.radius = 10
         self.startx = -3
         self.selected_customer = None
         
     def init_canvas(self, window, height, axis1, axis2, canvas):
         self.height = height
         self.window = window
+        self.radius = self.height / 45
         self.starty = self.height * 0.985
         self.scalex = self.height / 100
         self.scaley = self.height / 100
@@ -68,7 +68,7 @@ class StorePlot:
                 x = self.startx + c.route[self.step-c.initStep][0] * self.scalex
                 y = self.starty - (c.route[self.step-c.initStep][1] * self.scaley)
                 if c.infected:
-                    r = self.radius/2
+                    r = int(self.radius/5*3)
                     shape = self.canvas.create_polygon([x+r, y, x+2*r, y+r, x+r, y+2*r, x, y+r], outline="black", activewidth=1, activeoutline="white",
                               fill="red", tags=("customer_point"))
                 else:
@@ -86,13 +86,13 @@ class StorePlot:
         if self.selected_customer != None:
             customer = self.customers[self.selected_customer]
             for item in customer.completeShoppingList:
-                radius = 5
-                x = self.startx + self.radius - radius + item[0] * self.scalex
-                y = self.starty + self.radius - radius - item[1] * self.scaley
-                col="green"
+                radius = self.radius/2
+                x = self.startx + item[0] * self.scalex + radius/2
+                y = self.starty - item[1] * self.scaley + radius/2
+                col="pink"
                 try:
                     if item[2] <= self.step:
-                        col="pink"
+                        col="green"
                 except:
                     # item is not found withing the step limit
                     pass
