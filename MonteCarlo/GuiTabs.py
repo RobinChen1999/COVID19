@@ -72,6 +72,7 @@ class GuiTabs:
         
 
     def tab_changed(self, event):
+        self.remove_focus()
         current_tab = self.tab_control.index("current")
         last_tab = self.tab_control.index("end") - 1
         if current_tab == last_tab:
@@ -148,3 +149,6 @@ class GuiTabs:
         
     def close_help(self):
         self.help_frame.place_forget()
+
+    def remove_focus(self):
+        self.root.focus()
