@@ -56,7 +56,7 @@ class GuiTabs:
         btn_close_tab.pack(side=tk.LEFT)
 
         btn_frame = ttk.Frame(frame)
-        btn_help = ttk.Button(btn_frame, text="    Help    ", command=self.open_help)
+        btn_help = ttk.Button(btn_frame, text="Help", command=self.open_help)
         self.btn_switch_theme = ttk.Button(btn_frame, text="Switch Theme", command=self.switch_theme)
         btn_help.pack(side=tk.RIGHT)
         self.btn_switch_theme.pack(side=tk.RIGHT, padx=10)
@@ -127,7 +127,6 @@ class GuiTabs:
         if hasattr(self, 'simulation'):
             if self.simulation.outputGui is not None:
                 self.simulation.outputGui.update_plot_theme(theme)
-                self.simulation.outputGui.update_customer_plot_theme(theme)
 
         self.style.theme_use(theme)
 

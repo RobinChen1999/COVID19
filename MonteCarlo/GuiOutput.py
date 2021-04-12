@@ -272,10 +272,58 @@ class GuiOutput:
         self.lbl_sim = ttk.Label(self.frm_sim)
         self.lbl_sim.pack()
 
-        # Output frame
-        self.frm_output_frame = ttk.LabelFrame(self.frm_parameters, text='Output')
-        self.frm_output_frame.pack(fill=tk.BOTH, pady=10)
+        # Notebook tab for output and cough event
+        self.notebook_output = ttk.Notebook(self.frm_parameters)
+        self.notebook_output.pack(fill=tk.BOTH, pady=10)
 
+        self.frm_output_frame = ttk.Frame(self.notebook_output)
+        self.notebook_output.add(self.frm_output_frame, text='Output')
+
+        # scrollable canvas for cough event
+        container = ttk.Frame(self.notebook_output)
+        self.notebook_output.add(container, text="Cough Event")
+
+        def try_scroll(a, b, c="units", d=1):
+            try: self.event_canvas.yview(a, b)
+            except: pass
+        
+        canvas_height = 200
+        self.event_canvas = tk.Canvas(container, height=canvas_height, width=100)
+        
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=try_scroll)
+        self.frm_event = ttk.Frame(self.event_canvas)
+
+        # resize scrollregion every time a label is added to the frame
+        self.frm_event.bind(
+            "<Configure>",
+            lambda e: self.event_canvas.configure(
+                scrollregion=self.event_canvas.bbox("all")
+            )
+        )
+
+        # bind scrolling with mousewheel
+        # only scroll if the canvas is longer then displayed height
+        def handle_scroll(event):
+            if self.event_canvas.bbox("all")[3] >= canvas_height:          
+                self.event_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+        # only bind the MouseWheel when mouse is inside the container frame
+        container.bind("<Enter>", lambda e: self.event_canvas.bind_all("<MouseWheel>", handle_scroll))
+        container.bind("<Leave>", lambda e: self.event_canvas.unbind_all("<MouseWheel>"))
+
+        # the canvas window that handles which part of the frame is shown 
+        self.event_canvas.create_window((0, 0), window=self.frm_event, anchor="nw")
+        self.event_canvas.configure(yscrollcommand=scrollbar.set)
+
+        self.event_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # placeholder in frame without cough event
+        self.lbl_no_event = ttk.Label(self.frm_event, text="There is no cough event yet.")
+        self.lbl_no_event.grid(row=0, column=0, sticky="w", padx=10, pady=10)
+        self.cough_line_nr = None
+        
+        # Output frame
         self.frm_output = ttk.Frame(self.frm_output_frame)
         self.frm_output.pack(fill=tk.BOTH, padx=10, pady=5)
         self.frm_output.grid_columnconfigure(0, weight=1)
@@ -353,18 +401,15 @@ class GuiOutput:
         self.canvas.callbacks.connect('button_press_event', self.graph_on_click)
         self.canvas.draw()
 
-        self.update_plot_theme("breeze-dark")
         self.canvas.get_tk_widget().pack(padx=10, pady=10)
 
         self.init_customer_graph()
         self.customer_canvas.draw()
-        self.update_customer_plot_theme("breeze-dark")
         self.customer_canvas.get_tk_widget().pack()
 
         self.frm_sim.grid(row=1, column=1, sticky="nwe")
 
         self.update_plot_theme(self.style.theme_use())
-        self.update_customer_plot_theme(self.style.theme_use())
 
     def update_output(self, line, value=""):
         if self.frm_output == 0:
@@ -381,16 +426,20 @@ class GuiOutput:
             self.output_line_nr += 1
 
     def output_cough_event(self, step, x, y):
-        if not hasattr(self, 'cough_line_nr'):
-            ### cough event ###
-            self.frm_event = ttk.LabelFrame(self.frm_parameters, text="Cough event")
-            self.frm_event.pack(fill=tk.BOTH)
+        pady = 1
+        # on first cough event, destroy placeholder label
+        if self.cough_line_nr == None:
+            self.lbl_no_event.destroy()
             self.cough_line_nr = 0
-
+            pady = 6
+        # add cough event
         lbl_step = ttk.Label(self.frm_event, text="Step {}:".format(step))
-        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10)
+        lbl_step.grid(row=self.cough_line_nr, column=0, sticky='w', padx=10, pady=[pady,0])
         lbl_event = ttk.Label(self.frm_event, text="Customer coughed at ({},{})".format(x, y))
-        lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=10)
+        lbl_event.grid(row=self.cough_line_nr, column=1, sticky='w', padx=20, pady=[pady,0])
+        # change tab label
+        name = "Cough Event (" + str(self.cough_line_nr+1) + ")"
+        self.notebook_output.tab(1, text=name)
 
         # mouse event
         def enter(event):
@@ -517,20 +566,30 @@ class GuiOutput:
 
     def update_plot_theme(self, theme):
         c_light = (239/255, 240/255, 241/255)
+        h_light = "#373c41"
         c_dark = (55/255, 60/255, 65/255)
+        h_dark = "#eff0f1"
 
         if theme == "breeze-dark":
             color_background = c_dark
             color_axes = c_light
+            bg_hex = h_light
         else:
             color_background = c_light
             color_axes = c_dark
+            bg_hex = h_dark
+
+        # cough event canvas
+        self.event_canvas.config(bg=bg_hex)
 
         # Background
         self.fig_graphs.set_facecolor(color_background)
         self.ax_customer.set_facecolor(color_background)
 
-        # Axes
+        self.fig.set_facecolor(color_background)
+        self.ax_time.set_facecolor(color_background)
+
+        # Axes upper plot
         for side in ['top', 'right', 'bottom', 'left']:
             self.ax_exposure.spines[side].set_color(color_axes)
         self.ax_exposure.yaxis.label.set_color(color_axes)
@@ -540,27 +599,7 @@ class GuiOutput:
         self.ax_customer.tick_params(axis='x', colors=color_axes)
         self.ax_customer.tick_params(axis='y', colors=color_axes)
 
-        # Title
-        self.fig_graphs.suptitle('All Customers', color=color_axes)
-
-        self.canvas.draw_idle()
-
-    def update_customer_plot_theme(self, theme):
-        c_light = (239/255, 240/255, 241/255)
-        c_dark = (55/255, 60/255, 65/255)
-
-        if theme == "breeze-dark":
-            color_background = c_dark
-            color_axes = c_light
-        else:
-            color_background = c_light
-            color_axes = c_dark
-
-        # Background
-        self.fig.set_facecolor(color_background)
-        self.ax_time.set_facecolor(color_background)
-
-        # Axes
+        # Axes customer plot
         for side in ['top', 'right', 'bottom', 'left']:
             self.ax_customer_exposure.spines[side].set_color(color_axes)
         self.ax_customer_exposure.yaxis.label.set_color(color_axes)
@@ -571,8 +610,10 @@ class GuiOutput:
         self.ax_time.tick_params(axis='y', colors=color_axes)
 
         # Title
+        self.fig_graphs.suptitle('All Customers', color=color_axes)
         self.fig.suptitle('Clicked Customer', color=color_axes)
 
+        self.canvas.draw_idle()
         self.customer_canvas.draw_idle()
 
     def update_status_detail(self, text):
