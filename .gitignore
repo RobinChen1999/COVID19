@@ -17,7 +17,7 @@ build
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+.dll
 
 # Fortran module files
 *.mod
@@ -30,7 +30,7 @@ build
 *.lib
 
 # Executables
-*.exe
+.exe
 *.out
 *.app
 
@@ -50,7 +50,7 @@ cmake-build-debug
 
 # All png and gif files
 storeMap.png
-*.gif
+.gif
 .mp4
-*.mkv
+.mkv
 
