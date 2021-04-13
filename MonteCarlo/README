@@ -12,6 +12,7 @@ In the simFigures folder:
 -simFigure_{simulationID}_{seed}_{step}.png
 	Snapshot of the store layout
 
+Note: The produced output gets deleted after closing the window of the tool.
 
 
 
