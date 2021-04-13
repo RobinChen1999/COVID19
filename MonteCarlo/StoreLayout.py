@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox
+from PIL import Image
 import io
-from PIL import Image, ImageGrab
 
 
 class StoreLayout:

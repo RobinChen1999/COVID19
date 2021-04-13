@@ -1,4 +1,12 @@
 from Gui import *
+import Params
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+import os
+import glob
+from PIL import Image, ImageTk
+
 
 class GuiTabs:
     def __init__(self):

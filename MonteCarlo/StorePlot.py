@@ -1,21 +1,6 @@
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from Store import *
-from Customer import *
-
 import tkinter as tk
-from tkinter import ttk
 from PIL import Image, ImageTk
-
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.tri as tri
-from numpy import linspace, meshgrid
-from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.colors import ListedColormap
-from matplotlib import colors as cls
-from matplotlib import ticker
-import matplotlib.pyplot as plt
-import matplotlib
+import matplotlib.colors
 matplotlib.use('Agg')
 
 class StorePlot:

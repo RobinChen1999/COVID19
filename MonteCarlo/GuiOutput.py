@@ -1,18 +1,14 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import time
 import threading
 import glob
 import os
-from PIL import Image, ImageTk
-
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-from tkinter.filedialog import asksaveasfile
 from pathlib import Path
-
+from PIL import Image, ImageTk
 import numpy as np
-import time
 
 
 def format_time(time_in_seconds):
@@ -162,7 +158,7 @@ class GuiOutput:
     # opens a 'save-as' window to save the video
     def save_file(self):
         download_folder = str(os.path.join(Path.home(), "Downloads"))
-        file = asksaveasfile(initialdir=download_folder, initialfile="simulation_%d_%s.mkv" % (self.id, self.seed),
+        file = filedialog.asksaveasfile(initialdir=download_folder, initialfile="simulation_%d_%s.mkv" % (self.id, self.seed),
                              mode="wb", title="Save Simulation",
                              defaultextension=".mkv", filetypes=(("mkv files", ".mkv"), ("all files", ".*")))
         if file is None:

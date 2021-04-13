@@ -1,7 +1,7 @@
 import numpy as np
 import igraph as ig
-from PIL import Image as im
 import os
+from PIL import Image
 
 np.set_printoptions(threshold=100000)
 
@@ -64,7 +64,7 @@ class Store:
 
 	## initialize the store layout from a separate file	
 	def loadImageAsGeometry(self, filename):
-		img = im.open(filename)
+		img = Image.open(filename)
 		#~ img.show()
 		px = img.load()
 		#~ for some reason as a result of the loading routine, the subsequent px has 0=black and 255=white, i.e. forces a pixel map from 0-255
@@ -82,7 +82,7 @@ class Store:
 					
 
 	def save_image(self, npdata, outfilename ):
-		img = im.fromarray(np.asarray(np.clip(npdata,0,1), dtype="int"), "L")
+		img = Image.fromarray(np.asarray(np.clip(npdata,0,1), dtype="int"), "L")
 		img.save(outfilename)
 	
 	def updateDiffusion(self):
@@ -203,6 +203,7 @@ class Store:
 		entranceInd = self.getIndexFromCoord([self.ENTRANCEPOS,0])
 		self.entrance= self.getCoordFromIndex(entranceInd)
 
+		checkPossiblePath = None
 
 		i = self.EXITPOS
 		while len(self.exit)<self.NEXITS:

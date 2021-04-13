@@ -1,29 +1,16 @@
-from matplotlib import rc
-from PIL import Image
-import os
-import cv2
-import glob
-from matplotlib import ticker
-from matplotlib import colors as cls
-from matplotlib.colors import ListedColormap
-import copy
-import matplotlib as mpl
-from matplotlib.colors import LinearSegmentedColormap
-from Store import *
 from Customer import *
-from Params import *
+from Store import *
 from StorePlot import *
 
-import matplotlib
-matplotlib.use('Agg')
+import os
+import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.tri as tri
-
+from matplotlib import colors as cls
+from matplotlib.colors import LinearSegmentedColormap
+import cv2
 from sklearn import preprocessing
-from numpy import linspace, meshgrid
-#from matplotlib.mlab import griddata
+import glob
+from PIL import Image
 
 
 class Simulation:

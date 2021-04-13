@@ -1,9 +1,12 @@
-from tkinter import *
-from tkinter import messagebox, font
-import Params
+from GuiOutput import *
 from Simulation import *
 from StoreLayout import *
-from GuiOutput import *
+import Params
+
+import tkinter as tk
+from tkinter import messagebox, ttk
+import os
+import threading
 
 
 class Gui:
