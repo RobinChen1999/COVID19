@@ -53,7 +53,7 @@ cmake-build-debug
 
 # All png and gif files
 storeMap.png
-.gif
+*.gif
 .mp4
 .mkv
 
