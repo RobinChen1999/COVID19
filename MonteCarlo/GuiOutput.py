@@ -258,7 +258,7 @@ class GuiOutput:
         for i in range(4):
             aerosol_label = ttk.Label(frm_aerosol, text=("10^"+str(2-i)))
             aerosol_label.grid(row=0, column=i*5)
-        img = Image.open("aerosols_meter_horizontal.png")
+        img = Image.open("resources/aerosols_meter_horizontal.png")
         img_meter = ImageTk.PhotoImage(img.resize((int(self.canvas_height),int(img.size[1]/2))))
         aerosol_meter = ttk.Label(frm_aerosol, image=img_meter)
         aerosol_meter.image = img_meter

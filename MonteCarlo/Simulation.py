@@ -376,11 +376,9 @@ class Simulation:
 		ax = fig.add_axes([0, 0, 1, 1])
 
 		ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=20)
-		# ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
 
 		for i,s in enumerate(self.store.exit):
 			ax.plot(s[0], s[1], 'bs', ms=20)
-			# ax.text(s[0], s[1]-4, "exit",color=(0.5, 0.5, 0.5))
 
 		# plot the plumes
 		if not self.useDiffusion:
@@ -402,8 +400,6 @@ class Simulation:
 			cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
 			ax.imshow(self.store.blockedShelves.T,interpolation='nearest', zorder=1, origin='lower', cmap=cm)
-			# ax.plot(self.store.entrance[0], self.store.entrance[1], 'bs', ms=10)
-			# ax.text(self.store.entrance[0],self.store.entrance[1]-4, "entrance",color=(0.5, 0.5, 0.5))
 
 		# add every cutomer to the plot,and the colour denotes infected and healthy customers
 		for i,c in enumerate(self.customers):
@@ -415,15 +411,6 @@ class Simulation:
 				marker = 'o'
 			ax.plot(c.x, c.y, '{}{}'.format(col,marker), ms=17, clip_on=False)
 
-
-		# aerosols colorbar meter
-		# plt.xlim([0.,self.store.Lx])
-		# plt.ylim([0.,self.store.Ly])
-		# cb = fig.colorbar(difPlumes, ticks=[0.1, 1.0, 10.0, 100.0])
-
-		# font_size = 36
-		# cb.set_label(label="$\mathrm{Aerosols} / \mathrm{m}^3$",weight='bold',size=36)
-		# cb.ax.tick_params(labelsize=font_size)
 		plt.axis('off')
 		plt.savefig("simFigures/simFigure_{:d}_{}_{:07d}.png".format(self.gui.id, self.seed, step))
 		plt.close()
@@ -434,19 +421,6 @@ class Simulation:
 	def printEndStatistics(self):
 		self.gui.update_status_detail('Generating video')
 		self.generateVideo()
-
-		header = "seed {}, storedims {}x{}, probNewCustomer {}, probInfCustomer {}, steps {}, avrCustomersInStore {}, NEXITS {}, PROBSPREADPLUME {}".format(self.seed,self.store.Lx, self.store.Ly, self.probNewCustomer,self.probInfCustomer, self.maxSteps, np.mean(self.customersNowInStore), self.NEXITS, self.PROBSREADPLUME)
-		if not self.useDiffusion:
-			header+=" PLUMELIFETIME {}".format(self.PLUMELIFETIME)
-		else:
-			header+=" PLUMECONCINC {}, DIFFCOEFF {}, SINKCOEFF {}".format(self.PLUMECONCINC,self.DIFFCOEFF,self.ACSINKCOEFF)
-		## data per customer
-		dataArr = np.array([self.customerInfected[:self.customerNow], self.itemsBought[:self.customerNow], self.exposureHist[:self.customerNow], self.timeSpent[:self.customerNow], self.exposureHistTime[:self.customerNow], self.exposureHistTimeThres[:self.customerNow]]).T
-		np.savetxt("customer_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
-		## store wide data of number of customer and customers in queue
-		dataArr = np.array([self.customersNowInStore[:self.stepNow],self.customersNowInQueue[:self.stepNow],self.emittingCustomersNowInStore[:self.stepNow],self.exposureDuringTimeStep[:self.stepNow]]).T
-		np.savetxt("store_data_{:d}_{}.dat".format(self.gui.id,self.seed), dataArr, header=header)
-		np.savetxt("integrated_plumes_store_data_{:d}_{}.dat".format(self.gui.id,self.seed), self.store.plumesIntegrated, header=header)
 
 		# normalize exposure data
 		self.norm_exposure = preprocessing.normalize(self.np_exposure)
@@ -479,23 +453,6 @@ class Simulation:
 		cv2.destroyAllWindows()
 		return
 
-	def createGif(self):
-		# Create the frames
-		frames = []
-		imgs = glob.glob("simFigures/*.png")
-		for i in imgs:
-			new_frame = Image.open(i)
-			frames.append(new_frame)
-
-		# Save into a GIF file that loops forever
-		frames[0].save('png_to_gif.gif', format='GIF',
-					append_images=frames[1:],
-					save_all=True,
-					duration=40, loop=0)
-
-		print("GIF created")
-		return
-
 	def runSimulation(self):
 		# before starting simulation add first customer to the system
 		approxOutFlux = 1.0/(0.5*(self.MAXSHOPPINGLIST+1)+1)*self.NEXITS
@@ -507,7 +464,6 @@ class Simulation:
 			print('Influx too large, the store will most likely fill with customers')
 			self.gui.update_output("")
 			self.gui.update_output("Influx too large, the store will most likely fill with customers!")
-		# self.gui.update_output("-")
 
 		self.newCustomer()
 		stepStr = ""
@@ -570,7 +526,6 @@ class Simulation:
 					self.customerNow +=1
 
 					self.gui.update_expected_shopping_time_left((ty, tx), self.customers)
-					# print(stepStr)
 
 				## if discrete plumes, shorten their duration by 1 and check if new customer enters
 				if self.updatePlumes and not self.useDiffusion:

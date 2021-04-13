@@ -111,10 +111,10 @@ class GuiTabs:
         for f in figureList:
             os.remove(f)
 
-        # remove all data files
-        dataFiles = glob.glob('*.dat')
-        for d in dataFiles:
-            os.remove(d)
+        # remove all images
+        images = glob.glob('*.png')
+        for i in images:
+            os.remove(i)
 
         # remove all videos
         videos = glob.glob('*.mkv')
@@ -154,11 +154,11 @@ class GuiTabs:
         height = self.root.winfo_height()
 
         if self.simulation.outputGui is None:
-            fileName = "help_input_view.png"
+            fileName = "resources/help_input_view.png"
         elif self.simulation.outputGui.simulating:
-            fileName = "output_view_pre.png"
+            fileName = "resources/output_view_pre.png"
         else:
-            fileName = "output_view_finished.png"
+            fileName = "resources/output_view_finished.png"
         
         self.help_img = ImageTk.PhotoImage(Image.open(fileName).resize( (int(width), int(height) )))
         message = ttk.Label(self.help_frame, image=self.help_img)
